@@ -10,7 +10,7 @@
 #' @family tensor datasets
 #'
 #' @export
-dataset_from_tensors <- function(tensors) {
+tensors_dataset <- function(tensors) {
   tf$contrib$data$Dataset$from_tensors(
     tensors = tensors
   )
@@ -26,7 +26,7 @@ dataset_from_tensors <- function(tensors) {
 #' @family tensor datasets
 #'
 #' @export
-dataset_from_tensor_slices <-function(tensors) {
+tensor_slices_dataset <-function(tensors) {
   tf$contrib$data$Dataset$from_tensor_slices(
     tensors = tensors
   )
@@ -41,7 +41,7 @@ dataset_from_tensor_slices <-function(tensors) {
 #' @family tensor datasets
 #'
 #' @export
-dataset_from_sparse_tensor_slices <- function(sparse_tensor) {
+sparse_tensor_slices_dataset <- function(sparse_tensor) {
   tf$contrib$data$Dataset$from_sparse_tensor_slices(
     sparse_tensor = sparse_tensor
   )
