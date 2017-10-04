@@ -2,19 +2,19 @@ context("tensor datasets")
 
 source("utils.R")
 
-test_succeeds("dataset_tensors produces a dataset", {
+test_succeeds("dataset_from_tensors produces a dataset", {
   skip_if_no_tensorflow()
-  dataset_tensors(tf$constant(1:100))
+  dataset_from_tensors(tf$constant(1:100))
 })
 
-test_succeeds("dataset_tensor_slices produces a dataset", {
+test_succeeds("dataset_from_tensor_slices produces a dataset", {
   skip_if_no_tensorflow()
-  dataset_tensor_slices(tf$constant(1:100))
+  dataset_from_tensor_slices(tf$constant(1:100))
 })
 
-test_succeeds("dataset_sparse_tensor_slices produces a dataset", {
+test_succeeds("dataset_from_sparse_tensor_slices produces a dataset", {
   skip_if_no_tensorflow()
-  dataset_sparse_tensor_slices(tf$SparseTensor(
+  dataset_from_sparse_tensor_slices(tf$SparseTensor(
     indices = list(c(0L, 0L), c(1L, 2L)),
     values = c(1L, 2L),
     dense_shape = c(3L, 4L)
