@@ -7,6 +7,8 @@
 dataset_repeat(dataset, count = NULL)
 }
 \arguments{
+\item{dataset}{A dataset}
+
 \item{count}{(Optional.) An integer value representing the number of times
 the elements of this dataset should be repeated. The default behavior (if
 \code{count} is \code{NULL} or \code{-1}) is for the elements to be repeated indefinitely.}
@@ -16,4 +18,8 @@ A dataset
 }
 \description{
 Repeats a dataset count times.
+}
+\seealso{
+Other dataset methods: \code{\link{dataset_batch}},
+  \code{\link{dataset_shuffle}}
 }
