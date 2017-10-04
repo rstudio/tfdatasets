@@ -77,6 +77,14 @@ sparse_tensor_slices_dataset <- function(sparse_tensor, shuffle = NULL, batch_si
   dataset
 }
 
+r_data_frame_dataset <- function() {
+
+}
+
+r_matrix_dataset <- function() {
+
+}
+
 
 # for data frame and matrix: https://www.tensorflow.org/programmers_guide/datasets#consuming_numpy_arrays
 
