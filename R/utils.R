@@ -9,3 +9,5 @@ as_tensor_int64 <- function(x) {
   else
     tf$constant(as.integer(x), dtype = tf$int64)
 }
+
+

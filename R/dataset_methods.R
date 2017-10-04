@@ -40,9 +40,9 @@ dataset_shuffle <- function(dataset, buffer_size, seed = NULL) {
   )
 }
 
-
 #' Combines consecutive elements of this dataset into batches.
 #'
+#' @param dataset A dataset
 #' @param batch_size An integer, representing the number of consecutive elements
 #'   of this dataset to combine in a single batch.
 #'
@@ -56,6 +56,3 @@ dataset_batch <- function(dataset, batch_size) {
     batch_size = as_tensor_int64(batch_size)
   )
 }
-
-
-
