@@ -60,9 +60,9 @@ dataset_batch <- function(dataset, batch_size) {
 
 #' Splits elements of this dataset into sequences of consecutive elements.
 #'
-#' For example, if elements of this dataset are shaped [B, a0, a1, ...], where B
+#' For example, if elements of this dataset are shaped `[B, a0, a1, ...]`, where B
 #' may vary from element to element, then for each element in this dataset, the
-#' unbatched dataset will contain B consecutive elements of shape [a0, a1, ...].
+#' unbatched dataset will contain B consecutive elements of shape `[a0, a1, ...]`.
 #'
 #' @param dataset A dataset
 #'
