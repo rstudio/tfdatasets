@@ -56,3 +56,10 @@ dataset_batch <- function(dataset, batch_size) {
     batch_size = as_tensor_int64(batch_size)
   )
 }
+
+
+
+
+
+
+
