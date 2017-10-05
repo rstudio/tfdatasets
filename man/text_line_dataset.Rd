@@ -4,12 +4,22 @@
 \alias{text_line_dataset}
 \title{Create a dataset comprising lines from one or more text files.}
 \usage{
-text_line_dataset(filenames, compression_type = NULL)
+text_line_dataset(filenames, compression_type = NULL, shuffle = NULL,
+  batch_size = NULL, repeated = NULL)
 }
 \arguments{
 \item{filenames}{Characater vector containing one or more filenames.}
 
 \item{compression_type}{A string, one of: \code{""} (no compression), \code{"ZLIB"}, or \code{"GZIP"}.}
+
+\item{shuffle}{Randomly sample elements from this dataset (the specified value is
+used as the buffer size for shuffling).}
+
+\item{batch_size}{Combine consecutive elements of this dataset into batches
+of the specified \code{batch_size}.}
+
+\item{repeated}{An integer value representing the number of times
+the elements of this dataset should be repeated.}
 }
 \value{
 A dataset
