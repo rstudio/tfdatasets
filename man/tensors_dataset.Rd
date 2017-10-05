@@ -4,20 +4,10 @@
 \alias{tensors_dataset}
 \title{Creates a dataset with a single element, comprising the given tensors.}
 \usage{
-tensors_dataset(tensors, shuffle = NULL, batch_size = NULL,
-  repeated = NULL)
+tensors_dataset(tensors)
 }
 \arguments{
 \item{tensors}{A nested structure of tensors.}
-
-\item{shuffle}{Randomly sample elements from this dataset (the specified value is
-used as the buffer size for shuffling).}
-
-\item{batch_size}{Combine consecutive elements of this dataset into batches
-of the specified \code{batch_size}.}
-
-\item{repeated}{An integer value representing the number of times
-the elements of this dataset should be repeated.}
 }
 \value{
 A dataset.

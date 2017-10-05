@@ -4,20 +4,10 @@
 \alias{sparse_tensor_slices_dataset}
 \title{Splits each rank-N \code{tf$SparseTensor} in this dataset row-wise.}
 \usage{
-sparse_tensor_slices_dataset(sparse_tensor, shuffle = NULL,
-  batch_size = NULL, repeated = NULL)
+sparse_tensor_slices_dataset(sparse_tensor)
 }
 \arguments{
 \item{sparse_tensor}{A \code{tf$SparseTensor}.}
-
-\item{shuffle}{Randomly sample elements from this dataset (the specified value is
-used as the buffer size for shuffling).}
-
-\item{batch_size}{Combine consecutive elements of this dataset into batches
-of the specified \code{batch_size}.}
-
-\item{repeated}{An integer value representing the number of times
-the elements of this dataset should be repeated.}
 }
 \value{
 A dataset of rank-(N-1) sparse tensors.

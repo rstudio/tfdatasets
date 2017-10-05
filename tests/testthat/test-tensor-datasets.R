@@ -18,10 +18,6 @@ test_succeeds("sparse_tensor_slices_dataset creates a dataset", {
   ))
 })
 
-test_succeeds("dataset shuffle, repeat, and batch can be specified inline", {
-  tensor_slices_dataset(tf$constant(1:100), shuffle = 20, batch_size = 10, repeated = 5)
-})
-
 
 
 

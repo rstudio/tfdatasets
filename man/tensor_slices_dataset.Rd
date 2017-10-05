@@ -4,21 +4,11 @@
 \alias{tensor_slices_dataset}
 \title{Creates a dataset whose elements are slices of the given tensors.}
 \usage{
-tensor_slices_dataset(tensors, shuffle = NULL, batch_size = NULL,
-  repeated = NULL)
+tensor_slices_dataset(tensors)
 }
 \arguments{
 \item{tensors}{A nested structure of tensors, each having the same size in
 the 0th dimension.}
-
-\item{shuffle}{Randomly sample elements from this dataset (the specified value is
-used as the buffer size for shuffling).}
-
-\item{batch_size}{Combine consecutive elements of this dataset into batches
-of the specified \code{batch_size}.}
-
-\item{repeated}{An integer value representing the number of times
-the elements of this dataset should be repeated.}
 }
 \value{
 A dataset.
