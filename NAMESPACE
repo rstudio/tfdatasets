@@ -2,8 +2,11 @@
 
 export("%>%")
 export(dataset_batch)
+export(dataset_cache)
+export(dataset_concatenate)
 export(dataset_repeat)
 export(dataset_shuffle)
+export(dataset_take)
 export(initializable_iterator)
 export(one_shot_iterator)
 export(output_shapes)

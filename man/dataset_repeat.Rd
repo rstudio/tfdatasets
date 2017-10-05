@@ -21,5 +21,7 @@ Repeats a dataset count times.
 }
 \seealso{
 Other dataset methods: \code{\link{dataset_batch}},
-  \code{\link{dataset_shuffle}}
+  \code{\link{dataset_cache}},
+  \code{\link{dataset_concatenate}},
+  \code{\link{dataset_shuffle}}, \code{\link{dataset_take}}
 }
