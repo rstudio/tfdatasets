@@ -13,3 +13,12 @@ test_succeeds("initializable_iterator returns an iterator", {
   initializable_iterator(dataset)
 })
 
+test_succeeds("iterator_next returns values", {
+  x <- 1:100
+  dataset <- tensors_dataset(tf$constant(x))
+  iter <- one_shot_iterator(dataset)
+  sess <- tf$Session()
+  on.exit(sess$close(), add = TRUE)
+  iterator_next(iter, sess)
+})
+

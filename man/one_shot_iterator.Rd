@@ -6,10 +6,17 @@
 \usage{
 one_shot_iterator(dataset)
 }
+\arguments{
+\item{dataset}{A dataset}
+}
 \value{
 An iterator over the elements of this dataset
 }
 \description{
 The returned iterator will be initialized automatically. A "one-shot"
 iterator does not currently support re-initialization.
+}
+\seealso{
+Other dataset iterators: \code{\link{initializable_iterator}},
+  \code{\link{iterator_next}}
 }

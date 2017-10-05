@@ -21,6 +21,7 @@ Combines consecutive elements of this dataset into batches.
 \seealso{
 Other dataset methods: \code{\link{dataset_cache}},
   \code{\link{dataset_concatenate}},
-  \code{\link{dataset_repeat}},
-  \code{\link{dataset_shuffle}}, \code{\link{dataset_take}}
+  \code{\link{dataset_map}}, \code{\link{dataset_repeat}},
+  \code{\link{dataset_shuffle}},
+  \code{\link{dataset_take}}, \code{\link{dataset_unbatch}}
 }

@@ -14,7 +14,7 @@
 #' @export
 dataset_repeat <- function(dataset, count = NULL) {
   dataset$`repeat`(
-    count = as_tensor_int64(count)
+    count = as_integer_tensor(count)
   )
 }
 
@@ -35,8 +35,8 @@ dataset_repeat <- function(dataset, count = NULL) {
 #' @export
 dataset_shuffle <- function(dataset, buffer_size, seed = NULL) {
   dataset$shuffle(
-    buffer_size = as_tensor_int64(buffer_size),
-    seed = as_tensor_int64(seed)
+    buffer_size = as_integer_tensor(buffer_size),
+    seed = as_integer_tensor(seed)
   )
 }
 
@@ -53,8 +53,26 @@ dataset_shuffle <- function(dataset, buffer_size, seed = NULL) {
 #' @export
 dataset_batch <- function(dataset, batch_size) {
   dataset$batch(
-    batch_size = as_tensor_int64(batch_size)
+    batch_size = as_integer_tensor(batch_size)
   )
+}
+
+
+#' Splits elements of this dataset into sequences of consecutive elements.
+#'
+#' For example, if elements of this dataset are shaped [B, a0, a1, ...], where B
+#' may vary from element to element, then for each element in this dataset, the
+#' unbatched dataset will contain B consecutive elements of shape [a0, a1, ...].
+#'
+#' @param dataset A dataset
+#'
+#' @return A dataset
+#'
+#' @family dataset methods
+#'
+#' @export
+dataset_unbatch <- function(dataset) {
+  dataset$unbatch()
 }
 
 
@@ -112,12 +130,58 @@ dataset_concatenate <- function(dataset, other) {
 #'
 #' @export
 dataset_take <- function(dataset, count) {
-  dataset$take(count = as_tensor_int64(count))
+  dataset$take(count = as_integer_tensor(count))
 }
 
 
+#' Maps `map_func`` across this dataset.
+#'
+#' @param dataset A dataset
+#' @param map_func A function mapping a nested structure of tensors (having
+#'   shapes and types defined by [output_shapes()] and [output_types()] to
+#'   another nested structure of tensors.
+#' @param num_threads (Optional) An integer, representing the number of threads
+#'   to use for processing elements in parallel. If not specified, elements will
+#'   be processed sequentially without buffering.
+#' @param output_buffer_size (Optional) An integer, representing the maximum
+#'   number of processed elements that will be buffered when processing in
+#'   parallel.
+#'
+#' @return A dataset
+#'
+#' @family dataset methods
+#'
+#' @export
+dataset_map <- function(dataset, map_func, num_threads = NULL, output_buffer_size = NULL) {
+  dataset$map(
+    map_func = map_func,
+    num_threads = as_integer_tensor(num_threads, tf$int32),
+    output_buffer_size = as_integer_tensor(num_threads)
+  )
+}
 
 
+#' @importFrom utils head
+#' @export
+head.tensorflow.contrib.data.python.ops.dataset_ops.Dataset <- function(x, n = 6L, session = NULL, ...) {
+
+  # session to use for printing
+  if (is.null(session))
+    session <- tf$get_default_session()
+  if (is.null(session)) {
+    session <- tf$Session()
+    on.exit(session$close(), add = TRUE)
+  }
+
+  # get iterator for dataset
+  iter <- x %>%
+    dataset_take(count = n) %>%
+    one_shot_iterator()
+
+  # print tensors
+  while(!is.null(next_item <- iterator_next(iter, session = session)))
+    print(next_item)
+}
 
 
 

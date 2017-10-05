@@ -25,5 +25,6 @@ Randomly shuffles the elements of this dataset.
 Other dataset methods: \code{\link{dataset_batch}},
   \code{\link{dataset_cache}},
   \code{\link{dataset_concatenate}},
-  \code{\link{dataset_repeat}}, \code{\link{dataset_take}}
+  \code{\link{dataset_map}}, \code{\link{dataset_repeat}},
+  \code{\link{dataset_take}}, \code{\link{dataset_unbatch}}
 }

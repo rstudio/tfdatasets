@@ -7,6 +7,8 @@
 initializable_iterator(dataset, shared_name = NULL)
 }
 \arguments{
+\item{dataset}{A dataset}
+
 \item{shared_name}{(Optional) If non-empty, this iterator will be shared under the
 given name across multiple sessions that share the same devices (e.g. when
 using a remote server).}
@@ -17,4 +19,8 @@ An iterator over the elements of this dataset
 \description{
 The returned iterator will be in an uninitialized state, and you must run the
 iterator.initializer operation before using it.
+}
+\seealso{
+Other dataset iterators: \code{\link{iterator_next}},
+  \code{\link{one_shot_iterator}}
 }

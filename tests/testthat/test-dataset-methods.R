@@ -46,4 +46,20 @@ test_succeeds("dataset_take returns a dataset", {
     dataset_take(50)
 })
 
+test_succeeds("dataset_unbatch returns a dataset", {
+  dataset <- tensors_dataset(tf$constant(1:100)) %>%
+    dataset_batch(10) %>%
+    dataset_unbatch()
+})
+
+
+test_succeeds("dataset_map handles threads correctly and returns a dataset", {
+  # force a gc within the function to ensure that these "functions" are not
+  # actually called on the background thread but rather called with a placeholder
+  # to yield a TF tensor which is used later.
+  dataset <- tensors_dataset(tf$constant(1:100)) %>%
+    dataset_map(function(x) { gc(); tf$negative(x) }, num_threads = 8)
+})
+
+
 
