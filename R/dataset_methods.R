@@ -161,6 +161,42 @@ dataset_map <- function(dataset, map_func, num_threads = NULL, output_buffer_siz
 }
 
 
+#' Enumerate the elements of this dataset.
+#'
+#' Adds a counter to an iterable. So for each element in the dataset, a tuple is produced with (counter, element)
+#'
+#' @param dataset A dataset
+#' @param start A integer, representing the start value for enumeration.
+#'
+#' @return A dataset
+#'
+#' @family dataset methods
+#'
+#' @export
+dataset_enumerate <- function(dataset, start = 0) {
+  dataset$enumerate(start = as_integer_tensor(start))
+}
+
+
+#' Creates a dataset that skips count elements from this dataset
+#'
+#' @param dataset A dataset
+#' @param count An integer, representing the number of elements of this dataset
+#'   that should be skipped to form the new dataset. If count is greater than
+#'   the size of this dataset, the new dataset will contain no elements. If
+#'   count is -1, skips the entire dataset.
+#'
+#' @return A dataset
+#'
+#' @family dataset methods
+#'
+#' @export
+dataset_skip <- function(dataset, count) {
+  dataset$skip(count = as_integer_tensor(count))
+}
+
+
+
 #' @importFrom utils head
 #' @export
 head.tensorflow.contrib.data.python.ops.dataset_ops.Dataset <- function(x, n = 6L, session = NULL, ...) {
