@@ -168,6 +168,9 @@ csv_dataset <- function(filenames, compression_type = NULL,
 # Means we may need to combine csv_decode and input_fn. If we do this then
 # we may want the generator to just be based on the input_fn
 
+# Once they are labeled inside a dictionary then they won't need to all
+# be the same type! (but note for Keras they will all be the same type)
+
 # TODO: to support multiple types we may need to do read in as strings and then
 # call string_to_number, see:
 # https://stackoverflow.com/questions/42169421/read-mixed-data-types-from-csv-row-via-tf-textlinereader-and-tf-decode-csv
