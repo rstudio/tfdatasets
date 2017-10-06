@@ -5,7 +5,8 @@
 \title{Create a dataset from a text file with comma separated values}
 \usage{
 csv_dataset(filenames, compression_type = NULL, col_names = TRUE,
-  col_defaults = NULL, field_delim = ",", skip = 0)
+  col_defaults = NULL, field_delim = ",", skip = 0, num_threads = NULL,
+  output_buffer_size = NULL)
 }
 \arguments{
 \item{filenames}{Characater vector containing one or more filenames.}
@@ -36,10 +37,27 @@ of each field as well as to provide defaults for missing values.}
 separate fields in a record.}
 
 \item{skip}{Number of lines to skip before reading data. Note that if
-\code{col_names} is explicitly provided and there are column names
-witin the CSV file then \code{skip} should be set to 1 to ensure that
-the column names are bypassed.}
+\code{col_names} is explicitly provided and there are column names witin the CSV
+file then \code{skip} should be set to 1 to ensure that the column names are
+bypassed.}
+
+\item{num_threads}{(Optional) An integer representing the number of threads
+to use for processing elements in parallel. If not specified, elements will
+be processed sequentially without buffering.}
+
+\item{output_buffer_size}{(Optional) An integer representing the maximum
+number of processed elements that will be buffered when processing in
+parallel.}
 }
 \description{
 Create a dataset from a text file with comma separated values
 }
+\section{Column Names}{
+
+
+Column names are not an intrinsic property of TensorFlow datasets, however
+they are supported in this interface to facilitate specifying features and
+response variables when creating input functions and generators that draw
+from the dataset.
+}
+

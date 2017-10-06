@@ -48,16 +48,32 @@ text_line_dataset <- function(filenames, compression_type = "auto") {
 #'   separate fields in a record.
 #'
 #' @param skip Number of lines to skip before reading data. Note that if
-#'   `col_names` is explicitly provided and there are column names
-#'   witin the CSV file then `skip` should be set to 1 to ensure that
-#'   the column names are bypassed.
+#'   `col_names` is explicitly provided and there are column names witin the CSV
+#'   file then `skip` should be set to 1 to ensure that the column names are
+#'   bypassed.
+#'
+#' @param num_threads (Optional) An integer representing the number of threads
+#'   to use for processing elements in parallel. If not specified, elements will
+#'   be processed sequentially without buffering.
+#'
+#' @param output_buffer_size (Optional) An integer representing the maximum
+#'   number of processed elements that will be buffered when processing in
+#'   parallel.
+#'
+#' @section Column Names:
+#'
+#'   Column names are not an intrinsic property of TensorFlow datasets, however
+#'   they are supported in this interface to facilitate specifying features and
+#'   response variables when creating input functions and generators that draw
+#'   from the dataset.
 #'
 #' @importFrom utils read.csv
 #'
 #' @export
 csv_dataset <- function(filenames, compression_type = NULL,
                         col_names = TRUE, col_defaults = NULL,
-                        field_delim = ",", skip = 0) {
+                        field_delim = ",", skip = 0,
+                        num_threads = NULL, output_buffer_size = NULL) {
 
   # read the first 1000 rows to faciliate deduction of column names / types as well
   # as checking that any specified col_names or col_defaults have the correct length
@@ -120,12 +136,17 @@ csv_dataset <- function(filenames, compression_type = NULL,
   # read csv
   dataset <- text_line_dataset(filenames, compression_type) %>%
     dataset_skip(skip) %>%
-    dataset_map(function(line) {
-      tf$decode_csv(
-        records = line,
-        record_defaults = record_defaults,
-        field_delim = field_delim)
-    })
+    dataset_map(
+      map_func = function(line) {
+        tf$decode_csv(
+          records = line,
+          record_defaults = record_defaults,
+          field_delim = field_delim
+        )
+      },
+      num_threads = num_threads,
+      output_buffer_size = output_buffer_size
+    )
 
   # set the col_names on the dataset (used in e.g. input_fn_from_dataset)
   dataset$`_col_names` <- col_names
@@ -145,23 +166,6 @@ auto_compression_type <- function(filenames) {
     "ZLIB"
   else
     ""
-}
-
-
-
-# https://www.tensorflow.org/versions/r1.0/programmers_guide/reading_data#file_formats
-
-# look for some sort of tf$equal op to get the index of feature/labels
-
-# what is actually yieled from decode_csv will vary between a tf estimators use
-# case (feature dict, labels) and a keras use case (2d-tensor). Need a way to
-# reflect that in the API
-
-
-input_fn_from_dataset <- function() {
-}
-
-generator_from_dataset <- function() {
 }
 
 
