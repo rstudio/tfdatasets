@@ -60,13 +60,6 @@ text_line_dataset <- function(filenames, compression_type = "auto") {
 #'   number of processed elements that will be buffered when processing in
 #'   parallel.
 #'
-#' @section Column Names:
-#'
-#'   Column names are not an intrinsic property of TensorFlow datasets, however
-#'   they are supported in this interface to facilitate specifying features and
-#'   response variables when creating input functions and generators that draw
-#'   from the dataset.
-#'
 #' @importFrom utils read.csv
 #'
 #' @export
@@ -141,18 +134,17 @@ csv_dataset <- function(filenames, compression_type = NULL,
     dataset_skip(skip) %>%
     dataset_map(
       map_func = function(line) {
-        tf$decode_csv(
+        decoded <- tf$decode_csv(
           records = line,
           record_defaults = record_defaults,
           field_delim = field_delim
         )
+        names(decoded) <- col_names
+        decoded
       },
       num_threads = num_threads,
       output_buffer_size = output_buffer_size
     )
-
-  # set the col_names on the dataset (used in e.g. input_fn_from_dataset)
-  dataset$`_col_names` <- col_names
 
   # return the dataset
   dataset

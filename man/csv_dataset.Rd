@@ -52,12 +52,3 @@ parallel.}
 \description{
 Create a dataset from a text file with comma separated values
 }
-\section{Column Names}{
-
-
-Column names are not an intrinsic property of TensorFlow datasets, however
-they are supported in this interface to facilitate specifying features and
-response variables when creating input functions and generators that draw
-from the dataset.
-}
-

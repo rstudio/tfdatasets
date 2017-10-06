@@ -217,9 +217,7 @@ str.tensorflow.contrib.data.python.ops.dataset_ops.Dataset <- function(object, .
 
     # get the records
     records <- session$run(iter$get_next())
-    records <- as.data.frame(records)
-    if (py_has_attr(object, "_col_names"))
-      colnames(records) <- object$`_col_names`
+    records <- as.data.frame(records, stringsAsFactors = FALSE)
     cat(py_str(object), "\n")
     str(as.list(records), give.head = FALSE, no.list = TRUE, vec.len = 3)
   })
