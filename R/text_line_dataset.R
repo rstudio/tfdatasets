@@ -168,6 +168,9 @@ csv_dataset <- function(filenames, compression_type = NULL,
 # Means we may need to combine csv_decode and input_fn. If we do this then
 # we may want the generator to just be based on the input_fn
 
+# When you call e.g. numpy_input_fn() it returns a list of 2 tensors
+# (named features, labels) rather than data!
+
 # Once they are labeled inside a dictionary then they won't need to all
 # be the same type! (but note for Keras they will all be the same type)
 
