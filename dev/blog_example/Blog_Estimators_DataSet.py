@@ -88,6 +88,12 @@ def my_input_fn(file_path, perform_shuffle=False, repeat_count=1):
 
 next_batch = my_input_fn(FILE_TRAIN, True)  # Will return 32 random elements
 
+sess = tf.Session()
+print(sess.run(next_batch))
+
+
+
+
 # Create the feature_columns, which specifies the input to our model
 # All our input features are numeric, so use numeric_column for each one
 feature_columns = [tf.feature_column.numeric_column(k) for k in feature_names]
