@@ -198,25 +198,42 @@ dataset_skip <- function(dataset, count) {
 
 
 #' @importFrom utils head
+#' @importFrom reticulate py_has_attr py_str py_is_null_xptr
 #' @export
-head.tensorflow.contrib.data.python.ops.dataset_ops.Dataset <- function(x, n = 6L, session = NULL, ...) {
+str.tensorflow.contrib.data.python.ops.dataset_ops.Dataset <- function(object, ...) {
 
-  # session to use for printing
+  if (py_is_null_xptr(object)) {
+    cat("<pointer: 0x0>\n")
+    return()
+  }
+
+  with_session(function(session) {
+
+    # get iterator for dataset
+    iter <- object %>%
+      dataset_take(10) %>%
+      dataset_batch(10) %>%
+      one_shot_iterator()
+
+    # get the records
+    records <- session$run(iter$get_next())
+    records <- as.data.frame(records)
+    if (py_has_attr(object, "_col_names"))
+      colnames(records) <- object$`_col_names`
+    cat(py_str(object), "\n")
+    str(as.list(records), give.head = FALSE, no.list = TRUE, vec.len = 3)
+  })
+}
+
+
+with_session <- function(f, session = NULL) {
   if (is.null(session))
     session <- tf$get_default_session()
   if (is.null(session)) {
     session <- tf$Session()
     on.exit(session$close(), add = TRUE)
   }
-
-  # get iterator for dataset
-  iter <- x %>%
-    dataset_take(count = n) %>%
-    one_shot_iterator()
-
-  # print tensors
-  while(!is.null(next_item <- iterator_next(iter, session = session)))
-    print(next_item)
+  f(session)
 }
 
 
