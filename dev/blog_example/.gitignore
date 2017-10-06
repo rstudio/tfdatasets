@@ -1,0 +1,6 @@
+model.ckpt*
+dataset/
+eval/
+events.out.tfevents.*
+checkpoint
+graph.pbtxt

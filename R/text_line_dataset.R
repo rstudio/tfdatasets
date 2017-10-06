@@ -161,6 +161,10 @@ csv_dataset <- function(filenames, compression_type = NULL,
 
 # TODO: mixed types don't seem to work (e.g. see auto-detection for mtcars)
 
+# Actually, the problem may be that we let a tensor exist that has multiple
+# types. It could be that the blog example slices away to features into their
+# own tensor which prevents the problem
+
 # TODO: to support multiple types we may need to do read in as strings and then
 # call string_to_number, see:
 # https://stackoverflow.com/questions/42169421/read-mixed-data-types-from-csv-row-via-tf-textlinereader-and-tf-decode-csv
