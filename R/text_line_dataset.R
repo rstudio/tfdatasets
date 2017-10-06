@@ -159,11 +159,15 @@ csv_dataset <- function(filenames, compression_type = NULL,
 }
 
 
+# TODO: mixed types don't seem to work (e.g. see auto-detection for mtcars)
+
 # TODO: to support multiple types we may need to do read in as strings and then
 # call string_to_number, see:
 # https://stackoverflow.com/questions/42169421/read-mixed-data-types-from-csv-row-via-tf-textlinereader-and-tf-decode-csv
 
 # TODO: tf$pack and tf$slice
+
+
 
 
 auto_compression_type <- function(filenames) {
