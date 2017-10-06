@@ -40,7 +40,7 @@ text_line_dataset <- function(filenames, compression_type = "auto") {
 #'   of the columns, and the first row of the input will be read into the first
 #'   row of the datset.
 #'
-#' @param col_defaults List of default values for columns. Default values must
+#' @param record_defaults List of default values for records. Default values must
 #'   be of type integer, numeric, or character. Used both to indicate the type
 #'   of each field as well as to provide defaults for missing values.
 #'
@@ -71,12 +71,12 @@ text_line_dataset <- function(filenames, compression_type = "auto") {
 #'
 #' @export
 csv_dataset <- function(filenames, compression_type = NULL,
-                        col_names = TRUE, col_defaults = NULL,
+                        col_names = TRUE, record_defaults = NULL,
                         field_delim = ",", skip = 0,
                         num_threads = NULL, output_buffer_size = NULL) {
 
   # read the first 1000 rows to faciliate deduction of column names / types as well
-  # as checking that any specified col_names or col_defaults have the correct length
+  # as checking that any specified col_names or record_defaults have the correct length
   preview <- text_line_dataset(filenames[[1]], compression_type) %>%
     dataset_skip(skip) %>%
     dataset_take(1000) %>%
@@ -116,10 +116,13 @@ csv_dataset <- function(filenames, compression_type = NULL,
   }
 
   # resolve/validate record defaults
-  if (!is.null(col_defaults)) {
-    validate_columns(col_defaults, 'col_defaults')
-    record_defaults <- lapply(col_defaults, function(x) {
-      list(x)
+  if (!is.null(record_defaults)) {
+    validate_columns(record_defaults, 'record_defaults')
+    record_defaults <- lapply(record_defaults, function(x) {
+      if (!is.list(x))
+        list(x)
+      else
+        x
     })
   } else {
     record_types <- lapply(preview_csv, typeof)
@@ -154,6 +157,13 @@ csv_dataset <- function(filenames, compression_type = NULL,
   # return the dataset
   dataset
 }
+
+
+# TODO: to support multiple types we may need to do read in as strings and then
+# call string_to_number, see:
+# https://stackoverflow.com/questions/42169421/read-mixed-data-types-from-csv-row-via-tf-textlinereader-and-tf-decode-csv
+
+# TODO: tf$pack and tf$slice
 
 
 auto_compression_type <- function(filenames) {

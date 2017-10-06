@@ -5,8 +5,8 @@
 \title{Create a dataset from a text file with comma separated values}
 \usage{
 csv_dataset(filenames, compression_type = NULL, col_names = TRUE,
-  col_defaults = NULL, field_delim = ",", skip = 0, num_threads = NULL,
-  output_buffer_size = NULL)
+  record_defaults = NULL, field_delim = ",", skip = 0,
+  num_threads = NULL, output_buffer_size = NULL)
 }
 \arguments{
 \item{filenames}{Characater vector containing one or more filenames.}
@@ -29,7 +29,7 @@ If \code{col_names} is a character vector, the values will be used as the names
 of the columns, and the first row of the input will be read into the first
 row of the datset.}
 
-\item{col_defaults}{List of default values for columns. Default values must
+\item{record_defaults}{List of default values for records. Default values must
 be of type integer, numeric, or character. Used both to indicate the type
 of each field as well as to provide defaults for missing values.}
 
