@@ -8,7 +8,7 @@ test_succeeds("text_line_dataset creates a dataset", {
 
 
 test_succeeds("text_line_dataset can read gzip datasets", {
-  text_line_dataset("mtcars.tar.gz", compression_type = "GZIP")
+  text_line_dataset("mtcars.tar.gz")
 })
 
 

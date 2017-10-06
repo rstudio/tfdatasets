@@ -4,12 +4,17 @@
 \alias{text_line_dataset}
 \title{Create a dataset comprising lines from one or more text files.}
 \usage{
-text_line_dataset(filenames, compression_type = NULL)
+text_line_dataset(filenames, compression_type = "auto")
 }
 \arguments{
 \item{filenames}{Characater vector containing one or more filenames.}
 
-\item{compression_type}{A string, one of: \code{""} (no compression), \code{"ZLIB"}, or \code{"GZIP"}.}
+\item{compression_type}{A string, one of: \code{"auto"} (determine based on file
+extension), \code{""} (no compression), \code{"ZLIB"}, or \code{"GZIP"}. For
+\code{"auto"}, GZIP will be automatically selected if any of
+the \code{filenames} have a .gz extension and ZLIB will be automatically
+selected if any of the \code{filenames} have a .zlib extension (otherwise
+no compression will be used).}
 }
 \value{
 A dataset
