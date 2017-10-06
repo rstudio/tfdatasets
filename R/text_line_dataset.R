@@ -163,7 +163,10 @@ csv_dataset <- function(filenames, compression_type = NULL,
 
 # Actually, the problem may be that we let a tensor exist that has multiple
 # types. It could be that the blog example slices away to features into their
-# own tensor which prevents the problem
+# own tensor which prevents the problem.
+
+# Means we may need to combine csv_decode and input_fn. If we do this then
+# we may want the generator to just be based on the input_fn
 
 # TODO: to support multiple types we may need to do read in as strings and then
 # call string_to_number, see:
