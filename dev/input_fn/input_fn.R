@@ -1,21 +1,17 @@
 library(tfdatasets)
 library(tfestimators)
 
-# return an input_fn for a given subset of data
+# return an input_fn for a set of csv files
 mtcars_input_fn <- function(filenames) {
 
-  # dataset w/ batch size of 10, repeat for 5 epochs
+  # dataset w/ batch size of 10 that repeats for 5 epochs
   dataset <- csv_dataset(filenames) %>%
     dataset_shuffle(20) %>%
     dataset_batch(10) %>%
     dataset_repeat(5)
 
   # create input_fn from dataset
-  input_fn_from_dataset(
-    dataset,
-    features = c("disp", "cyl"),
-    response = "mpg"
-  )
+  input_fn(dataset, features = c("disp", "cyl"), response = "mpg")
 }
 
 # define feature columns
@@ -28,10 +24,10 @@ cols <- feature_columns(
 model <- linear_regressor(feature_columns = cols)
 
 # train model
-model %>% train(mtcars_input_fn("mtcars.csv"))
+model %>% train(mtcars_input_fn("mtcars-train.csv"))
 
 # evaluate model
-model %>% predict(mtcars_input_fn("mtcars.csv"))
+model %>% evaluate(mtcars_input_fn("mtcars-test.csv"))
 
 
 

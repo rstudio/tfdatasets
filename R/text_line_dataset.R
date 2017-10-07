@@ -150,50 +150,6 @@ csv_dataset <- function(filenames, compression_type = NULL,
   dataset
 }
 
-#'Construct an Input Function from a Dataset
-#'
-#'
-#' @param dataset
-#' @param features
-#' @param response
-#'
-#'
-#' @export
-input_fn_from_dataset <- function(dataset, features, response) {
-
-  # validate/retreive column names
-  col_names <- names(dataset$output_shapes)
-  if (is.null(col_names))
-    stop("Creating an input_fn requires a dataset with named outputs")
-
-  # get the indexes of the features and response
-  feature_cols <- match(features, col_names)
-  if (any(is.na(feature_cols)))
-    stop("Invalid feature columns specified: ", paste(features[is.na(feature_cols)]))
-  response_col <- match(response, col_names)
-  if (length(response) != 1)
-    stop("More than one response column specified: ", paste(response))
-  if (is.na(response_col))
-    stop("Invalid response column specified: ", response)
-
-  # map dataset into input_fn compatible tensors
-  input_fn_dataset <- dataset %>%
-    dataset_map(function(record) {
-      record_features <- record[feature_cols]
-      names(record_features) <- features
-      record_response <- record[[response_col]]
-      tuple(record_features, record_response)
-    })
-
-  # return function which yields the iterator for the dataset
-  # TODO: function(estimator) which supports custom estimators
-  function() {
-    iter <- one_shot_iterator(input_fn_dataset)
-    iter$get_next()
-  }
-}
-
-
 auto_compression_type <- function(filenames) {
   has_ext <- function(ext) {
     any(identical(tolower(tools::file_ext(filenames)), ext))
