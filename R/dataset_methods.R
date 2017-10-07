@@ -197,33 +197,6 @@ dataset_skip <- function(dataset, count) {
 
 
 
-#' @importFrom utils head
-#' @importFrom reticulate py_has_attr py_str py_is_null_xptr
-#' @export
-str.tensorflow.contrib.data.python.ops.dataset_ops.Dataset <- function(object, ...) {
-
-  if (py_is_null_xptr(object)) {
-    cat("<pointer: 0x0>\n")
-    return()
-  }
-
-  with_session(function(session) {
-
-    # get iterator for dataset
-    iter <- object %>%
-      dataset_take(10) %>%
-      dataset_batch(10) %>%
-      one_shot_iterator()
-
-    # get the records
-    records <- session$run(iter$get_next())
-    records <- as.data.frame(records, stringsAsFactors = FALSE)
-    cat(py_str(object), "\n")
-    str(as.list(records), give.head = FALSE, no.list = TRUE, vec.len = 3)
-  })
-}
-
-
 with_session <- function(f, session = NULL) {
   if (is.null(session))
     session <- tf$get_default_session()
