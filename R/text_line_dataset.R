@@ -150,29 +150,48 @@ csv_dataset <- function(filenames, compression_type = NULL,
   dataset
 }
 
+#'Construct an Input Function from a Dataset
+#'
+#'
+#' @param dataset
+#' @param features
+#' @param response
+#'
+#'
+#' @export
+input_fn_from_dataset <- function(dataset, features, response) {
 
-# TODO: mixed types don't seem to work (e.g. see auto-detection for mtcars)
+  # validate/retreive column names
+  col_names <- names(dataset$output_shapes)
+  if (is.null(col_names))
+    stop("Creating an input_fn requires a dataset with named outputs")
 
-# Actually, the problem may be that we let a tensor exist that has multiple
-# types. It could be that the blog example slices away to features into their
-# own tensor which prevents the problem.
+  # get the indexes of the features and response
+  feature_cols <- match(features, col_names)
+  if (any(is.na(feature_cols)))
+    stop("Invalid feature columns specified: ", paste(features[is.na(feature_cols)]))
+  response_col <- match(response, col_names)
+  if (length(response) != 1)
+    stop("More than one response column specified: ", paste(response))
+  if (is.na(response_col))
+    stop("Invalid response column specified: ", response)
 
-# Means we may need to combine csv_decode and input_fn. If we do this then
-# we may want the generator to just be based on the input_fn
+  # map dataset into input_fn compatible tensors
+  input_fn_dataset <- dataset %>%
+    dataset_map(function(record) {
+      record_features <- record[feature_cols]
+      names(record_features) <- features
+      record_response <- record[[response_col]]
+      tuple(record_features, record_response)
+    })
 
-# When you call e.g. numpy_input_fn() it returns a list of 2 tensors
-# (named features, labels) rather than data!
-
-# Once they are labeled inside a dictionary then they won't need to all
-# be the same type! (but note for Keras they will all be the same type)
-
-# TODO: to support multiple types we may need to do read in as strings and then
-# call string_to_number, see:
-# https://stackoverflow.com/questions/42169421/read-mixed-data-types-from-csv-row-via-tf-textlinereader-and-tf-decode-csv
-
-# TODO: tf$pack and tf$slice
-
-
+  # return function which yields the iterator for the dataset
+  # TODO: function(estimator) which supports custom estimators
+  function() {
+    iter <- one_shot_iterator(input_fn_dataset)
+    iter$get_next()
+  }
+}
 
 
 auto_compression_type <- function(filenames) {
