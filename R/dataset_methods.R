@@ -196,6 +196,32 @@ dataset_skip <- function(dataset, count) {
 }
 
 
+#' Creates a Dataset from this one and silently ignores any errors.
+#'
+#' Use this transformation to produce a dataset that contains the same elements
+#' as the input, but silently drops any elements that caused an error.
+#'
+#' @param dataset A dataset
+#'
+#' @return A dataset
+#'
+#' @family dataset methods
+#'
+#' @examples \dontrun{
+#'
+#' # tf$check_numerics(1 / 0) will raise an error which is ignored
+#'
+#' dataset <- tensor_slices_dataset(list(1, 2, 0, 4)) %>%
+#'   dataset_map(function(x) {
+#'     tf$check_numerics(1 / x, "error")
+#'   }) %>%
+#'   dataset_ignore_errors()
+#' }
+#'
+#' @export
+dataset_ignore_errors <- function(dataset) {
+  dataset$ignore_errors()
+}
 
 
 

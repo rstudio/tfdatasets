@@ -57,8 +57,7 @@ csv_dataset <- function(filenames, compression_type = NULL,
 
 #' Transform a dataset with CSV text lines into a dataset with named columns
 #'
-#' @param dataset Dataset with CSV text lines (e.g. read by
-#'   [text_lines_dataset()])
+#' @param dataset Dataset with CSV text lines
 #'
 #' @param col_names Character vector with column names (or `NULL` to automatically
 #'   detect the column names from the first row of the input file).

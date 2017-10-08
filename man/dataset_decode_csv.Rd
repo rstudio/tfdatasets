@@ -8,8 +8,7 @@ dataset_decode_csv(dataset, col_names = NULL, record_defaults = NULL,
   field_delim = ",", num_threads = NULL, output_buffer_size = NULL)
 }
 \arguments{
-\item{dataset}{Dataset with CSV text lines (e.g. read by
-\code{\link[=text_lines_dataset]{text_lines_dataset()}})}
+\item{dataset}{Dataset with CSV text lines}
 
 \item{col_names}{Character vector with column names (or \code{NULL} to automatically
 detect the column names from the first row of the input file).
@@ -50,6 +49,7 @@ Other dataset methods: \code{\link{dataset_batch}},
   \code{\link{dataset_cache}},
   \code{\link{dataset_concatenate}},
   \code{\link{dataset_enumerate}},
+  \code{\link{dataset_ignore_errors}},
   \code{\link{dataset_map}}, \code{\link{dataset_repeat}},
   \code{\link{dataset_shuffle}},
   \code{\link{dataset_skip}}, \code{\link{dataset_take}},

@@ -70,6 +70,15 @@ test_succeeds("dataset_map handles threads correctly and returns a dataset", {
     dataset_map(function(x) { gc(); tf$negative(x) }, num_threads = 8)
 })
 
+test_succeeds("dataset_ignore_errors ignores errors", {
+  dataset <- tensor_slices_dataset(list(1, 2, 0, 4)) %>%
+    dataset_map(function(x) {
+      tf$check_numerics(1 / x, "error")
+    }) %>%
+    dataset_ignore_errors()
+})
+
+
 test_succeeds("zip_datasets returns a dataset", {
   zip_datasets(list(tensors_dataset(tf$constant(1:100)), tensors_dataset(tf$constant(101:200))))
 })
