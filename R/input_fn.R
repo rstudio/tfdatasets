@@ -17,14 +17,14 @@
 input_fn.tensorflow.contrib.data.python.ops.dataset_ops.Dataset <- function(dataset, features, response) {
 
   # validate/retreive column names
-  col_names <- names(dataset$output_shapes)
-  if (is.null(col_names))
+  if (!is.list(dataset$output_shapes) || is.null(names(dataset$output_shapes)))
     stop("Creating an input_fn requires a dataset with named outputs")
+  col_names <- names(dataset$output_shapes)
 
   # get the indexes of the features and response
   feature_cols <- match(features, col_names)
   if (any(is.na(feature_cols)))
-    stop("Invalid feature columns specified: ", paste(features[is.na(feature_cols)]))
+    stop("Invalid feature columns specified: ", paste(features[is.na(feature_cols)], collapse = ", "))
   response_col <- match(response, col_names)
   if (length(response) != 1)
     stop("More than one response column specified: ", paste(response))
