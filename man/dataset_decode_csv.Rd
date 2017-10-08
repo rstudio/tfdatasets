@@ -4,25 +4,24 @@
 \alias{dataset_decode_csv}
 \title{Transform a dataset with CSV text lines into a dataset with named columns}
 \usage{
-dataset_decode_csv(dataset, col_names = TRUE, record_defaults = NULL,
+dataset_decode_csv(dataset, col_names = NULL, record_defaults = NULL,
   field_delim = ",", num_threads = NULL, output_buffer_size = NULL)
 }
 \arguments{
 \item{dataset}{Dataset with CSV text lines (e.g. read by
 \code{\link[=text_lines_dataset]{text_lines_dataset()}})}
 
-\item{col_names}{Either \code{TRUE}, \code{FALSE} or a character vector of column
-names.
-
-If \code{TRUE}, the first row of the input will be used as the column names, and
-will not be included in dataset. If \code{FALSE}, column names will be generated
-automatically: X1, X2, X3 etc.
+\item{col_names}{Character vector with column names (or \code{NULL} to automatically
+detect the column names from the first row of the input file).
 
 If \code{col_names} is a character vector, the values will be used as the names
 of the columns, and the first row of the input will be read into the first
 row of the datset. Note that if the underlying CSV file also includes
 column names in it's first row, this row should be skipped explicitly with
-\code{\link[=dataset_skip]{dataset_skip()}}.}
+\code{\link[=dataset_skip]{dataset_skip()}}.
+
+If \code{NULL}, the first row of the input will be used as the column names, and
+will not be included in dataset.}
 
 \item{record_defaults}{List of default values for records. Default values
 must be of type integer, numeric, or character. Used both to indicate the

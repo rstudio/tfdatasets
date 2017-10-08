@@ -4,7 +4,7 @@
 \alias{csv_dataset}
 \title{Create a dataset from a text file with comma separated values}
 \usage{
-csv_dataset(filenames, compression_type = NULL, col_names = TRUE,
+csv_dataset(filenames, compression_type = NULL, col_names = NULL,
   record_defaults = NULL, field_delim = ",", skip = 0,
   num_threads = NULL, output_buffer_size = NULL)
 }
@@ -18,18 +18,17 @@ the \code{filenames} have a .gz extension and ZLIB will be automatically
 selected if any of the \code{filenames} have a .zlib extension (otherwise
 no compression will be used).}
 
-\item{col_names}{Either \code{TRUE}, \code{FALSE} or a character vector of column
-names.
-
-If \code{TRUE}, the first row of the input will be used as the column names, and
-will not be included in dataset. If \code{FALSE}, column names will be generated
-automatically: X1, X2, X3 etc.
+\item{col_names}{Character vector with column names (or \code{NULL} to automatically
+detect the column names from the first row of the input file).
 
 If \code{col_names} is a character vector, the values will be used as the names
 of the columns, and the first row of the input will be read into the first
 row of the datset. Note that if the underlying CSV file also includes
 column names in it's first row, this row should be skipped explicitly with
-\code{\link[=dataset_skip]{dataset_skip()}}.}
+\code{\link[=dataset_skip]{dataset_skip()}}.
+
+If \code{NULL}, the first row of the input will be used as the column names, and
+will not be included in dataset.}
 
 \item{record_defaults}{List of default values for records. Default values
 must be of type integer, numeric, or character. Used both to indicate the

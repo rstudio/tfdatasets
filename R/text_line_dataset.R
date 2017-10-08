@@ -40,7 +40,7 @@ text_line_dataset <- function(filenames, compression_type = "auto") {
 #'
 #' @export
 csv_dataset <- function(filenames, compression_type = NULL,
-                        col_names = TRUE, record_defaults = NULL,
+                        col_names = NULL, record_defaults = NULL,
                         field_delim = ",", skip = 0,
                         num_threads = NULL, output_buffer_size = NULL) {
   text_line_dataset(filenames, compression_type = NULL) %>%
@@ -60,18 +60,17 @@ csv_dataset <- function(filenames, compression_type = NULL,
 #' @param dataset Dataset with CSV text lines (e.g. read by
 #'   [text_lines_dataset()])
 #'
-#' @param col_names Either `TRUE`, `FALSE` or a character vector of column
-#'   names.
-#'
-#'   If `TRUE`, the first row of the input will be used as the column names, and
-#'   will not be included in dataset. If `FALSE`, column names will be generated
-#'   automatically: X1, X2, X3 etc.
+#' @param col_names Character vector with column names (or `NULL` to automatically
+#'   detect the column names from the first row of the input file).
 #'
 #'   If `col_names` is a character vector, the values will be used as the names
 #'   of the columns, and the first row of the input will be read into the first
 #'   row of the datset. Note that if the underlying CSV file also includes
 #'   column names in it's first row, this row should be skipped explicitly with
 #'   [dataset_skip()].
+#'
+#'   If `NULL`, the first row of the input will be used as the column names, and
+#'   will not be included in dataset.
 #'
 #' @param record_defaults List of default values for records. Default values
 #'   must be of type integer, numeric, or character. Used both to indicate the
@@ -96,7 +95,7 @@ csv_dataset <- function(filenames, compression_type = NULL,
 #' @family dataset methods
 #'
 #' @export
-dataset_decode_csv <- function(dataset, col_names = TRUE, record_defaults = NULL,
+dataset_decode_csv <- function(dataset, col_names = NULL, record_defaults = NULL,
                                field_delim = ",", num_threads = NULL, output_buffer_size = NULL) {
 
   # read the first 1000 rows to faciliate deduction of column names / types as well
@@ -114,7 +113,7 @@ dataset_decode_csv <- function(dataset, col_names = TRUE, record_defaults = NULL
   on.exit(close(preview_con), add = TRUE)
   preview_csv <- read.csv(
     file = preview_con,
-    header = isTRUE(col_names),
+    header = is.null(col_names),
     sep = field_delim,
     comment.char = "",
     stringsAsFactors = FALSE
@@ -130,13 +129,13 @@ dataset_decode_csv <- function(dataset, col_names = TRUE, record_defaults = NULL
 
   # resolve/validate col_names (add extra skip if we have col_names in the file)
   skip <- 0
-  if (isTRUE(col_names)) {
+  if (is.null(col_names)) {
     col_names <- names(preview_csv)
     skip <- 1
   } else if (is.character(col_names)) {
     validate_columns(col_names, 'col_names')
   } else {
-    col_names <- paste0("X", 1:ncol(preview_csv))
+    stop("col_names must be a character vector")
   }
 
   # resolve/validate record defaults
