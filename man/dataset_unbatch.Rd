@@ -21,6 +21,7 @@ unbatched dataset will contain B consecutive elements of shape \code{[a0, a1, ..
 Other dataset methods: \code{\link{dataset_batch}},
   \code{\link{dataset_cache}},
   \code{\link{dataset_concatenate}},
+  \code{\link{dataset_decode_csv}},
   \code{\link{dataset_enumerate}},
   \code{\link{dataset_map}}, \code{\link{dataset_repeat}},
   \code{\link{dataset_shuffle}},

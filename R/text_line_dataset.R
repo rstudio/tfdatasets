@@ -28,6 +28,37 @@ text_line_dataset <- function(filenames, compression_type = "auto") {
 #' Create a dataset from a text file with comma separated values
 #'
 #' @inheritParams text_line_dataset
+#' @inheritParams dataset_decode_csv
+#'
+#' @param skip Number of lines to skip before reading data. Note that if
+#'   `col_names` is explicitly provided and there are column names witin the CSV
+#'   file then `skip` should be set to 1 to ensure that the column names are
+#'   bypassed.
+#'
+#' @note The [csv_dataset()] function is a convenience wrapper for the
+#'   [text_line_dataset()] and [dataset_decode_csv()] functions.
+#'
+#' @export
+csv_dataset <- function(filenames, compression_type = NULL,
+                        col_names = TRUE, record_defaults = NULL,
+                        field_delim = ",", skip = 0,
+                        num_threads = NULL, output_buffer_size = NULL) {
+  text_line_dataset(filenames, compression_type = NULL) %>%
+    dataset_skip(skip) %>%
+    dataset_decode_csv(
+      col_names = col_names,
+      record_defaults = record_defaults,
+      field_delim = field_delim,
+      num_threads = num_threads,
+      output_buffer_size = output_buffer_size
+    )
+}
+
+
+#' Transform a dataset with CSV text lines into a dataset with named columns
+#'
+#' @param dataset Dataset with CSV text lines (e.g. read by
+#'   [text_lines_dataset()])
 #'
 #' @param col_names Either `TRUE`, `FALSE` or a character vector of column
 #'   names.
@@ -38,22 +69,19 @@ text_line_dataset <- function(filenames, compression_type = "auto") {
 #'
 #'   If `col_names` is a character vector, the values will be used as the names
 #'   of the columns, and the first row of the input will be read into the first
-#'   row of the datset.
+#'   row of the datset. Note that if the underlying CSV file also includes
+#'   column names in it's first row, this row should be skipped explicitly with
+#'   [dataset_skip()].
 #'
-#' @param record_defaults List of default values for records. Default values must
-#'   be of type integer, numeric, or character. Used both to indicate the type
-#'   of each field as well as to provide defaults for missing values.
+#' @param record_defaults List of default values for records. Default values
+#'   must be of type integer, numeric, or character. Used both to indicate the
+#'   type of each field as well as to provide defaults for missing values.
 #'
 #' @param field_delim An optional string. Defaults to ",". char delimiter to
 #'   separate fields in a record.
 #'
-#' @param skip Number of lines to skip before reading data. Note that if
-#'   `col_names` is explicitly provided and there are column names witin the CSV
-#'   file then `skip` should be set to 1 to ensure that the column names are
-#'   bypassed.
-#'
 #' @param num_threads (Optional) An integer representing the number of threads
-#'   to use for processing elements in parallel. If not specified, elements will
+#'   to use for parsing csv records in parallel. If not specified, elements will
 #'   be processed sequentially without buffering.
 #'
 #' @param output_buffer_size (Optional) An integer representing the maximum
@@ -62,16 +90,18 @@ text_line_dataset <- function(filenames, compression_type = "auto") {
 #'
 #' @importFrom utils read.csv
 #'
+#' @note The [csv_dataset()] function is a convenience wrapper for the
+#'   [text_line_dataset()] and [dataset_decode_csv()] functions.
+#'
+#' @family dataset methods
+#'
 #' @export
-csv_dataset <- function(filenames, compression_type = NULL,
-                        col_names = TRUE, record_defaults = NULL,
-                        field_delim = ",", skip = 0,
-                        num_threads = NULL, output_buffer_size = NULL) {
+dataset_decode_csv <- function(dataset, col_names = TRUE, record_defaults = NULL,
+                               field_delim = ",", num_threads = NULL, output_buffer_size = NULL) {
 
   # read the first 1000 rows to faciliate deduction of column names / types as well
   # as checking that any specified col_names or record_defaults have the correct length
-  preview <- text_line_dataset(filenames[[1]], compression_type) %>%
-    dataset_skip(skip) %>%
+  preview <- dataset %>%
     dataset_take(1000) %>%
     dataset_batch(1000)
   preview <- with_session(function(session) {
@@ -99,9 +129,10 @@ csv_dataset <- function(filenames, compression_type = NULL,
   }
 
   # resolve/validate col_names (add extra skip if we have col_names in the file)
+  skip <- 0
   if (isTRUE(col_names)) {
     col_names <- names(preview_csv)
-    skip <- skip + 1
+    skip <- 1
   } else if (is.character(col_names)) {
     validate_columns(col_names, 'col_names')
   } else {
@@ -121,16 +152,16 @@ csv_dataset <- function(filenames, compression_type = NULL,
     record_types <- lapply(preview_csv, typeof)
     record_defaults <- lapply(unname(record_types), function(x) {
       switch(x,
-        integer = list(0L),
-        double = list(0),
-        character = list(""),
-        list("") # default
+             integer = list(0L),
+             double = list(0),
+             character = list(""),
+             list("") # default
       )
     })
   }
 
   # read csv
-  dataset <- text_line_dataset(filenames, compression_type) %>%
+  dataset %>%
     dataset_skip(skip) %>%
     dataset_map(
       map_func = function(line) {
@@ -145,10 +176,8 @@ csv_dataset <- function(filenames, compression_type = NULL,
       num_threads = num_threads,
       output_buffer_size = output_buffer_size
     )
-
-  # return the dataset
-  dataset
 }
+
 
 auto_compression_type <- function(filenames) {
   has_ext <- function(ext) {
