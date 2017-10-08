@@ -10,4 +10,15 @@ as_integer_tensor <- function(x, dtype = tf$int64) {
     tf$constant(as.integer(x), dtype = dtype)
 }
 
+with_session <- function(f, session = NULL) {
+  if (is.null(session))
+    session <- tf$get_default_session()
+  if (is.null(session)) {
+    session <- tf$Session()
+    on.exit(session$close(), add = TRUE)
+  }
+  f(session)
+}
+
+
 

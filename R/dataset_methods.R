@@ -197,16 +197,6 @@ dataset_skip <- function(dataset, count) {
 
 
 
-with_session <- function(f, session = NULL) {
-  if (is.null(session))
-    session <- tf$get_default_session()
-  if (is.null(session)) {
-    session <- tf$Session()
-    on.exit(session$close(), add = TRUE)
-  }
-  f(session)
-}
-
 
 
 

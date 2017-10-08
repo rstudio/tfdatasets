@@ -6,12 +6,12 @@
 #' Merges datasets together into pairs or tuples that contain an element from
 #' each dataset.
 #'
-#' @param datasets A nested structure (e.g. list or list of lists) of datasets.
+#' @param ... Datasets to zip (or a single argument with a list or list of lists of datasets).
 #'
 #' @return A dataset
 #'
 #' @export
-zip_datasets <- function(datasets) {
-  tf$contrib$data$Dataset$zip(tuple(datasets))
+zip_datasets <- function(...) {
+  tf$contrib$data$Dataset$zip(tuple(...))
 }
 
