@@ -17,6 +17,12 @@ test_that("decode_csv parses explicitly named columns", {
   expect_identical(cols, names(dataset$output_shapes))
 })
 
+test_succeeds("decode_csv handles explicit record default/type specifications", {
+  skip_if_no_tensorflow()
+  csv_dataset("data/mtcars.csv", record_defaults = list(0,0L,0,0L,0,0,0,0L,0L,0L,0L))
+  csv_dataset("data/mtcars.csv", record_defaults = list(0,0,0,0,0,0,0,0,0,0,0))
+})
+
 
 
 
