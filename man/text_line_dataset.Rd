@@ -2,12 +2,13 @@
 % Please edit documentation in R/text_line_dataset.R
 \name{text_line_dataset}
 \alias{text_line_dataset}
-\title{Create a dataset comprising lines from one or more text files.}
+\title{A dataset comprising lines from one or more text files.}
 \usage{
 text_line_dataset(filenames, compression_type = "auto")
 }
 \arguments{
-\item{filenames}{Characater vector containing one or more filenames.}
+\item{filenames}{Characater vector containing one or more filenames or
+filename glob patterns (e.g. "train.csv", "\emph{.csv", "}-train.csv", etc.)}
 
 \item{compression_type}{A string, one of: \code{"auto"} (determine based on file
 extension), \code{""} (no compression), \code{"ZLIB"}, or \code{"GZIP"}. For
@@ -20,5 +21,5 @@ no compression will be used).}
 A dataset
 }
 \description{
-Create a dataset comprising lines from one or more text files.
+A dataset comprising lines from one or more text files.
 }

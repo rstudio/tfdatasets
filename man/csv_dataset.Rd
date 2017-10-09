@@ -9,7 +9,8 @@ csv_dataset(filenames, compression_type = NULL, col_names = NULL,
   num_threads = NULL, output_buffer_size = NULL)
 }
 \arguments{
-\item{filenames}{Characater vector containing one or more filenames.}
+\item{filenames}{Characater vector containing one or more filenames or
+filename glob patterns (e.g. "train.csv", "\emph{.csv", "}-train.csv", etc.)}
 
 \item{compression_type}{A string, one of: \code{"auto"} (determine based on file
 extension), \code{""} (no compression), \code{"ZLIB"}, or \code{"GZIP"}. For

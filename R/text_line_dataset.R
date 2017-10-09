@@ -1,8 +1,9 @@
 
 
-#' Create a dataset comprising lines from one or more text files.
+#' A dataset comprising lines from one or more text files.
 #'
-#' @param filenames Characater vector containing one or more filenames.
+#' @param filenames Characater vector containing one or more filenames or
+#'   filename glob patterns (e.g. "train.csv", "*.csv", "*-train.csv", etc.)
 #' @param compression_type A string, one of: `"auto"` (determine based on file
 #'   extension), `""` (no compression), `"ZLIB"`, or `"GZIP"`. For
 #'   `"auto"`, GZIP will be automatically selected if any of
@@ -16,6 +17,9 @@
 #'
 #' @export
 text_line_dataset <- function(filenames, compression_type = "auto") {
+
+  # resolve filename wildcards
+  filenames <- resolve_filenames(filenames)
 
   # determine compression type
   if (identical(compression_type, "auto"))
@@ -43,7 +47,7 @@ csv_dataset <- function(filenames, compression_type = NULL,
                         col_names = NULL, record_defaults = NULL,
                         field_delim = ",", skip = 0,
                         num_threads = NULL, output_buffer_size = NULL) {
-  text_line_dataset(filenames, compression_type = NULL) %>%
+  text_line_dataset(filenames, compression_type = compression_type) %>%
     dataset_skip(skip) %>%
     dataset_decode_csv(
       col_names = col_names,
@@ -176,18 +180,6 @@ dataset_decode_csv <- function(dataset, col_names = NULL, record_defaults = NULL
     )
 }
 
-
-auto_compression_type <- function(filenames) {
-  has_ext <- function(ext) {
-    any(identical(tolower(tools::file_ext(filenames)), ext))
-  }
-  if (has_ext("gz"))
-    "GZIP"
-  else if (has_ext("zlib"))
-    "ZLIB"
-  else
-    ""
-}
 
 
 
