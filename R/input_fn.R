@@ -45,23 +45,28 @@ input_fn.tensorflow.python.data.ops.dataset_ops.Dataset <- function(dataset, fea
   }
 
   # map dataset into input_fn compatible tensors
-  input_fn_dataset <- dataset %>%
-    dataset_map(function(record) {
-      record_features <- record[feature_cols]
-      names(record_features) <- features_select
-      record_response <- record[[response_col]]
-      tuple(record_features, record_response)
-    })
+  create_input_fn_dataset <- function(custom_estimator) {
+    dataset %>%
+      dataset_map(function(record) {
+        record_features <- record[feature_cols]
+        record_response <- record[[response_col]]
+        if (custom_estimator) {
+          tuple(unname(record_features), record_response)
+        } else {
+          names(record_features) <- features_select
+          tuple(record_features, record_response)
+        }
+      })
+  }
+
 
   # return function which yields the iterator for the dataset
   function(estimator) {
-    if (inherits(estimator, "tf_custom_estimator"))
-      NULL
-    else {
-      function() {
-        iter <- one_shot_iterator(input_fn_dataset)
-        iter$get_next()
-      }
+    custom_estimator <- inherits(estimator, "tf_custom_estimator")
+    input_fn_dataset <- create_input_fn_dataset(custom_estimator)
+    function() {
+      iter <- one_shot_iterator(input_fn_dataset)
+      iter$get_next()
     }
   }
 }
