@@ -31,28 +31,25 @@ input_fn.tensorflow.python.data.ops.dataset_ops.Dataset <- function(dataset, fea
   # evaluate features (use tidyselect overscope)
   eq_features <- enquo(features)
   environment(eq_features) <- as_overscope(eq_features, data = tidyselect_data)
-  features <- vars_select(col_names, !! eq_features)
-  feature_cols <- match(features, col_names)
+  features_select <- vars_select(col_names, !! eq_features)
+  feature_cols <- match(features_select, col_names)
 
   # evaluate response (use tidyselect overscope)
   if (!missing(response)) {
     eq_response <- enquo(response)
     environment(eq_response) <- as_overscope(eq_response, data = tidyselect_data)
-    response <- vars_select(col_names, !! eq_response)
-    if (length(response) != 1)
-      stop("More than one response column specified: ", paste(response))
-    response_col <- match(response, col_names)
+    response_select <- vars_select(col_names, !! eq_response)
+    if (length(response_select) != 1)
+      stop("More than one response column specified: ", paste(response_select))
+    response_col <- match(response_select, col_names)
   }
 
   # map dataset into input_fn compatible tensors
   input_fn_dataset <- dataset %>%
     dataset_map(function(record) {
       record_features <- record[feature_cols]
-      names(record_features) <- features
-      if (!is.null(response))
-        record_response <- record[[response_col]]
-      else
-        record_response <- NULL
+      names(record_features) <- features_select
+      record_response <- record[[response_col]]
       tuple(record_features, record_response)
     })
 
