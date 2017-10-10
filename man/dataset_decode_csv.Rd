@@ -5,7 +5,7 @@
 \title{Transform a dataset with CSV text lines into a dataset with named columns}
 \usage{
 dataset_decode_csv(dataset, col_names = NULL, record_defaults = NULL,
-  field_delim = ",", num_threads = NULL, output_buffer_size = NULL)
+  field_delim = ",", num_parallel_calls = NULL)
 }
 \arguments{
 \item{dataset}{Dataset with CSV text lines}
@@ -29,13 +29,9 @@ type of each field as well as to provide defaults for missing values.}
 \item{field_delim}{An optional string. Defaults to ",". char delimiter to
 separate fields in a record.}
 
-\item{num_threads}{(Optional) An integer representing the number of threads
-to use for parsing csv records in parallel. If not specified, elements will
-be processed sequentially without buffering.}
-
-\item{output_buffer_size}{(Optional) An integer representing the maximum
-number of processed elements that will be buffered when processing in
-parallel.}
+\item{num_parallel_calls}{(Optional) An integer, representing the
+number of elements to process in parallel If not specified, elements will
+be processed sequentially.}
 }
 \description{
 Transform a dataset with CSV text lines into a dataset with named columns
@@ -48,10 +44,7 @@ The \code{\link[=csv_dataset]{csv_dataset()}} function is a convenience wrapper 
 Other dataset methods: \code{\link{dataset_batch}},
   \code{\link{dataset_cache}},
   \code{\link{dataset_concatenate}},
-  \code{\link{dataset_enumerate}},
-  \code{\link{dataset_ignore_errors}},
   \code{\link{dataset_map}}, \code{\link{dataset_repeat}},
   \code{\link{dataset_shuffle}},
-  \code{\link{dataset_skip}}, \code{\link{dataset_take}},
-  \code{\link{dataset_unbatch}}
+  \code{\link{dataset_skip}}, \code{\link{dataset_take}}
 }

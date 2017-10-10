@@ -9,7 +9,7 @@ NULL
 .onLoad <- function(libname, pkgname) {
   registerMethods(list(
     # c(package, genname, class)
-    c("tfestimators", "input_fn", "tensorflow.contrib.data.python.ops.dataset_ops.Dataset")
+    c("tfestimators", "input_fn", "tensorflow.python.data.ops.dataset_ops.Dataset")
   ))
 }
 

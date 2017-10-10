@@ -58,24 +58,6 @@ dataset_batch <- function(dataset, batch_size) {
 }
 
 
-#' Splits elements of this dataset into sequences of consecutive elements.
-#'
-#' For example, if elements of this dataset are shaped `[B, a0, a1, ...]`, where B
-#' may vary from element to element, then for each element in this dataset, the
-#' unbatched dataset will contain B consecutive elements of shape `[a0, a1, ...]`.
-#'
-#' @param dataset A dataset
-#'
-#' @return A dataset
-#'
-#' @family dataset methods
-#'
-#' @export
-dataset_unbatch <- function(dataset) {
-  dataset$unbatch()
-}
-
-
 #' Caches the elements in this dataset.
 #'
 #'
@@ -140,42 +122,23 @@ dataset_take <- function(dataset, count) {
 #' @param map_func A function mapping a nested structure of tensors (having
 #'   shapes and types defined by [output_shapes()] and [output_types()] to
 #'   another nested structure of tensors.
-#' @param num_threads (Optional) An integer, representing the number of threads
-#'   to use for processing elements in parallel. If not specified, elements will
-#'   be processed sequentially without buffering.
-#' @param output_buffer_size (Optional) An integer, representing the maximum
-#'   number of processed elements that will be buffered when processing in
-#'   parallel.
+#' @param num_parallel_calls (Optional) An integer, representing the
+#'   number of elements to process in parallel If not specified, elements will
+#'   be processed sequentially.
+
 #'
 #' @return A dataset
 #'
 #' @family dataset methods
 #'
 #' @export
-dataset_map <- function(dataset, map_func, num_threads = NULL, output_buffer_size = NULL) {
+dataset_map <- function(dataset, map_func, num_parallel_calls = NULL) {
   dataset$map(
     map_func = map_func,
-    num_threads = as_integer_tensor(num_threads, tf$int32),
-    output_buffer_size = as_integer_tensor(num_threads)
+    num_parallel_calls = as_integer_tensor(num_parallel_calls, tf$int32)
   )
 }
 
-
-#' Enumerate the elements of this dataset.
-#'
-#' Adds a counter to an iterable. So for each element in the dataset, a tuple is produced with (counter, element)
-#'
-#' @param dataset A dataset
-#' @param start A integer, representing the start value for enumeration.
-#'
-#' @return A dataset
-#'
-#' @family dataset methods
-#'
-#' @export
-dataset_enumerate <- function(dataset, start = 0) {
-  dataset$enumerate(start = as_integer_tensor(start))
-}
 
 
 #' Creates a dataset that skips count elements from this dataset
@@ -194,35 +157,6 @@ dataset_enumerate <- function(dataset, start = 0) {
 dataset_skip <- function(dataset, count) {
   dataset$skip(count = as_integer_tensor(count))
 }
-
-
-#' Creates a Dataset from this one and silently ignores any errors.
-#'
-#' Use this transformation to produce a dataset that contains the same elements
-#' as the input, but silently drops any elements that caused an error.
-#'
-#' @param dataset A dataset
-#'
-#' @return A dataset
-#'
-#' @family dataset methods
-#'
-#' @examples \dontrun{
-#'
-#' # tf$check_numerics(1 / 0) will raise an error which is ignored
-#'
-#' dataset <- tensor_slices_dataset(list(1, 2, 0, 4)) %>%
-#'   dataset_map(function(x) {
-#'     tf$check_numerics(1 / x, "error")
-#'   }) %>%
-#'   dataset_ignore_errors()
-#' }
-#'
-#' @export
-dataset_ignore_errors <- function(dataset) {
-  dataset$ignore_errors()
-}
-
 
 
 

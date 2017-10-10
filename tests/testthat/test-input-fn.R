@@ -34,6 +34,9 @@ use_input_fn <- function(features, response) {
   # evaluate model
   model %>% evaluate(mtcars_input_fn("data/mtcars-test.csv"))
 
+  # generate predictions
+  model %>% predict(mtcars_input_fn("data/mtcars-test.csv"))
+
 }
 
 test_succeeds("input_fn feeds data to train and evaluate", {

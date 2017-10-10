@@ -18,6 +18,9 @@
 #' @export
 text_line_dataset <- function(filenames, compression_type = "auto") {
 
+  # validate during dataset contruction
+  validate_tf_version()
+
   # resolve filename wildcards
   filenames <- resolve_filenames(filenames)
 
@@ -25,7 +28,7 @@ text_line_dataset <- function(filenames, compression_type = "auto") {
   if (identical(compression_type, "auto"))
     compression_type <- auto_compression_type(filenames)
 
-  tf$contrib$data$TextLineDataset(filenames, compression_type = compression_type)
+  tf$data$TextLineDataset(filenames, compression_type = compression_type)
 }
 
 
@@ -46,15 +49,14 @@ text_line_dataset <- function(filenames, compression_type = "auto") {
 csv_dataset <- function(filenames, compression_type = NULL,
                         col_names = NULL, record_defaults = NULL,
                         field_delim = ",", skip = 0,
-                        num_threads = NULL, output_buffer_size = NULL) {
+                        num_parallel_calls = NULL) {
   text_line_dataset(filenames, compression_type = compression_type) %>%
     dataset_skip(skip) %>%
     dataset_decode_csv(
       col_names = col_names,
       record_defaults = record_defaults,
       field_delim = field_delim,
-      num_threads = num_threads,
-      output_buffer_size = output_buffer_size
+      num_parallel_calls = num_parallel_calls
     )
 }
 
@@ -82,13 +84,9 @@ csv_dataset <- function(filenames, compression_type = NULL,
 #' @param field_delim An optional string. Defaults to ",". char delimiter to
 #'   separate fields in a record.
 #'
-#' @param num_threads (Optional) An integer representing the number of threads
-#'   to use for parsing csv records in parallel. If not specified, elements will
-#'   be processed sequentially without buffering.
-#'
-#' @param output_buffer_size (Optional) An integer representing the maximum
-#'   number of processed elements that will be buffered when processing in
-#'   parallel.
+#' @param num_parallel_calls (Optional) An integer, representing the
+#'   number of elements to process in parallel If not specified, elements will
+#'   be processed sequentially.
 #'
 #' @importFrom utils read.csv
 #'
@@ -99,7 +97,7 @@ csv_dataset <- function(filenames, compression_type = NULL,
 #'
 #' @export
 dataset_decode_csv <- function(dataset, col_names = NULL, record_defaults = NULL,
-                               field_delim = ",", num_threads = NULL, output_buffer_size = NULL) {
+                               field_delim = ",", num_parallel_calls = NULL) {
 
   # read the first 1000 rows to faciliate deduction of column names / types as well
   # as checking that any specified col_names or record_defaults have the correct length
@@ -110,6 +108,15 @@ dataset_decode_csv <- function(dataset, col_names = NULL, record_defaults = NULL
     iter <- one_shot_iterator(preview)
     session$run(iter$get_next())
   })
+
+  # no-op for empty preview
+  if (length(preview) == 0)
+    return(dataset)
+
+  # convert bytes to string if necessary
+  if (is.list(preview) && inherits(preview[[1]], "python.builtin.bytes")) {
+    preview <- unlist(lapply(preview, function(line) line$decode()))
+  }
 
   # read the csv using read.csv to do column/type deduction
   preview_con <- textConnection(preview)
@@ -175,8 +182,7 @@ dataset_decode_csv <- function(dataset, col_names = NULL, record_defaults = NULL
         names(decoded) <- col_names
         decoded
       },
-      num_threads = num_threads,
-      output_buffer_size = output_buffer_size
+      num_parallel_calls = num_parallel_calls
     )
 }
 

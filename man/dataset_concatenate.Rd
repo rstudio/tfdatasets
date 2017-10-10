@@ -25,10 +25,7 @@ structures and output types.
 Other dataset methods: \code{\link{dataset_batch}},
   \code{\link{dataset_cache}},
   \code{\link{dataset_decode_csv}},
-  \code{\link{dataset_enumerate}},
-  \code{\link{dataset_ignore_errors}},
   \code{\link{dataset_map}}, \code{\link{dataset_repeat}},
   \code{\link{dataset_shuffle}},
-  \code{\link{dataset_skip}}, \code{\link{dataset_take}},
-  \code{\link{dataset_unbatch}}
+  \code{\link{dataset_skip}}, \code{\link{dataset_take}}
 }

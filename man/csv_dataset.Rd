@@ -6,7 +6,7 @@
 \usage{
 csv_dataset(filenames, compression_type = NULL, col_names = NULL,
   record_defaults = NULL, field_delim = ",", skip = 0,
-  num_threads = NULL, output_buffer_size = NULL)
+  num_parallel_calls = NULL)
 }
 \arguments{
 \item{filenames}{Characater vector containing one or more filenames or
@@ -43,13 +43,9 @@ separate fields in a record.}
 file then \code{skip} should be set to 1 to ensure that the column names are
 bypassed.}
 
-\item{num_threads}{(Optional) An integer representing the number of threads
-to use for parsing csv records in parallel. If not specified, elements will
-be processed sequentially without buffering.}
-
-\item{output_buffer_size}{(Optional) An integer representing the maximum
-number of processed elements that will be buffered when processing in
-parallel.}
+\item{num_parallel_calls}{(Optional) An integer, representing the
+number of elements to process in parallel If not specified, elements will
+be processed sequentially.}
 }
 \description{
 Create a dataset from a text file with comma separated values

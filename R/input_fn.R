@@ -14,7 +14,7 @@
 #'   predict methods
 #'
 #' @export
-input_fn.tensorflow.contrib.data.python.ops.dataset_ops.Dataset <- function(dataset, features, response) {
+input_fn.tensorflow.python.data.ops.dataset_ops.Dataset <- function(dataset, features, response) {
 
   # validate/retreive column names
   if (!is.list(dataset$output_shapes) || is.null(names(dataset$output_shapes)))

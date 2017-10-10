@@ -11,7 +11,8 @@
 #'
 #' @export
 tensors_dataset <- function(tensors) {
-  tf$contrib$data$Dataset$from_tensors(tensors = tensors)
+  validate_tf_version()
+  tf$data$Dataset$from_tensors(tensors = tensors)
 }
 
 #' Creates a dataset whose elements are slices of the given tensors.
@@ -25,7 +26,8 @@ tensors_dataset <- function(tensors) {
 #'
 #' @export
 tensor_slices_dataset <-function(tensors) {
-  tf$contrib$data$Dataset$from_tensor_slices(tensors = tensors)
+  validate_tf_version()
+  tf$data$Dataset$from_tensor_slices(tensors = tensors)
 }
 
 #' Splits each rank-N `tf$SparseTensor` in this dataset row-wise.
@@ -38,7 +40,8 @@ tensor_slices_dataset <-function(tensors) {
 #'
 #' @export
 sparse_tensor_slices_dataset <- function(sparse_tensor) {
-  tf$contrib$data$Dataset$from_sparse_tensor_slices(sparse_tensor = sparse_tensor)
+  validate_tf_version()
+  tf$data$Dataset$from_sparse_tensor_slices(sparse_tensor = sparse_tensor)
 }
 
 

@@ -8,6 +8,9 @@
 #' @export
 tfrecord_dataset <- function(filenames, compression_type = "auto") {
 
+  # validate during dataset construction
+  validate_tf_version()
+
   # resolve filenames
   filenames <- resolve_filenames(filenames)
 
@@ -15,6 +18,6 @@ tfrecord_dataset <- function(filenames, compression_type = "auto") {
   if (identical(compression_type, "auto"))
     compression_type <- auto_compression_type(filenames)
 
-  tf$contrib$data$TFRecordDataset(filenames, compression_type = compression_type)
+  tf$data$TFRecordDataset(filenames, compression_type = compression_type)
 
 }

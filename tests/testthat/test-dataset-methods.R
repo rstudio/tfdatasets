@@ -46,18 +46,7 @@ test_succeeds("dataset_take returns a dataset", {
     dataset_take(50)
 })
 
-test_succeeds("dataset_unbatch returns a dataset", {
-  dataset <- tensors_dataset(tf$constant(1:100)) %>%
-    dataset_batch(10) %>%
-    dataset_unbatch()
-})
-
-test_succeeds("dataset_enumerate returns a dataset", {
-  dataset <- tensors_dataset(tf$constant(1:100)) %>%
-    dataset_enumerate()
-})
-
-test_succeeds("dataset_stip returns a dataset", {
+test_succeeds("dataset_skip returns a dataset", {
   dataset <- tensors_dataset(tf$constant(1:100)) %>%
     dataset_skip(1)
 })
@@ -67,15 +56,7 @@ test_succeeds("dataset_map handles threads correctly and returns a dataset", {
   # actually called on the background thread but rather called with a placeholder
   # to yield a TF tensor which is used later.
   dataset <- tensors_dataset(tf$constant(1:100)) %>%
-    dataset_map(function(x) { gc(); tf$negative(x) }, num_threads = 8)
-})
-
-test_succeeds("dataset_ignore_errors ignores errors", {
-  dataset <- tensor_slices_dataset(list(1, 2, 0, 4)) %>%
-    dataset_map(function(x) {
-      tf$check_numerics(1 / x, "error")
-    }) %>%
-    dataset_ignore_errors()
+    dataset_map(function(x) { gc(); tf$negative(x) }, num_parallel_calls = 8)
 })
 
 

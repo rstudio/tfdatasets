@@ -4,8 +4,7 @@
 \alias{dataset_map}
 \title{Maps `map_func`` across this dataset.}
 \usage{
-dataset_map(dataset, map_func, num_threads = NULL,
-  output_buffer_size = NULL)
+dataset_map(dataset, map_func, num_parallel_calls = NULL)
 }
 \arguments{
 \item{dataset}{A dataset}
@@ -14,13 +13,9 @@ dataset_map(dataset, map_func, num_threads = NULL,
 shapes and types defined by \code{\link[=output_shapes]{output_shapes()}} and \code{\link[=output_types]{output_types()}} to
 another nested structure of tensors.}
 
-\item{num_threads}{(Optional) An integer, representing the number of threads
-to use for processing elements in parallel. If not specified, elements will
-be processed sequentially without buffering.}
-
-\item{output_buffer_size}{(Optional) An integer, representing the maximum
-number of processed elements that will be buffered when processing in
-parallel.}
+\item{num_parallel_calls}{(Optional) An integer, representing the
+number of elements to process in parallel If not specified, elements will
+be processed sequentially.}
 }
 \value{
 A dataset
@@ -33,10 +28,7 @@ Other dataset methods: \code{\link{dataset_batch}},
   \code{\link{dataset_cache}},
   \code{\link{dataset_concatenate}},
   \code{\link{dataset_decode_csv}},
-  \code{\link{dataset_enumerate}},
-  \code{\link{dataset_ignore_errors}},
   \code{\link{dataset_repeat}},
   \code{\link{dataset_shuffle}},
-  \code{\link{dataset_skip}}, \code{\link{dataset_take}},
-  \code{\link{dataset_unbatch}}
+  \code{\link{dataset_skip}}, \code{\link{dataset_take}}
 }
