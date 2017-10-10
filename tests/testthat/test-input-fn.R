@@ -61,9 +61,9 @@ test_that("input_fn rejects un-named datasets", {
   })
 })
 
-test_succeeds("input_fn supports NULL response", {
-  use_input_fn(features = c("disp", "cyl"), response = NULL)
-})
+# test_succeeds("input_fn supports NULL response", {
+#   use_input_fn(features = c("disp", "cyl"), response = NULL)
+# })
 
 test_succeeds("input_fn supports tidyselect", {
 

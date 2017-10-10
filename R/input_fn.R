@@ -14,8 +14,6 @@
 #' @return An input_fn suitable for use with tfestimators train, evaluate, and
 #'   predict methods
 #'
-#' @importFrom rlang as_overscope
-#' @importFrom tidyselect enquo vars_select
 #'
 #' @export
 input_fn.tensorflow.python.data.ops.dataset_ops.Dataset <- function(dataset, features, response, ...) {
@@ -25,16 +23,21 @@ input_fn.tensorflow.python.data.ops.dataset_ops.Dataset <- function(dataset, fea
     stop("Creating an input_fn requires a dataset with named outputs")
   col_names <- names(dataset$output_shapes)
 
+  # get tidyselect_data for overscope
+  tidyselect <- asNamespace("tidyselect")
+  exports <- getNamespaceExports(tidyselect)
+  tidyselect_data <- mget(exports, tidyselect, inherits = TRUE)
+
   # evaluate features (use tidyselect overscope)
   eq_features <- enquo(features)
-  environment(eq_features) <- as_overscope(eq_features, data = tidyselect_data())
+  environment(eq_features) <- as_overscope(eq_features, data = tidyselect_data)
   features <- vars_select(col_names, !! eq_features)
   feature_cols <- match(features, col_names)
 
   # evaluate response (use tidyselect overscope)
-  if (!missing(response) && !is.null(response)) {
+  if (!missing(response)) {
     eq_response <- enquo(response)
-    environment(eq_response) <- as_overscope(eq_response, data = tidyselect_data())
+    environment(eq_response) <- as_overscope(eq_response, data = tidyselect_data)
     response <- vars_select(col_names, !! eq_response)
     if (length(response) != 1)
       stop("More than one response column specified: ", paste(response))
@@ -54,10 +57,15 @@ input_fn.tensorflow.python.data.ops.dataset_ops.Dataset <- function(dataset, fea
     })
 
   # return function which yields the iterator for the dataset
-  # TODO: function(estimator) which supports custom estimators
-  function() {
-    iter <- one_shot_iterator(input_fn_dataset)
-    iter$get_next()
+  function(estimator) {
+    if (inherits(estimator, "tf_custom_estimator"))
+      NULL
+    else {
+      function() {
+        iter <- one_shot_iterator(input_fn_dataset)
+        iter$get_next()
+      }
+    }
   }
 }
 

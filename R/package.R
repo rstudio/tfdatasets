@@ -2,6 +2,8 @@
 
 #' @importFrom reticulate py_last_error tuple
 #' @importFrom tensorflow tf
+#' @import tidyselect
+#' @import rlang
 NULL
 
 
