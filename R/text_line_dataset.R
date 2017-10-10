@@ -123,7 +123,7 @@ dataset_decode_csv <- function(dataset, col_names = NULL, record_defaults = NULL
   on.exit(close(preview_con), add = TRUE)
   preview_csv <- read.csv(
     file = preview_con,
-    header = is.null(col_names),
+    header = is.null(col_names) || is.character(col_names),
     sep = field_delim,
     comment.char = "",
     stringsAsFactors = FALSE
