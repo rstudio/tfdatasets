@@ -5,7 +5,7 @@
 \title{Construct an input function from a dataset}
 \usage{
 input_fn.tensorflow.python.data.ops.dataset_ops.Dataset(dataset, features,
-  response)
+  response, ...)
 }
 \arguments{
 \item{dataset}{A dataset}
@@ -13,6 +13,8 @@ input_fn.tensorflow.python.data.ops.dataset_ops.Dataset(dataset, features,
 \item{features}{The names of feature variables to be used.}
 
 \item{response}{The name of the response variable.}
+
+\item{...}{Unused}
 }
 \value{
 An input_fn suitable for use with tfestimators train, evaluate, and

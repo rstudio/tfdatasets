@@ -17,3 +17,11 @@ test_succeeds <- function(desc, expr, required_version = NULL) {
   })
 }
 
+
+tidyselect_data <- function() {
+  tidyselect <- asNamespace("tidyselect")
+  exports <- getNamespaceExports(tidyselect)
+  mget(exports, tidyselect, inherits = TRUE)
+}
+
+

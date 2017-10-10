@@ -33,10 +33,6 @@ use_input_fn <- function(features, response) {
 
   # evaluate model
   model %>% evaluate(mtcars_input_fn("data/mtcars-test.csv"))
-
-  # generate predictions
-  model %>% predict(mtcars_input_fn("data/mtcars-test.csv"))
-
 }
 
 test_succeeds("input_fn feeds data to train and evaluate", {
@@ -63,6 +59,21 @@ test_that("input_fn rejects un-named datasets", {
     dataset <- tensors_dataset(1:100)
     input_fn(dataset, features = c("disp", "cyl"), response = "mpg")
   })
+})
+
+test_succeeds("input_fn supports NULL response", {
+  use_input_fn(features = c("disp", "cyl"), response = NULL)
+})
+
+test_succeeds("input_fn supports tidyselect", {
+
+  dataset <- csv_dataset("data/mtcars-train.csv") %>%
+    dataset_shuffle(20) %>%
+    dataset_batch(10) %>%
+    dataset_repeat(5)
+
+  # create input_fn from dataset
+  input_fn(dataset, features = c(disp, cyl), response = mpg)
 })
 
 
