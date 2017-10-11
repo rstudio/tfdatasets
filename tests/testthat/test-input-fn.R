@@ -75,7 +75,7 @@ test_succeeds("input_fn supports tidyselect", {
 })
 
 
-test_that("input_fn works with custom estimators", {
+test_succeeds("input_fn works with custom estimators", {
 
   skip_if_no_tensorflow()
 
