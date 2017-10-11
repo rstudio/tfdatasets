@@ -16,8 +16,7 @@ is_out_of_range_error()
 \item{iterator}{Dataset iterator}
 
 \item{session}{TensorFlow session to evaluate iterator within. If you
-pass \code{NULL} then the default session will be used if it's been
-previously set.}
+pass \code{NULL} then a default session will be used if available.}
 
 \item{completed}{Sentinel value to return from \code{next_element()} if the
 iteration completes (defaults to \code{NULL} but can be any value you specify).}
@@ -45,8 +44,9 @@ while(!is.null(value <- next_element(iterator, sess))) {
 }
 
 Note that a TensorFlow session is required to evaluate element values. If you
-pass \code{NULL} then the default TensorFlow session will be used if it's been
-previously set.
+pass \code{NULL} then a default session will be used if available. The default
+session will be the current Keras TensorFlow session (if available) and
+failing that the current default TensorFlow session.
 }
 
 \section{Tensor Iteration}{

@@ -87,8 +87,7 @@ iterator_from_dataset <- function(dataset, features = NULL, response = NULL, nam
 #'
 #' @param iterator Dataset iterator
 #' @param session TensorFlow session to evaluate iterator within. If you
-#'   pass `NULL` then the default session will be used if it's been
-#'   previously set.
+#'   pass `NULL` then a default session will be used if available.
 #' @param completed Sentinel value to return from `next_element()` if the
 #'   iteration completes (defaults to `NULL` but can be any value you specify).
 #'
@@ -113,8 +112,9 @@ iterator_from_dataset <- function(dataset, features = NULL, response = NULL, nam
 #' ```
 #'
 #' Note that a TensorFlow session is required to evaluate element values. If you
-#' pass `NULL` then the default TensorFlow session will be used if it's been
-#' previously set.
+#' pass `NULL` then a default session will be used if available. The default
+#' session will be the current Keras TensorFlow session (if available) and
+#' failing that the current default TensorFlow session.
 #'
 #' @section Tensor Iteration:
 #' If you use are iterating based on evaluating the tensor returned from
@@ -145,7 +145,7 @@ next_element <- function(iterator, session = NULL, completed = NULL) {
 
   # if the session is NULL then look for a default session
   if (is.null(session)) {
-    session <- tf$get_default_session()
+    session <- tf_default_session()
     if (is.null(session))
       stop("No session specified and no default session available.")
   }
@@ -177,6 +177,21 @@ is_out_of_range_error <- function() {
 }
 
 
+
+tf_default_session <- function() {
+
+  # if we are in a keras session and the tensorflow backend has
+  # an initialized _SESSION then use that
+  if (reticulate::py_module_available("keras")) {
+    keras <- reticulate::import("keras")
+    session <- keras$backend$tensorflow_backend$`_SESSION`
+    if (!is.null(session))
+      return(session)
+  }
+
+  # otherwise look for a TF default session
+  tf$get_default_session()
+}
 
 
 
