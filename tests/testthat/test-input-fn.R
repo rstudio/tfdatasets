@@ -1,5 +1,6 @@
 context("input_fn")
 
+library(tensorflow)
 library(tfestimators)
 
 source("utils.R")
@@ -73,6 +74,60 @@ test_succeeds("input_fn supports tidyselect", {
   input_fn(dataset, features = c(disp, cyl), response = mpg)
 })
 
+
+test_succeeds("input_fn works with custom estimators", {
+
+  skip_if_no_tensorflow()
+
+  # define custom estimator model_fn
+  simple_custom_model_fn <- function(features, labels, mode, params, config) {
+
+    # Create three fully connected layers respectively of size 10, 20, and 10 with
+    # each layer having a dropout probability of 0.1.
+    logits <- features %>%
+      tf$contrib$layers$stack(
+        tf$contrib$layers$fully_connected, c(10L, 20L, 10L),
+        normalizer_fn = tf$contrib$layers$dropout,
+        normalizer_params = list(keep_prob = 0.9)) %>%
+      tf$contrib$layers$fully_connected(3L, activation_fn = NULL) # Compute logits (1 per class) and compute loss.
+
+    predictions <- list(
+      class = tf$argmax(logits, 1L),
+      prob = tf$nn$softmax(logits))
+
+    if (mode == "infer") {
+      return(estimator_spec(mode = mode, predictions = predictions, loss = NULL, train_op = NULL))
+    }
+
+    labels <- tf$one_hot(labels, 3L)
+    loss <- tf$losses$softmax_cross_entropy(labels, logits)
+
+    # Create a tensor for training op.
+    train_op <- tf$contrib$layers$optimize_loss(
+      loss,
+      tf$contrib$framework$get_global_step(),
+      optimizer = 'Adagrad',
+      learning_rate = 0.1)
+
+    return(estimator_spec(mode = mode, predictions = predictions, loss = loss, train_op = train_op))
+  }
+
+
+  # define dataset
+  col_names <- c("SepalLength", "SepalWidth", "PetalLength", "PetalWidth","Species")
+  dataset <- csv_dataset("data/iris.csv", col_names = col_names, skip = 1) %>%
+    dataset_shuffle(20) %>%
+    dataset_batch(10) %>%
+    dataset_repeat(5)
+
+  # create model
+  classifier <- estimator(model_fn = simple_custom_model_fn, model_dir = tempfile())
+
+  # train
+  train(classifier, input_fn(dataset, features = -Species, response = Species))
+
+
+})
 
 
 
