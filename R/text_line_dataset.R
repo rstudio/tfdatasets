@@ -81,7 +81,8 @@ csv_dataset <- function(filenames, compression_type = NULL,
 #'   must be of type integer, numeric, or character. This is used both to indicate the
 #'   type of each field as well as to provide defaults for missing values.
 #'   If you want all fields to default to a certain type (e.g. numeric) then
-#'   you can pass `record_defaults = "numeric"`.
+#'   you can pass a single value or type specifier (e.g. `record_defaults = 0` or
+#'   `record_defaults = "numeric"`).
 #'
 #' @param field_delim An optional string. Defaults to ",". char delimiter to
 #'   separate fields in a record.
@@ -159,7 +160,9 @@ dataset_decode_csv <- function(dataset, col_names = NULL, record_defaults = NULL
       else
         x
     })
-  } else if (is.character(record_defaults) && length(record_defaults) == 1) {
+  } else if (length(record_defaults) == 1) {
+    if (!is.character(record_defaults))
+      record_defaults <- typeof(record_defaults)
     record_defaults <- lapply(1:ncol(preview_csv), function(x) {
       switch(record_defaults,
              integer = list(0L),
@@ -181,7 +184,7 @@ dataset_decode_csv <- function(dataset, col_names = NULL, record_defaults = NULL
     })
   } else {
     stop('record_defaults must be NULL (auto-detect), a list of default values, ",
-         "or a single type specifier (e.g. "numeric")')
+         "or a global default value or type specifier (e.g. 0 or "numeric")')
   }
 
   # read csv

@@ -26,7 +26,8 @@ will not be included in dataset.}
 must be of type integer, numeric, or character. This is used both to indicate the
 type of each field as well as to provide defaults for missing values.
 If you want all fields to default to a certain type (e.g. numeric) then
-you can pass \code{record_defaults = "numeric"}.}
+you can pass a single value or type specifier (e.g. \code{record_defaults = 0} or
+\code{record_defaults = "numeric"}).}
 
 \item{field_delim}{An optional string. Defaults to ",". char delimiter to
 separate fields in a record.}

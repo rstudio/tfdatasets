@@ -2,7 +2,7 @@
 library(tfdatasets)
 
 
-dataset <- csv_dataset("data/mtcars-train.csv", record_defaults = "numeric") %>%
+dataset <- csv_dataset("data/mtcars-train.csv", record_defaults = 0) %>%
   dataset_batch(10)
 
 iterator <- iterator_from_dataset(dataset,
