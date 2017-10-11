@@ -43,12 +43,13 @@ input_fn_from_dataset <- function(dataset, features, response) {
     if (inherits(estimator, "tf_custom_estimator"))
       feature_names <- NULL
     function() {
-      features_and_response_iterator(
+      iter <- features_and_response_iterator(
         dataset = dataset,
         feature_names = feature_names,
         feature_cols = feature_cols,
         response_col = response_col
       )
+      iter$get_next()
     }
   }
 }
@@ -103,8 +104,7 @@ features_and_response_iterator <- function(dataset, feature_names, feature_cols,
         tuple(record_features, record_response)
       }
     })
-  iter <- dataset$make_one_shot_iterator()
-  iter$get_next()
+  dataset$make_one_shot_iterator()
 }
 
 
