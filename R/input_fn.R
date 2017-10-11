@@ -17,7 +17,7 @@
 input_fn_from_dataset <- function(dataset, features, response) {
 
   # validate/retreive column names
-  col_names <- input_fn_column_names(dataset)
+  col_names <- column_names(dataset)
 
   # get tidyselect_data for overscope
   tidyselect <- asNamespace("tidyselect")
@@ -27,44 +27,30 @@ input_fn_from_dataset <- function(dataset, features, response) {
   # evaluate features (use tidyselect overscope)
   eq_features <- enquo(features)
   environment(eq_features) <- as_overscope(eq_features, data = tidyselect_data)
-  features_select <- vars_select(col_names, !! eq_features)
-  feature_cols <- match(features_select, col_names)
+  feature_names <- vars_select(col_names, !! eq_features)
+  feature_cols <- match(feature_names, col_names)
 
   # evaluate response (use tidyselect overscope)
   if (!missing(response)) {
     eq_response <- enquo(response)
     environment(eq_response) <- as_overscope(eq_response, data = tidyselect_data)
-    response_select <- vars_select(col_names, !! eq_response)
-    if (length(response_select) != 1)
-      stop("More than one response column specified: ", paste(response_select))
-    response_col <- match(response_select, col_names)
+    response_name <- vars_select(col_names, !! eq_response)
+    if (length(response_name) != 1)
+      stop("More than one response column specified: ", paste(response_name))
+    response_col <- match(response_name, col_names)
   }
-
-  # map dataset into input_fn compatible tensors
-  create_input_fn_dataset <- function(custom_estimator) {
-    dataset %>%
-      dataset_map(function(record) {
-        record_features <- record[feature_cols]
-        record_response <- record[[response_col]]
-        if (custom_estimator) {
-          record_features <- unname(record_features)
-          record_features <- tf$stack(record_features, axis = 1L)
-          tuple(record_features, record_response)
-        } else {
-          names(record_features) <- features_select
-          tuple(record_features, record_response)
-        }
-      })
-  }
-
 
   # return function which yields the iterator for the dataset
   function(estimator) {
-    custom_estimator <- inherits(estimator, "tf_custom_estimator")
-    input_fn_dataset <- create_input_fn_dataset(custom_estimator)
+    if (inherits(estimator, "tf_custom_estimator"))
+      feature_names <- NULL
     function() {
-      iter <- one_shot_iterator(input_fn_dataset)
-      iter$get_next()
+      features_and_response_iterator(
+        dataset = dataset,
+        feature_names = feature_names,
+        feature_cols = feature_cols,
+        response_col = response_col
+      )
     }
   }
 }
@@ -76,7 +62,7 @@ input_fn.tensorflow.python.data.ops.dataset_ops.Dataset <- function(object, feat
   dataset <- object
 
   # validate/retreive column names
-  col_names <- input_fn_column_names(dataset)
+  col_names <- column_names(dataset)
 
   # get tidyselect_data for overscope
   tidyselect <- asNamespace("tidyselect")
@@ -103,9 +89,29 @@ input_fn.tensorflow.python.data.ops.dataset_ops.Dataset <- function(object, feat
 }
 
 
-input_fn_column_names <- function(dataset) {
+column_names <- function(dataset) {
   if (!is.list(dataset$output_shapes) || is.null(names(dataset$output_shapes)))
-    stop("Creating an input_fn requires a dataset with named outputs", call. = FALSE)
-  col_names <- names(dataset$output_shapes)
+    stop("Dataset does not have named outputs", call. = FALSE)
+  names(dataset$output_shapes)
 }
+
+features_and_response_iterator <- function(dataset, feature_names, feature_cols, response_col) {
+  dataset <- dataset %>%
+    dataset_map(function(record) {
+      record_features <- record[feature_cols]
+      record_response <- record[[response_col]]
+      if (!is.null(feature_names)) {
+        names(record_features) <- feature_names
+        tuple(record_features, record_response)
+      } else {
+        record_features <- unname(record_features)
+        record_features <- tf$stack(record_features, axis = 1L)
+        tuple(record_features, record_response)
+      }
+    })
+  iter <- dataset$make_one_shot_iterator()
+  iter$get_next()
+}
+
+
 
