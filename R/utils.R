@@ -44,10 +44,10 @@ resolve_filenames <- function(filenames) {
 
   # resolve filename wildcards then iterate over the results
   filenames <- tf$data$Dataset$list_files(filenames)
-  iter <- one_shot_iterator(filenames)
+  iter <- iterator_from_dataset(filenames)
   with_session(function(sess) {
     all_filenames <- character()
-    while(!is.null(filename <- iterator_next(iter, sess)))
+    while(!is.null(filename <- next_element(iter, sess)))
       all_filenames <- c(all_filenames, filename)
     all_filenames
   })

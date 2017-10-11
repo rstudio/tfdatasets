@@ -3,22 +3,18 @@ context("dataset iterators")
 
 source("utils.R")
 
-test_succeeds("one_shot_iterator returns an iterator", {
+test_succeeds("iterator_from_dataset returns an iterator", {
   dataset <- tensors_dataset(tf$constant(1:100))
-  one_shot_iterator(dataset)
+  iterator_from_dataset(dataset)
 })
 
-test_succeeds("initializable_iterator returns an iterator", {
-  dataset <- tensors_dataset(tf$constant(1:100))
-  initializable_iterator(dataset)
-})
 
-test_succeeds("iterator_next returns values", {
+test_succeeds("next_element returns values", {
   x <- 1:100
   dataset <- tensors_dataset(tf$constant(x))
-  iter <- one_shot_iterator(dataset)
+  iter <- iterator_from_dataset(dataset)
   sess <- tf$Session()
   on.exit(sess$close(), add = TRUE)
-  iterator_next(iter, sess)
+  next_element(iter, sess)
 })
 
