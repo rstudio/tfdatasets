@@ -86,22 +86,5 @@ column_names <- function(dataset) {
   names(dataset$output_shapes)
 }
 
-features_and_response_iterator <- function(dataset, feature_names, feature_cols, response_col) {
-  dataset <- dataset %>%
-    dataset_map(function(record) {
-      record_features <- record[feature_cols]
-      record_response <- record[[response_col]]
-      if (!is.null(feature_names)) {
-        names(record_features) <- feature_names
-        tuple(record_features, record_response)
-      } else {
-        record_features <- unname(record_features)
-        record_features <- tf$stack(record_features, axis = 1L)
-        tuple(record_features, record_response)
-      }
-    })
-  dataset$make_one_shot_iterator()
-}
-
 
 

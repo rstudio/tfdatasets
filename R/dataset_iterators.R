@@ -14,6 +14,10 @@
 #'   - `list(features_array, response_value)` when `named_features` is `FALSE`,
 #'     where `features_array` is a Rank 2 array of (batch_size, num_features).
 #' @param response Response variable (required from `features` is specified).
+#' @param named_features `TRUE` to yield features as a named list; `FALSE`
+#'   to stack features into a single array. Note that in the case of `FALSE`
+#'   all features will be stacked into a single 2D tensor so need to have the
+#'   same underlying data type.
 #'
 #' @details Pass the iterator to [next_element()] in order to retreive the value
 #'   of the next element, or [next_element_tensor()] to retreive a tensor that
@@ -71,7 +75,12 @@ iterator_from_dataset <- function(dataset, features = NULL, response = NULL, nam
           tuple(record_features, record_response)
         } else {
           record_features <- unname(record_features)
-          record_features <- tf$stack(record_features, axis = 1L)
+          # determine the axis based on the shape of the tensor
+          # (unbatched tensors will be scalar with no shape,
+          #  so will stack on axis 0)
+          shape <- record_features[[1]]$get_shape()$as_list()
+          axis <- length(shape)
+          record_features <- tf$stack(record_features, axis = axis)
           tuple(record_features, record_response)
         }
       })

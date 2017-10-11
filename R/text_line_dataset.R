@@ -78,8 +78,11 @@ csv_dataset <- function(filenames, compression_type = NULL,
 #'   will not be included in dataset.
 #'
 #' @param record_defaults List of default values for records. Default values
-#'   must be of type integer, numeric, or character. Used both to indicate the
+#'   must be of type integer, numeric, or character. This is used both to indicate the
 #'   type of each field as well as to provide defaults for missing values.
+#'   If you want all fields to default to a certain type (e.g. numeric) then
+#'   you can pass a single value or type specifier (e.g. `record_defaults = 0` or
+#'   `record_defaults = "numeric"`).
 #'
 #' @param field_delim An optional string. Defaults to ",". char delimiter to
 #'   separate fields in a record.
@@ -149,7 +152,7 @@ dataset_decode_csv <- function(dataset, col_names = NULL, record_defaults = NULL
   }
 
   # resolve/validate record defaults
-  if (!is.null(record_defaults)) {
+  if (is.list(record_defaults)) {
     validate_columns(record_defaults, 'record_defaults')
     record_defaults <- lapply(record_defaults, function(x) {
       if (!is.list(x))
@@ -157,7 +160,19 @@ dataset_decode_csv <- function(dataset, col_names = NULL, record_defaults = NULL
       else
         x
     })
-  } else {
+  } else if (length(record_defaults) == 1) {
+    if (!is.character(record_defaults))
+      record_defaults <- typeof(record_defaults)
+    record_defaults <- lapply(1:ncol(preview_csv), function(x) {
+      switch(record_defaults,
+             integer = list(0L),
+             double = list(0),
+             numeric = list(0),
+             character = list(""),
+             list("") # default
+      )
+    })
+  } else if (is.null(record_defaults)) {
     record_types <- lapply(preview_csv, typeof)
     record_defaults <- lapply(unname(record_types), function(x) {
       switch(x,
@@ -167,6 +182,9 @@ dataset_decode_csv <- function(dataset, col_names = NULL, record_defaults = NULL
              list("") # default
       )
     })
+  } else {
+    stop('record_defaults must be NULL (auto-detect), a list of default values, ",
+         "or a global default value or type specifier (e.g. 0 or "numeric")')
   }
 
   # read csv

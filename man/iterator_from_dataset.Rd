@@ -20,6 +20,11 @@ where \code{features_array} is a Rank 2 array of (batch_size, num_features).
 }}
 
 \item{response}{Response variable (required from \code{features} is specified).}
+
+\item{named_features}{\code{TRUE} to yield features as a named list; \code{FALSE}
+to stack features into a single array. Note that in the case of \code{FALSE}
+all features will be stacked into a single 2D tensor so need to have the
+same underlying data type.}
 }
 \value{
 An iterator over the elements of this dataset.

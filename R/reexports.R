@@ -10,3 +10,8 @@
 #' @usage lhs \%>\% rhs
 NULL
 
+
+#' @importFrom tensorflow tf
+#' @export
+tensorflow::tf
+
