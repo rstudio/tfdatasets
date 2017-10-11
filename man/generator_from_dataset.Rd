@@ -4,8 +4,7 @@
 \alias{generator_from_dataset}
 \title{Construct a Keras generator function from a dataset}
 \usage{
-generator_from_dataset(dataset, features, response, to_categorical = NULL,
-  session = "default")
+generator_from_dataset(dataset, features, response, session = "default")
 }
 \arguments{
 \item{dataset}{A dataset}

@@ -21,7 +21,7 @@
 #'   [predict_generator](keras::predict_generator) functions.
 #'
 #' @export
-generator_from_dataset <- function(dataset, features, response, to_categorical = NULL, session = "default") {
+generator_from_dataset <- function(dataset, features, response, session = "default") {
 
   # validate/retreive column names
   col_names <- column_names(dataset)
@@ -68,13 +68,7 @@ generator_from_dataset <- function(dataset, features, response, to_categorical =
       session <- tf$get_default_session()
 
     # yield next element
-    element <- next_element(iterator, session = session)
-
-    # create binary class matrix for categorical data if requested
-    if (is.numeric(to_categorical))
-      element[[2]] <- keras::to_categorical(element[[2]], to_categorical)
-
-    element
+    next_element(iterator, session = session)
   }
 }
 
