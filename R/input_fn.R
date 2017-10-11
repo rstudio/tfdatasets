@@ -51,7 +51,9 @@ input_fn.tensorflow.python.data.ops.dataset_ops.Dataset <- function(dataset, fea
         record_features <- record[feature_cols]
         record_response <- record[[response_col]]
         if (custom_estimator) {
-          tuple(unname(record_features), record_response)
+          record_features <- unname(record_features)
+          record_features <- tf$stack(record_features, axis = 1L)
+          tuple(record_features, record_response)
         } else {
           names(record_features) <- features_select
           tuple(record_features, record_response)
