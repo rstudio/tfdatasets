@@ -10,8 +10,8 @@
 #'   consist of a set of named output tensors (e.g. like the dataset
 #'   produced by the [csv_dataset()] function).
 #'
-#' @return An input_fn suitable for use with tfestimators train, evaluate, and
-#'   predict methods
+#' @return An input_fn suitable for use with tfestimators [train][tfestimators::train.tf_estimator], [evaluate][tfestimators::evaluate.tf_estimator], and
+#'   [predict][tfestimators::predict.tf_estimator] methods
 #'
 #' @export
 input_fn_from_dataset <- function(dataset, features, response) {

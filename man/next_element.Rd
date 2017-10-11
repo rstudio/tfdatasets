@@ -6,7 +6,7 @@
 \alias{is_out_of_range_error}
 \title{Get the next element from an iterator}
 \usage{
-next_element(iterator, session = NULL, completed = NULL)
+next_element(iterator, session = "default", completed = NULL)
 
 next_element_tensor(iterator)
 
@@ -15,8 +15,9 @@ is_out_of_range_error()
 \arguments{
 \item{iterator}{Dataset iterator}
 
-\item{session}{TensorFlow session to evaluate iterator within. If you
-pass \code{NULL} then a default session will be used if available.}
+\item{session}{TensorFlow session to evaluate iterator within. If not
+specified then default TensorFlow session (as given by \code{tf$get_default_session()})
+will be used if available.}
 
 \item{completed}{Sentinel value to return from \code{next_element()} if the
 iteration completes (defaults to \code{NULL} but can be any value you specify).}
@@ -34,7 +35,6 @@ Get the next element from an iterator
 To iterate using \code{next_element()}, check for a \code{NULL} return value
 (or other custom value specified via \code{completed}) to detect the
 end of the iteration. For example:\preformatted{library(tfdatasets)
-library(tensorflow)
 sess <- tf$Session()
 dataset <- tensors_dataset(1:10)
 iterator <- iterator_from_dataset(dataset)
@@ -43,10 +43,9 @@ while(!is.null(value <- next_element(iterator, sess))) {
 }
 }
 
-Note that a TensorFlow session is required to evaluate element values. If you
-pass \code{NULL} then a default session will be used if available. The default
-session will be the current Keras TensorFlow session (if available) and
-failing that the current default TensorFlow session.
+Note that a TensorFlow session is required to evaluate element values.
+If no session is provided and a default TensorFlow session exists (as
+given by \code{tf$get_default_session()}) then it will be utilized.
 }
 
 \section{Tensor Iteration}{

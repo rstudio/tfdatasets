@@ -14,8 +14,8 @@ input_fn_from_dataset(dataset, features, response)
 \item{response}{The name of the response variable.}
 }
 \value{
-An input_fn suitable for use with tfestimators train, evaluate, and
-predict methods
+An input_fn suitable for use with tfestimators \link[tfestimators:train.tf_estimator]{train}, \link[tfestimators:evaluate.tf_estimator]{evaluate}, and
+\link[tfestimators:predict.tf_estimator]{predict} methods
 }
 \description{
 Construct an input function from a dataset
