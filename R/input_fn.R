@@ -31,14 +31,12 @@ input_fn_from_dataset <- function(dataset, features, response) {
   feature_cols <- match(feature_names, col_names)
 
   # evaluate response (use tidyselect overscope)
-  if (!missing(response)) {
-    eq_response <- enquo(response)
-    environment(eq_response) <- as_overscope(eq_response, data = tidyselect_data)
-    response_name <- vars_select(col_names, !! eq_response)
-    if (length(response_name) != 1)
-      stop("More than one response column specified: ", paste(response_name))
-    response_col <- match(response_name, col_names)
-  }
+  eq_response <- enquo(response)
+  environment(eq_response) <- as_overscope(eq_response, data = tidyselect_data)
+  response_name <- vars_select(col_names, !! eq_response)
+  if (length(response_name) != 1)
+    stop("More than one response column specified: ", paste(response_name))
+  response_col <- match(response_name, col_names)
 
   # return function which yields the iterator for the dataset
   function(estimator) {
@@ -72,20 +70,16 @@ input_fn.tensorflow.python.data.ops.dataset_ops.Dataset <- function(object, feat
   # evaluate features (use tidyselect overscope)
   eq_features <- enquo(features)
   environment(eq_features) <- as_overscope(eq_features, data = tidyselect_data)
-  features_select <- vars_select(col_names, !! eq_features)
+  feature_names <- vars_select(col_names, !! eq_features)
 
   # evaluate response (use tidyselect overscope)
-  if (!missing(response)) {
-    eq_response <- enquo(response)
-    environment(eq_response) <- as_overscope(eq_response, data = tidyselect_data)
-    response_select <- vars_select(col_names, !! eq_response)
-    if (length(response_select) != 1)
-      stop("More than one response column specified: ", paste(response_select))
-  } else {
-    response_select <- NULL
-  }
+  eq_response <- enquo(response)
+  environment(eq_response) <- as_overscope(eq_response, data = tidyselect_data)
+  response_name <- vars_select(col_names, !! eq_response)
+  if (length(response_name) != 1)
+    stop("More than one response column specified: ", paste(response_name))
 
-  input_fn_from_dataset(dataset, features_select, response_select)
+  input_fn_from_dataset(dataset, feature_names, response_name)
 }
 
 
