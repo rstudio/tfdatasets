@@ -115,8 +115,7 @@ test_that("input_fn works with custom estimators", {
 
   # define dataset
   col_names <- c("SepalLength", "SepalWidth", "PetalLength", "PetalWidth","Species")
-  dataset <- csv_dataset("data/iris.csv", col_names = col_names) %>%
-    dataset_skip(1) %>%  # skip header w/ col names
+  dataset <- csv_dataset("data/iris.csv", col_names = col_names, skip = 1) %>%
     dataset_shuffle(20) %>%
     dataset_batch(10) %>%
     dataset_repeat(5)
