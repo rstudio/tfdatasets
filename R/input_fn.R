@@ -5,7 +5,6 @@
 #' @param dataset A dataset
 #' @param features The names of feature variables to be used.
 #' @param response The name of the response variable.
-#' @param ... Unused
 #'
 #' @details Creating an input_fn from a dataset requires that the dataset
 #'   consist of a set of named output tensors (e.g. like the dataset
@@ -14,14 +13,11 @@
 #' @return An input_fn suitable for use with tfestimators train, evaluate, and
 #'   predict methods
 #'
-#'
 #' @export
-input_fn.tensorflow.python.data.ops.dataset_ops.Dataset <- function(dataset, features, response, ...) {
+input_fn_from_dataset <- function(dataset, features, response) {
 
   # validate/retreive column names
-  if (!is.list(dataset$output_shapes) || is.null(names(dataset$output_shapes)))
-    stop("Creating an input_fn requires a dataset with named outputs")
-  col_names <- names(dataset$output_shapes)
+  col_names <- input_fn_column_names(dataset)
 
   # get tidyselect_data for overscope
   tidyselect <- asNamespace("tidyselect")
@@ -71,5 +67,45 @@ input_fn.tensorflow.python.data.ops.dataset_ops.Dataset <- function(dataset, fea
       iter$get_next()
     }
   }
+}
+
+#' @export
+input_fn.tensorflow.python.data.ops.dataset_ops.Dataset <- function(object, features, response, ...) {
+
+  # alias dataset
+  dataset <- object
+
+  # validate/retreive column names
+  col_names <- input_fn_column_names(dataset)
+
+  # get tidyselect_data for overscope
+  tidyselect <- asNamespace("tidyselect")
+  exports <- getNamespaceExports(tidyselect)
+  tidyselect_data <- mget(exports, tidyselect, inherits = TRUE)
+
+  # evaluate features (use tidyselect overscope)
+  eq_features <- enquo(features)
+  environment(eq_features) <- as_overscope(eq_features, data = tidyselect_data)
+  features_select <- vars_select(col_names, !! eq_features)
+
+  # evaluate response (use tidyselect overscope)
+  if (!missing(response)) {
+    eq_response <- enquo(response)
+    environment(eq_response) <- as_overscope(eq_response, data = tidyselect_data)
+    response_select <- vars_select(col_names, !! eq_response)
+    if (length(response_select) != 1)
+      stop("More than one response column specified: ", paste(response_select))
+  } else {
+    response_select <- NULL
+  }
+
+  input_fn_from_dataset(dataset, features_select, response_select)
+}
+
+
+input_fn_column_names <- function(dataset) {
+  if (!is.list(dataset$output_shapes) || is.null(names(dataset$output_shapes)))
+    stop("Creating an input_fn requires a dataset with named outputs", call. = FALSE)
+  col_names <- names(dataset$output_shapes)
 }
 
