@@ -23,8 +23,10 @@ If \code{NULL}, the first row of the input will be used as the column names, and
 will not be included in dataset.}
 
 \item{record_defaults}{List of default values for records. Default values
-must be of type integer, numeric, or character. Used both to indicate the
-type of each field as well as to provide defaults for missing values.}
+must be of type integer, numeric, or character. This is used both to indicate the
+type of each field as well as to provide defaults for missing values.
+If you want all fields to default to a certain type (e.g. numeric) then
+you can pass \code{record_defaults = "numeric"}.}
 
 \item{field_delim}{An optional string. Defaults to ",". char delimiter to
 separate fields in a record.}
