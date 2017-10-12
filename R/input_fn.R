@@ -43,7 +43,8 @@ input_fn_from_dataset <- function(dataset, features, response) {
         dataset = dataset,
         features = feature_names,
         response = response_name,
-        names = !inherits(estimator, "tf_custom_estimator")
+        names = NULL,
+        named_features = !inherits(estimator, "tf_custom_estimator")
       )
     }
   }

@@ -2,13 +2,10 @@
 % Please edit documentation in R/dataset_iterators.R
 \name{batch_from_dataset}
 \alias{batch_from_dataset}
-\alias{is_out_of_range_error}
-\title{Tensors for iterating over batches of a dataset.}
+\title{Draw batches from a dataset}
 \usage{
 batch_from_dataset(dataset, features = NULL, response = NULL,
-  names = FALSE)
-
-is_out_of_range_error()
+  names = c("x", "y"), named_features = FALSE)
 }
 \arguments{
 \item{dataset}{A dataset}
@@ -17,27 +14,33 @@ is_out_of_range_error()
 
 \item{response}{Response variable (required when \code{features} is specified).}
 
-\item{names}{\code{TRUE} to yield features as a named list; \code{FALSE}
+\item{names}{Names to assign list elements when \code{features} and \code{response} are
+specified (defaults to \code{x} and \code{y} for features and response respectively) .}
+
+\item{named_features}{\code{TRUE} to yield features as a named list; \code{FALSE}
 to stack features into a single array. Note that in the case of \code{FALSE}
-all features will be stacked into a single 2D tensor so need to have the
-same underlying data type.}
+(the default) all features will be stacked into a single 2D tensor
+so need to have the same underlying data type.}
 }
 \value{
-Tensors that can be evaluated to yield the next batch of training data.
+Tensor(s) that can be evaluated to yield the next batch of training data.
 
-When \code{features} is specified the tensor will have a structure of either:
+When \code{features} is specified the tensors will have a structure of either:
 \itemize{
-\item \code{list(list(feature_name = feature_value, ...), response_value)} when
-\code{names} is \code{TRUE}; or
-\item \code{list(features_array, response_value)} when \code{names} is \code{FALSE},
-where \code{features_array} is a Rank 2 array of (batch_size, num_features).
+\item \code{list(x = list(feature_name = feature_values, ...), y = response_values)} when
+\code{named_features} is \code{TRUE}; or
+\item \code{list(x = features_array, y = response_values)} when \code{named_features} is \code{FALSE},
+where \code{features_array} is a Rank 2 array of \code{(batch_size, num_features)}.
 }
+
+Note that by default list elements are named \code{x} and \code{y}. This can be customized
+using the \code{names} argument (pass \code{NULL} to return a list with no names).
 
 When \code{features} is not specified the tensors will conform to the
 shape and types of the dataset (see \code{\link[=output_shapes]{output_shapes()}} and \code{\link[=output_types]{output_types()}}).
 }
 \description{
-Tensor or list(s) of tensors (e.g. for named features and response)
+Tensor or list(s) of tensors (e.g. for features and response)
 that yield the next batch of data each time they are evaluated.
 }
 \section{Batch Iteration}{
@@ -49,21 +52,24 @@ the evaluation (e.g. the Keras \code{layer_input()} and \code{compile()} functio
 
 If you do need to perform iteration manually by evaluating the tensors,
 a runtime error will occur when the iterator has exhausted all available elements.
-You can use the \code{is_out_of_range_error()} to distinguish this error from other
+You can use the \code{\link[=out_of_range_error]{out_of_range_error()}} function to distinguish this error from other
 errors which may have occurred. For example:\preformatted{library(tfdatasets)
-sess <- tf$Session()
-dataset <- tensors_dataset(1:10)
+dataset <- csv_dataset("training.csv") %>%
+  dataset_batch(128) %>%
+  dataset_repeat(10)
 batch <- batch_from_dataset(dataset)
 tryCatch({
   while(TRUE) {
-    batch_values <- sess$run(batch)
-    print(batch_values)
+    # use batch$x and batch$y tensors
   }
 },
 error = function(e) {
-  if (!is_out_of_range_error())
+  if (!out_of_range_error())
     stop(e)
 })
 }
 }
 
+\seealso{
+\code{\link[=input_fn_from_dataset]{input_fn_from_dataset()}} for use with \pkg{tfestimators}.
+}

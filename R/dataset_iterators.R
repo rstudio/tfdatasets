@@ -1,7 +1,7 @@
 
-#' Tensors for iterating over batches of a dataset.
+#' Draw batches from a dataset
 #'
-#' Tensor or list(s) of tensors (e.g. for named features and response)
+#' Tensor or list(s) of tensors (e.g. for features and response)
 #' that yield the next batch of data each time they are evaluated.
 #'
 #' @param dataset A dataset
@@ -10,18 +10,24 @@
 #'
 #' @param response Response variable (required when `features` is specified).
 #'
-#' @param names `TRUE` to yield features as a named list; `FALSE`
+#' @param names Names to assign list elements when `features` and `response` are
+#'  specified (defaults to `x` and `y` for features and response respectively) .
+#'
+#' @param named_features `TRUE` to yield features as a named list; `FALSE`
 #'   to stack features into a single array. Note that in the case of `FALSE`
-#'   all features will be stacked into a single 2D tensor so need to have the
-#'   same underlying data type.
+#'   (the default) all features will be stacked into a single 2D tensor
+#'   so need to have the same underlying data type.
 #'
-#' @return Tensors that can be evaluated to yield the next batch of training data.
+#' @return Tensor(s) that can be evaluated to yield the next batch of training data.
 #'
-#' When `features` is specified the tensor will have a structure of either:
-#'   - `list(list(feature_name = feature_value, ...), response_value)` when
-#'   `names` is `TRUE`; or
-#'   - `list(features_array, response_value)` when `names` is `FALSE`,
-#'     where `features_array` is a Rank 2 array of (batch_size, num_features).
+#' When `features` is specified the tensors will have a structure of either:
+#'   - `list(x = list(feature_name = feature_values, ...), y = response_values)` when
+#'   `named_features` is `TRUE`; or
+#'   - `list(x = features_array, y = response_values)` when `named_features` is `FALSE`,
+#'     where `features_array` is a Rank 2 array of `(batch_size, num_features)`.
+#'
+#' Note that by default list elements are named `x` and `y`. This can be customized
+#' using the `names` argument (pass `NULL` to return a list with no names).
 #'
 #' When `features` is not specified the tensors will conform to the
 #' shape and types of the dataset (see [output_shapes()] and [output_types()]).
@@ -34,28 +40,31 @@
 #'
 #' If you do need to perform iteration manually by evaluating the tensors,
 #' a runtime error will occur when the iterator has exhausted all available elements.
-#' You can use the `is_out_of_range_error()` to distinguish this error from other
+#' You can use the [out_of_range_error()] function to distinguish this error from other
 #' errors which may have occurred. For example:
 #'
 #' ```r
 #' library(tfdatasets)
-#' sess <- tf$Session()
-#' dataset <- tensors_dataset(1:10)
+#' dataset <- csv_dataset("training.csv") %>%
+#'   dataset_batch(128) %>%
+#'   dataset_repeat(10)
 #' batch <- batch_from_dataset(dataset)
 #' tryCatch({
 #'   while(TRUE) {
-#'     batch_values <- sess$run(batch)
-#'     print(batch_values)
+#'     # use batch$x and batch$y tensors
 #'   }
 #' },
 #' error = function(e) {
-#'   if (!is_out_of_range_error())
+#'   if (!out_of_range_error())
 #'     stop(e)
 #' })
 #' ```
 #'
+#' @seealso [input_fn_from_dataset()] for use with \pkg{tfestimators}.
+#'
 #' @export
-batch_from_dataset <- function(dataset, features = NULL, response = NULL, names = FALSE) {
+batch_from_dataset <- function(dataset, features = NULL, response = NULL,
+                               names = c("x", "y"), named_features = FALSE) {
 
   # get tidyselect_data for overscope
   tidyselect <- asNamespace("tidyselect")
@@ -99,7 +108,7 @@ batch_from_dataset <- function(dataset, features = NULL, response = NULL, names 
       dataset_map(function(record) {
         record_features <- record[feature_cols]
         record_response <- record[[response_col]]
-        if (names) {
+        if (named_features) {
           names(record_features) <- feature_names
           tuple(record_features, record_response)
         } else {
@@ -113,16 +122,31 @@ batch_from_dataset <- function(dataset, features = NULL, response = NULL, names 
           tuple(record_features, record_response)
         }
       })
-  }
 
-  # create iterator and return get_next() tensor
-  iterator <- dataset$make_one_shot_iterator()
-  iterator$get_next()
+    iterator <- dataset$make_one_shot_iterator()
+    batch <- iterator$get_next()
+    names(batch) <- names
+    batch
+
+  } else {
+
+    iterator <- dataset$make_one_shot_iterator()
+    iterator$get_next()
+
+  }
 }
 
-#' @rdname batch_from_dataset
+#' Check if the last TensorFlow error was OutOfRangeError
+#'
+#' Used to detect end of iteration when evaluating tensors returned by
+#' [batch_from_dataset()].
+#'
+#' @return `TRUE` if the last error was OutOfRangeError
+#'
+#' @keywords internal
+#'
 #' @export
-is_out_of_range_error <- function() {
+out_of_range_error <- function() {
   last_error <- py_last_error()
   !is.null(last_error) && identical(last_error$type, "OutOfRangeError")
 }

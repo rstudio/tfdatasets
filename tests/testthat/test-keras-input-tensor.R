@@ -36,7 +36,7 @@ test_succeeds("iterators can provide keras input tensors", {
   train_batch <- batch_from_dataset(dataset, features = -Species, response = Species)
 
   # create model
-  input <- layer_input(tensor = train_batch[[1]], batch_shape = shape(NULL, 4))
+  input <- layer_input(tensor = train_batch$x, batch_shape = shape(NULL, 4))
   predictions <- input %>%
     layer_dense(units = 10, activation = "relu") %>%
     layer_dense(units = 20, activation = "relu") %>%
@@ -46,7 +46,7 @@ test_succeeds("iterators can provide keras input tensors", {
     loss = 'categorical_crossentropy',
     optimizer = optimizer_rmsprop(),
     metrics = c('accuracy'),
-    target_tensors = train_batch[[2]]
+    target_tensors = train_batch$y
   )
 
   # fit with the generator
