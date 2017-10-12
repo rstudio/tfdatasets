@@ -1,0 +1,172 @@
+---
+title: "tfdatasets: High Level Dataset API for TensorFlow"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+## Overview
+
+The TensorFlow Dataset API provides various facilities for creating scalable input pipelines for TensorFlow models, including:
+
+- Reading data from a variety of formats including CSV files and [TFRecords files](https://www.tensorflow.org/api_guides/python/python_io#tfrecords_format_details) (the standard binary format for TensorFlow training data).
+
+- Transforming datasets in a vareity of ways including mapping arbitrary functions against them. 
+
+- Shuffling, batching, and repeating datasets over a number of epochs.
+
+- Streaming interface to data for reading arbitrarily large datasets.
+
+- Reading and transforming data are TensorFlow graph operations, so are executed in C++ and in parallel with model training.
+
+The R interface to TensorFlow datasets provides access to the Dataset API, including high-level convenenice functions for easy integration with the [keras](https://tensorflow.rstudio.com/keras) and [tfestimators](https://tensorflow.rstudio.com/tfestimators) R packages.
+
+## Creating a Dataset
+
+To create a dataset, use one of the [dataset creation](reference/index.html#section-creating-datasets) functions. For example, to create a dataset from a CSV file:
+
+
+```{r}
+library(tfdatasets)
+dataset <- csv_dataset("iris.csv")
+```
+
+Dataset columns and data types are detected automatically by reading up to the first 1000 lines of the CSV file. You can provide explicit column names and/or data types using the `col_names` and `record_defaults` parameters:
+
+```{r}
+dataset <- csv_dataset("iris.csv",
+  col_names = c("SepalLength", "SepalWidth", "PetalLength", "PetalWidth", "Species"),
+  record_defaults = list(0, 0, 0, 0, 0L)
+)
+```
+
+The `record_defaults` parameter serves as both type information and as a default for missing values. Supported types are numeric, integer, and character.  
+
+## Transformations
+
+You can map arbitrary transformation functions onto dataset records using the `dataset_map()` function. For example, to transform the "Species" column into a one-hot encoded vector you would do this:
+
+```{r}
+dataset <- dataset %>% 
+  dataset_map(function(record) {
+    record$Species <- tf$one_hot(record$Species, 3L)
+    record
+  })
+```
+
+Note that while `dataset_map()` applies an R function, there are some special constraints on this function which allow it to execute *not within R* but rather within the TensorFlow graph. 
+
+For a dataset created with the `csv_dataset()` function, the passed record will be named list of tensors (one for each column of the dataset). The return value should be another set of tensors which were created from TensorFlow functions (e.g. `tf$one_hot` as illustrated above). This function will be converted to a TensorFlow graph operation that performs the transformation within native code.
+
+## Shuffling and Batching 
+
+There are functions which control how batches are drawn from the dataset. For example, the following specifes that data will be drawn in batches of 128 from a shuffled buffer of 5000 records, and that the dataset will be repeated for 10 epochs:
+
+```{r}
+dataset <- dataset %>% 
+  dataset_shuffle(5000) %>% 
+  dataset_batch(128) %>% 
+  dataset_repeat(10)
+```
+
+## Reading Batches
+
+Batches are read from datasets using tensors (e.g. a tensor for the features matrix and a tensor for the response variable). You can obtain the tensor(s) for a dataset by calling the `batch_from_dataset()` function.
+
+A very simple example consists of creating a dataset of constant tensors and then reading it:
+
+```{r}
+sess <- tf$Session()
+dataset <- tensor_slices_dataset(1:10) %>% 
+  dataset_batch(5)
+batch <- batch_from_dataset(dataset)
+sess$run(batch)
+```
+```
+[1] 1 2 3 4 5
+```
+
+The `batch_from_dataset()` function also supports yielding batches segregated into feature and response elements (assuming that the dataset consists of a set of named columns). For example, here we create a batch tensor organized into a feature matrix and response array:
+
+```{r}
+sess <- tf$Session()
+dataset <- csv_dataset("tests/testthat/data/mtcars.csv") %>% 
+  dataset_batch(5)
+batch <- batch_from_dataset(dataset, features = c(mpg, disp), response = cyl)
+sess$run(batch)
+```
+```
+$x
+     [,1] [,2]
+[1,] 21.0  160
+[2,] 21.0  160
+[3,] 22.8  108
+[4,] 21.4  258
+[5,] 18.7  360
+
+$y
+[1] 6 6 4 6 8
+```
+
+## Using with tfestimators
+
+Models created with **tfestimators** use an input function to consume data for training, evaluation, and prediction. For example, here is an example of using an input function to feed data from an R data frame to tfestimators model:
+
+```{r}
+model %>% train(
+  input_fn(mtcars, features = c(drat, cyl), response = mpg,
+           batch_size = 128, epochs = 3)
+)
+```
+
+To use **tfdatasets** with a dataset streamed from a CSV instead you would do the following:
+
+```{r}
+dataset <- csv_dataset("mtcars.csv") %>% 
+  dataset_batch(128) %>% 
+  dataset_repeat(3)
+
+model %>% train(
+  input_fn_from_dataset(dataset, features = c(drat, cyl), response = mpg)
+)
+```
+
+The `input_fn_from_dataset()` function uses the `batch_from_dataset()` function under the hood to provide the `input_fn` interface expected by tfestimators models.
+
+## Using with Keras
+
+
+
+
+
+
+
+
+## Batch Iteration
+
+In the [Reading Batches] section above we demonstrated evaluating the tensors returned from `batch_from_dataset()`. If you want to interate over all batches of a dataset, you will need to detect the end of the iteration. This is handled automatically when you use tfestiamtors or keras, however if you are dealing with the tensors directly you need to do this explicitly.
+
+When the iterator has exhausted all available elements a a runtime error will occur. You can use the `out_of_range_error()` function to distinguish this error from other errors which may have occurred during iteration. For example:
+
+```{r}
+library(tfdatasets)
+dataset <- csv_dataset("training.csv") 
+  dataset_batch(128) 
+  dataset_repeat(10)
+  
+batch <- batch_from_dataset(dataset, features = c(mpg, disp), response = cyl)
+tryCatch({
+  while(TRUE) {
+    # use batch$x and batch$y tensors
+  }
+},
+error = function(e) {
+  if (!out_of_range_error())
+    stop(e)
+})
+```
+
+
+

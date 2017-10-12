@@ -49,7 +49,7 @@
 #' dataset <- csv_dataset("training.csv") %>%
 #'   dataset_batch(128) %>%
 #'   dataset_repeat(10)
-#' batch <- batch_from_dataset(dataset)
+#' batch <- batch_from_dataset(dataset, features = c(mpg, disp), response = cyl))
 #' tryCatch({
 #'   while(TRUE) {
 #'     # use batch$x and batch$y tensors
