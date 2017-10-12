@@ -2,6 +2,6 @@
 ^\.Rproj\.user$
 ^man-roxygen/
 ^dev/
-
+^index.Rmd$
 ^docs$
 ^pkgdown$
