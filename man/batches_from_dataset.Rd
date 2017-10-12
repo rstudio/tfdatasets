@@ -2,7 +2,7 @@
 % Please edit documentation in R/dataset_iterators.R
 \name{batches_from_dataset}
 \alias{batches_from_dataset}
-\title{Draw batches from a dataset}
+\title{Tensor for drawing batches from a dataset}
 \usage{
 batches_from_dataset(dataset, features = NULL, response = NULL,
   names = c("x", "y"), named_features = FALSE)
@@ -46,30 +46,24 @@ that yield the next batch of data each time they are evaluated.
 \section{Batch Iteration}{
 
 
-In many cases you won't need to directly evaluate the batch tensors,
-rather, you will pass the tensors to another function that will perform
-the evaluation (e.g. the Keras \code{layer_input()} and \code{compile()} functions).
+In many cases you won't need to explicitly iterate over the batches,
+rather, you will pass the batch tensors to another function that
+evaluates them as part of a training loop (e.g. the Keras
+\code{layer_input()} and \code{compile()} functions).
 
-If you do need to perform iteration manually by evaluating the tensors,
-a runtime error will occur when the iterator has exhausted all available elements.
-You can use the \code{\link[=out_of_range_error]{out_of_range_error()}} function to distinguish this error from other
-errors which may have occurred. For example:\preformatted{library(tfdatasets)
+If you do need to iterate explicitly over the batches, you can use
+the \code{\link[=for_each_batch]{for_each_batch()}} function. For example:\preformatted{library(tfdatasets)
 dataset <- csv_dataset("training.csv") %>%
   dataset_batch(128) %>%
   dataset_repeat(10)
-batch <- batches_from_dataset(dataset)
-tryCatch({
-  while(TRUE) {
-    # use batch$x and batch$y tensors
-  }
-},
-error = function(e) {
-  if (!out_of_range_error())
-    stop(e)
+batches <- batches_from_dataset(dataset)
+for_each_batch(batches, function(batch) {
+  # use batch$x and batch$y tensors
+  # (return FALSE to stop iteration early)
 })
 }
 }
 
 \seealso{
-\code{\link[=input_fn_from_dataset]{input_fn_from_dataset()}} for use with \pkg{tfestimators}.
+\code{\link[=for_each_batch]{for_each_batch()}}; \code{\link[=input_fn_from_dataset]{input_fn_from_dataset()}} for use with \pkg{tfestimators}.
 }

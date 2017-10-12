@@ -1,5 +1,5 @@
 
-#' Draw batches from a dataset
+#' Tensor for drawing batches from a dataset
 #'
 #' Tensor or list(s) of tensors (e.g. for features and response)
 #' that yield the next batch of data each time they are evaluated.
@@ -34,33 +34,27 @@
 #'
 #' @section Batch Iteration:
 #'
-#' In many cases you won't need to directly evaluate the batch tensors,
-#' rather, you will pass the tensors to another function that will perform
-#' the evaluation (e.g. the Keras `layer_input()` and `compile()` functions).
+#' In many cases you won't need to explicitly iterate over the batches,
+#' rather, you will pass the batch tensors to another function that
+#' evaluates them as part of a training loop (e.g. the Keras
+#' `layer_input()` and `compile()` functions).
 #'
-#' If you do need to perform iteration manually by evaluating the tensors,
-#' a runtime error will occur when the iterator has exhausted all available elements.
-#' You can use the [out_of_range_error()] function to distinguish this error from other
-#' errors which may have occurred. For example:
+#' If you do need to iterate explicitly over the batches, you can use
+#' the [for_each_batch()] function. For example:
 #'
 #' ```r
 #' library(tfdatasets)
 #' dataset <- csv_dataset("training.csv") %>%
 #'   dataset_batch(128) %>%
 #'   dataset_repeat(10)
-#' batch <- batches_from_dataset(dataset)
-#' tryCatch({
-#'   while(TRUE) {
-#'     # use batch$x and batch$y tensors
-#'   }
-#' },
-#' error = function(e) {
-#'   if (!out_of_range_error())
-#'     stop(e)
+#' batches <- batches_from_dataset(dataset)
+#' for_each_batch(batches, function(batch) {
+#'   # use batch$x and batch$y tensors
+#'   # (return FALSE to stop iteration early)
 #' })
 #' ```
 #'
-#' @seealso [input_fn_from_dataset()] for use with \pkg{tfestimators}.
+#' @seealso [for_each_batch()]; [input_fn_from_dataset()] for use with \pkg{tfestimators}.
 #'
 #' @export
 batches_from_dataset <- function(dataset, features = NULL, response = NULL,
@@ -135,6 +129,45 @@ batches_from_dataset <- function(dataset, features = NULL, response = NULL,
 
   }
 }
+
+
+#' Iterate over batch tensors
+#'
+#' @param batches Tensor(s) from [batch_tensor_from_dataset()]
+#' @param f Function with signature `function(batch)` to
+#'  call for each training batch .
+#'
+#' @note The provided function will be called until all
+#'  available training batches have been yielded. You
+#'  can return `FALSE` from the function to stop iteration
+#'  early.
+#'
+#' @examples \dontrun{
+#' library(tfdatasets)
+#' dataset <- csv_dataset("training.csv") %>%
+#'   dataset_batch(128) %>%
+#'   dataset_repeat(10)
+#' batches <- batches_from_dataset(dataset)
+#' for_each_batch(batches, function(batch) {
+#'   # use batch$x and batch$y tensors
+#'   # (return FALSE to stop iteration early)
+#' }
+#' }
+#' @export
+for_each_batch <- function(batches, f) {
+  tryCatch({
+    while(TRUE) {
+      result <- f(batches)
+      if (identical(result, FALSE))
+        break
+    }
+  },
+  error = function(e) {
+    if (!out_of_range_error())
+      stop(e)
+  })
+}
+
 
 #' Check if the last TensorFlow error was OutOfRangeError
 #'
