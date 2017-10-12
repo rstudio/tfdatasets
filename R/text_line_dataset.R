@@ -108,7 +108,7 @@ dataset_decode_csv <- function(dataset, col_names = NULL, record_defaults = NULL
     dataset_take(1000) %>%
     dataset_batch(1000)
   preview <- with_session(function(session) {
-    batch <- batch_from_dataset(preview)
+    batch <- batches_from_dataset(preview)
     session$run(batch)
   })
 

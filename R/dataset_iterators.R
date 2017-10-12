@@ -48,7 +48,7 @@
 #' dataset <- csv_dataset("training.csv") %>%
 #'   dataset_batch(128) %>%
 #'   dataset_repeat(10)
-#' batch <- batch_from_dataset(dataset)
+#' batch <- batches_from_dataset(dataset)
 #' tryCatch({
 #'   while(TRUE) {
 #'     # use batch$x and batch$y tensors
@@ -63,8 +63,8 @@
 #' @seealso [input_fn_from_dataset()] for use with \pkg{tfestimators}.
 #'
 #' @export
-batch_from_dataset <- function(dataset, features = NULL, response = NULL,
-                               names = c("x", "y"), named_features = FALSE) {
+batches_from_dataset <- function(dataset, features = NULL, response = NULL,
+                                 names = c("x", "y"), named_features = FALSE) {
 
   # get tidyselect_data for overscope
   tidyselect <- asNamespace("tidyselect")
@@ -139,7 +139,7 @@ batch_from_dataset <- function(dataset, features = NULL, response = NULL,
 #' Check if the last TensorFlow error was OutOfRangeError
 #'
 #' Used to detect end of iteration when evaluating tensors returned by
-#' [batch_from_dataset()].
+#' [batches_from_dataset()].
 #'
 #' @return `TRUE` if the last error was OutOfRangeError
 #'
