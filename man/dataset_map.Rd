@@ -2,7 +2,7 @@
 % Please edit documentation in R/dataset_methods.R
 \name{dataset_map}
 \alias{dataset_map}
-\title{Maps `map_func`` across this dataset.}
+\title{Map a function across a dataset.}
 \usage{
 dataset_map(dataset, map_func, num_parallel_calls = NULL)
 }
@@ -21,7 +21,7 @@ be processed sequentially.}
 A dataset
 }
 \description{
-Maps `map_func`` across this dataset.
+Map a function across a dataset.
 }
 \seealso{
 Other dataset methods: \code{\link{dataset_batch}},

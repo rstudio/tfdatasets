@@ -2,7 +2,7 @@
 % Please edit documentation in R/input_fn.R
 \name{input_fn_from_dataset}
 \alias{input_fn_from_dataset}
-\title{Construct an input function from a dataset}
+\title{Construct a tfestimators input function from a dataset}
 \usage{
 input_fn_from_dataset(dataset, features, response = NULL)
 }
@@ -18,7 +18,7 @@ An input_fn suitable for use with tfestimators \link[tfestimators:train.tf_estim
 \link[tfestimators:predict.tf_estimator]{predict} methods
 }
 \description{
-Construct an input function from a dataset
+Construct a tfestimators input function from a dataset
 }
 \details{
 Creating an input_fn from a dataset requires that the dataset
