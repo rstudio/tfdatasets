@@ -11,7 +11,7 @@ knitr::opts_chunk$set(eval = FALSE)
 
 ## Overview
 
-The TensorFlow Dataset API provides various facilities for creating scalable input pipelines for TensorFlow models, including:
+The TensorFlow Datasets API provides various facilities for creating scalable input pipelines for TensorFlow models, including:
 
 - Reading data from a variety of formats including CSV files and [TFRecords files](https://www.tensorflow.org/api_guides/python/python_io#tfrecords_format_details) (the standard binary format for TensorFlow training data).
 
