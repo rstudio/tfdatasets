@@ -66,9 +66,9 @@ test_that("input_fn rejects un-named datasets", {
 test_succeeds("input_fn supports tidyselect", {
 
   dataset <- csv_dataset("data/mtcars-train.csv") %>%
-    dataset_shuffle(20) %>%
-    dataset_batch(10) %>%
-    dataset_repeat(5)
+    dataset_shuffle(2000) %>%
+    dataset_batch(128) %>%
+    dataset_repeat(3)
 
   # create input_fn from dataset
   input_fn_from_dataset(dataset, features = c(disp, cyl), response = mpg)
