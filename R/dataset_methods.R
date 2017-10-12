@@ -116,7 +116,7 @@ dataset_take <- function(dataset, count) {
 }
 
 
-#' Maps `map_func`` across this dataset.
+#' Map a function across a dataset.
 #'
 #' @param dataset A dataset
 #' @param map_func A function mapping a nested structure of tensors (having
@@ -125,7 +125,6 @@ dataset_take <- function(dataset, count) {
 #' @param num_parallel_calls (Optional) An integer, representing the
 #'   number of elements to process in parallel If not specified, elements will
 #'   be processed sequentially.
-
 #'
 #' @return A dataset
 #'

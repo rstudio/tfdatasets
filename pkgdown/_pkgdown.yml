@@ -1,0 +1,47 @@
+template:
+  params:
+    bootswatch: cosmo
+
+navbar:
+  title: "tfdatasets"
+  type: inverse
+  left:
+    - text: "Home"
+      href: index.html
+    - text: "Reference"
+      href: reference/index.html
+  right:
+   - icon: fa-github
+     href: https://github.com/rstudio/tfdatasets
+
+reference:
+  - title: "Creating Datasets"
+    contents:
+       - csv_dataset
+       - tfrecord_dataset
+       - text_line_dataset
+       - tensors_dataset
+
+  - title: "Transforming Datasets"
+    contents:
+       - dataset_skip
+       - dataset_shuffle
+       - dataset_batch
+       - dataset_repeat
+       - dataset_map
+       - dataset_decode_csv
+       - dataset_cache
+       - dataset_take
+       - dataset_concatenate
+       - zip_datasets
+
+  - title: "Reading Datasets"
+    contents:
+       - batch_from_dataset
+       - input_fn_from_dataset
+
+  - title: "Dataset Properites"
+    contents:
+       - output_shapes
+       - output_types
+

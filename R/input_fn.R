@@ -1,6 +1,6 @@
 
 
-#' Construct an input function from a dataset
+#' Construct a tfestimators input function from a dataset
 #'
 #' @param dataset A dataset
 #' @param features The names of feature variables to be used.

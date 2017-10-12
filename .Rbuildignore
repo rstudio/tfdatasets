@@ -3,4 +3,5 @@
 ^man-roxygen/
 ^dev/
 
-
+^docs$
+^pkgdown$
