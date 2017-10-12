@@ -11,6 +11,6 @@ out_of_range_error()
 }
 \description{
 Used to detect end of iteration when evaluating tensors returned by
-\code{\link[=batches_from_dataset]{batches_from_dataset()}}.
+\code{\link[=batch_from_dataset]{batch_from_dataset()}}.
 }
 \keyword{internal}

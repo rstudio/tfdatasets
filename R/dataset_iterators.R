@@ -1,5 +1,5 @@
 
-#' Tensor for drawing batches from a dataset
+#' Tensor(s) for drawing batches from a dataset
 #'
 #' Tensor or list(s) of tensors (e.g. for features and response)
 #' that yield the next batch of data each time they are evaluated.
@@ -47,8 +47,8 @@
 #' dataset <- csv_dataset("training.csv") %>%
 #'   dataset_batch(128) %>%
 #'   dataset_repeat(10)
-#' batches <- batches_from_dataset(dataset)
-#' for_each_batch(batches, function(batch) {
+#' batch <- batch_from_dataset(dataset)
+#' for_each_batch(batch, function(batch) {
 #'   # use batch$x and batch$y tensors
 #'   # (return FALSE to stop iteration early)
 #' })
@@ -57,8 +57,8 @@
 #' @seealso [for_each_batch()]; [input_fn_from_dataset()] for use with \pkg{tfestimators}.
 #'
 #' @export
-batches_from_dataset <- function(dataset, features = NULL, response = NULL,
-                                 names = c("x", "y"), named_features = FALSE) {
+batch_from_dataset <- function(dataset, features = NULL, response = NULL,
+                               names = c("x", "y"), named_features = FALSE) {
 
   # get tidyselect_data for overscope
   tidyselect <- asNamespace("tidyselect")
@@ -133,7 +133,7 @@ batches_from_dataset <- function(dataset, features = NULL, response = NULL,
 
 #' Iterate over batch tensors
 #'
-#' @param batches Tensor(s) from [batch_tensor_from_dataset()]
+#' @param batches Tensor(s) from [batch_from_dataset()]
 #' @param f Function with signature `function(batch)` to
 #'  call for each training batch .
 #'
@@ -147,8 +147,8 @@ batches_from_dataset <- function(dataset, features = NULL, response = NULL,
 #' dataset <- csv_dataset("training.csv") %>%
 #'   dataset_batch(128) %>%
 #'   dataset_repeat(10)
-#' batches <- batches_from_dataset(dataset)
-#' for_each_batch(batches, function(batch) {
+#' batch <- batch_from_dataset(dataset)
+#' for_each_batch(batch, function(batch) {
 #'   # use batch$x and batch$y tensors
 #'   # (return FALSE to stop iteration early)
 #' }
@@ -172,7 +172,7 @@ for_each_batch <- function(batches, f) {
 #' Check if the last TensorFlow error was OutOfRangeError
 #'
 #' Used to detect end of iteration when evaluating tensors returned by
-#' [batches_from_dataset()].
+#' [batch_from_dataset()].
 #'
 #' @return `TRUE` if the last error was OutOfRangeError
 #'

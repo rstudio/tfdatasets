@@ -7,7 +7,7 @@
 for_each_batch(batches, f)
 }
 \arguments{
-\item{batches}{Tensor(s) from \code{\link[=batch_tensor_from_dataset]{batch_tensor_from_dataset()}}}
+\item{batches}{Tensor(s) from \code{\link[=batch_from_dataset]{batch_from_dataset()}}}
 
 \item{f}{Function with signature \code{function(batch)} to
 call for each training batch .}
@@ -27,8 +27,8 @@ library(tfdatasets)
 dataset <- csv_dataset("training.csv") \%>\%
   dataset_batch(128) \%>\%
   dataset_repeat(10)
-batches <- batches_from_dataset(dataset)
-for_each_batch(batches, function(batch) {
+batch <- batch_from_dataset(dataset)
+for_each_batch(batch, function(batch) {
   # use batch$x and batch$y tensors
   # (return FALSE to stop iteration early)
 }

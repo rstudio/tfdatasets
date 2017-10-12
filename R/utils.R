@@ -45,7 +45,7 @@ resolve_filenames <- function(filenames) {
   # list files and return all results
   filenames <- tf$data$Dataset$list_files(filenames) %>%
     dataset_take(-1)
-  batch <- batches_from_dataset(filenames)
+  batch <- batch_from_dataset(filenames)
   with_session(function(sess) {
     sess$run(batch)
   })
