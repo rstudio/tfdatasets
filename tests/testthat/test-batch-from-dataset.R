@@ -25,7 +25,7 @@ test_succeeds("batch_from_dataset can return named features", {
 })
 
 test_succeeds("batch_from_dataset can return an unnamed list", {
-  batch <- batch_from_dataset(mtcars_dataset(), features = c(mpg, disp), names = NULL)
+  batch <- batch_from_dataset(mtcars_dataset(), features = c(mpg, disp), named = FALSE)
   expect_null(names(batch))
 })
 

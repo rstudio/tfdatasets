@@ -10,7 +10,7 @@
 #'
 #' @param response Response variable.
 #'
-#' @param names `TRUE` to assign names to list elements when `features` are
+#' @param named `TRUE` to assign names to list elements when `features` are
 #'  specified (defaults to `x` and `y`, provide a character vector to use
 #'  alterate names).
 #'
@@ -28,7 +28,7 @@
 #'     where `features_array` is a Rank 2 array of `(batch_size, num_features)`.
 #'
 #' Note that by default list elements are named `x` and `y`. This can be customized
-#' using the `names` argument (pass `NULL` to return a list with no names).
+#' using the `named` argument (pass `FALSE` to return a list with no names).
 #'
 #' When `features` is not specified the tensors will conform to the
 #' shape and types of the dataset (see [output_shapes()] and [output_types()]).
@@ -65,7 +65,7 @@
 #'
 #' @export
 batch_from_dataset <- function(dataset, features = NULL, response = NULL,
-                               names = TRUE, named_features = FALSE) {
+                               named = TRUE, named_features = FALSE) {
 
   # validate dataset
   if (!inherits(dataset, "tensorflow.python.data.ops.dataset_ops.Dataset"))
@@ -145,13 +145,15 @@ batch_from_dataset <- function(dataset, features = NULL, response = NULL,
       batch <- list(batch, NULL)
 
     # resolve names
-    if (isTRUE(names))
+    if (isTRUE(named))
       names <- c("x", "y")
-    else if (is.character(names))
-      if (length(names) != 2)
+    else if (is.character(named)) {
+      if (length(named) != 2)
         stop("names must be TRUE, FALSE, or a 2-element character vector")
-    else
+      names <- named
+    } else {
       names <- NULL
+    }
 
     # apply names and return batch
     names(batch) <- names

@@ -50,7 +50,7 @@ input_fn_from_dataset <- function(dataset, features, response = NULL) {
         dataset = dataset,
         features = feature_names,
         response = response_name,
-        names = NULL,
+        named = FALSE,
         named_features = !inherits(estimator, "tf_custom_estimator")
       )
     }

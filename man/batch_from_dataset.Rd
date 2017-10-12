@@ -5,7 +5,7 @@
 \title{Tensor(s) for drawing batches from a dataset}
 \usage{
 batch_from_dataset(dataset, features = NULL, response = NULL,
-  names = TRUE, named_features = FALSE)
+  named = TRUE, named_features = FALSE)
 }
 \arguments{
 \item{dataset}{A dataset}
@@ -14,7 +14,7 @@ batch_from_dataset(dataset, features = NULL, response = NULL,
 
 \item{response}{Response variable.}
 
-\item{names}{\code{TRUE} to assign names to list elements when \code{features} are
+\item{named}{\code{TRUE} to assign names to list elements when \code{features} are
 specified (defaults to \code{x} and \code{y}, provide a character vector to use
 alterate names).}
 
@@ -35,7 +35,7 @@ where \code{features_array} is a Rank 2 array of \code{(batch_size, num_features
 }
 
 Note that by default list elements are named \code{x} and \code{y}. This can be customized
-using the \code{names} argument (pass \code{NULL} to return a list with no names).
+using the \code{named} argument (pass \code{FALSE} to return a list with no names).
 
 When \code{features} is not specified the tensors will conform to the
 shape and types of the dataset (see \code{\link[=output_shapes]{output_shapes()}} and \code{\link[=output_types]{output_types()}}).
