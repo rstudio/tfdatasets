@@ -49,7 +49,7 @@ test_succeeds("batch_from_dataset can provide keras input tensors", {
   train_batch <- batch_from_dataset(dataset, features = -Species, response = Species)
 
   # create model
-  input <- layer_input(tensor = train_batch$x, batch_shape = shape(NULL, 4))
+  input <- layer_input(tensor = train_batch$x, shape = c(4))
   predictions <- input %>%
     layer_dense(units = 10, activation = "relu") %>%
     layer_dense(units = 20, activation = "relu") %>%

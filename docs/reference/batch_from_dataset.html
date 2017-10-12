@@ -23,7 +23,7 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  
+  <link href="../extra.css" rel="stylesheet">
   
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
@@ -146,7 +146,7 @@ errors which may have occurred. For example:</p><pre>library(tfdatasets)
 dataset &lt;- csv_dataset("training.csv") <!-- %&gt;% -->
   dataset_batch(128) <!-- %&gt;% -->
   dataset_repeat(10)
-batch &lt;- batch_from_dataset(dataset)
+batch &lt;- batch_from_dataset(dataset, features = c(mpg, disp), response = cyl))
 tryCatch({
   while(TRUE) {
     # use batch$x and batch$y tensors

@@ -9,7 +9,8 @@
 <!-- jquery --><script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script><!-- Bootstrap --><link href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cosmo/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="jquery.sticky-kit.min.js"></script><script src="pkgdown.js"></script><!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
+<script src="jquery.sticky-kit.min.js"></script><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
+<!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
@@ -58,18 +59,34 @@
     
     
 <div class="contents">
+<div id="tfdatasets-r-interface-to-tensorflow-datasets-api" class="section level1">
+<div class="page-header"><h1 class="hasAnchor">
+<a href="#tfdatasets-r-interface-to-tensorflow-datasets-api" class="anchor"></a>tfdatasets: R interface to TensorFlow Datasets API</h1></div>
 <div id="overview" class="section level2">
 <h2 class="hasAnchor">
 <a href="#overview" class="anchor"></a>Overview</h2>
 <p>The TensorFlow Dataset API provides various facilities for creating scalable input pipelines for TensorFlow models, including:</p>
 <ul>
 <li><p>Reading data from a variety of formats including CSV files and <a href="https://www.tensorflow.org/api_guides/python/python_io#tfrecords_format_details">TFRecords files</a> (the standard binary format for TensorFlow training data).</p></li>
-<li><p>Transforming datasets in a vareity of ways including mapping arbitrary functions against them.</p></li>
+<li><p>Transforming datasets in a variety of ways including mapping arbitrary functions against them.</p></li>
 <li><p>Shuffling, batching, and repeating datasets over a number of epochs.</p></li>
 <li><p>Streaming interface to data for reading arbitrarily large datasets.</p></li>
 <li><p>Reading and transforming data are TensorFlow graph operations, so are executed in C++ and in parallel with model training.</p></li>
 </ul>
-<p>The R interface to TensorFlow datasets provides access to the Dataset API, including high-level convenenice functions for easy integration with the <a href="https://tensorflow.rstudio.com/keras">keras</a> and <a href="https://tensorflow.rstudio.com/tfestimators">tfestimators</a> R packages.</p>
+<p>The R interface to TensorFlow datasets provides access to the Dataset API, including high-level convenience functions for easy integration with the <a href="https://tensorflow.rstudio.com/keras">keras</a> and <a href="https://tensorflow.rstudio.com/tfestimators">tfestimators</a> R packages.</p>
+</div>
+<div id="installation" class="section level2">
+<h2 class="hasAnchor">
+<a href="#installation" class="anchor"></a>Installation</h2>
+<p>To use <strong>tfdatasets</strong> you need to install both the R package as well as <a href="https://rstudio.github.io/tensorflow/">TensorFlow</a> itself.</p>
+<p>First, install the tfdatasets R package as follows:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">devtools<span class="op">::</span><span class="kw"><a href="http://www.rdocumentation.org/packages/devtools/topics/install_github">install_github</a></span>(<span class="st">"rstudio/tfdatasets"</span>)</code></pre></div>
+<p>Then, use the <code>install_tensorflow()</code> function to install the current nightly build of TensorFlow (see the TensorFlow repository home page for <a href="https://github.com/tensorflow/tensorflow#installation">nightly build URLs</a> for various platforms):</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tfdtasets)
+<span class="kw">install_tensorflow</span>(<span class="dt">version =</span> <span class="st">"https://ci.tensorflow.org/view/Nightly/&lt;path-to-tf-package&gt;"</span>)</code></pre></div>
+<div class="alert alert-warning" role="alert">
+<p><strong>IMPORTANT NOTE</strong>: The <strong>tfdatasets</strong> package currently requires the nightly build of TensorFlow, it will not work with the release version as it relies on APIs only in the development version.</p>
+</div>
 </div>
 <div id="creating-a-dataset" class="section level2">
 <h2 class="hasAnchor">
@@ -77,12 +94,12 @@
 <p>To create a dataset, use one of the <a href="reference/index.html#section-creating-datasets">dataset creation</a> functions. For example, to create a dataset from a CSV file:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tfdatasets)
 dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/csv_dataset.html">csv_dataset</a></span>(<span class="st">"iris.csv"</span>)</code></pre></div>
-<p>Dataset columns and data types are detected automatically by reading up to the first 1000 lines of the CSV file. You can provide explicit column names and/or data types using the <code>col_names</code> and <code>record_defaults</code> parameters:</p>
+<p>Dataset columns and data types are detected automatically by reading up to the first 1,000 lines of the CSV file. You can provide explicit column names and/or data types using the <code>col_names</code> and <code>record_defaults</code> parameters:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/csv_dataset.html">csv_dataset</a></span>(<span class="st">"iris.csv"</span>,
   <span class="dt">col_names =</span> <span class="kw">c</span>(<span class="st">"SepalLength"</span>, <span class="st">"SepalWidth"</span>, <span class="st">"PetalLength"</span>, <span class="st">"PetalWidth"</span>, <span class="st">"Species"</span>),
-  <span class="dt">record_defaults =</span> <span class="kw">list</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, 0L)
+  <span class="dt">record_defaults =</span> <span class="kw">list</span>(<span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, <span class="dv">0</span>, 0L), <span class="dt">skip =</span> <span class="dv">1</span>
 )</code></pre></div>
-<p>The <code>record_defaults</code> parameter serves as both type information and as a default for missing values. Supported types are numeric, integer, and character.</p>
+<p>The <code>record_defaults</code> parameter serves as both type information and as a default for missing values. Supported types are numeric, integer, and character. Note that we’ve also specified <code>skip = 1</code> to indicate that the first row of the CSV that contains column names should be skipped.</p>
 </div>
 <div id="transformations" class="section level2">
 <h2 class="hasAnchor">
@@ -93,13 +110,25 @@ dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/csv_da
     record<span class="op">$</span>Species &lt;-<span class="st"> </span>tf<span class="op">$</span><span class="kw">one_hot</span>(record<span class="op">$</span>Species, 3L)
     record
   })</code></pre></div>
-<p>Note that while <code><a href="reference/dataset_map.html">dataset_map()</a></code> applies an R function, there are some special constraints on this function which allow it to execute <em>not within R</em> but rather within the TensorFlow graph.</p>
+<p>Note that while <code><a href="reference/dataset_map.html">dataset_map()</a></code> is defined using an R function, there are some special constraints on this function which allow it to execute <em>not within R</em> but rather within the TensorFlow graph.</p>
 <p>For a dataset created with the <code><a href="reference/csv_dataset.html">csv_dataset()</a></code> function, the passed record will be named list of tensors (one for each column of the dataset). The return value should be another set of tensors which were created from TensorFlow functions (e.g. <code>tf$one_hot</code> as illustrated above). This function will be converted to a TensorFlow graph operation that performs the transformation within native code.</p>
+<div id="parallel-mapping" class="section level3">
+<h3 class="hasAnchor">
+<a href="#parallel-mapping" class="anchor"></a>Parallel Mapping</h3>
+<p>If these transformations are computationally expensive they can be executed on multiple threads using the <code>num_parallel_calls</code> parameter. For example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span>dataset <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_map.html">dataset_map</a></span>(<span class="dt">num_parallel_calls =</span> <span class="dv">4</span>, <span class="cf">function</span>(record) {
+    record<span class="op">$</span>Species &lt;-<span class="st"> </span>tf<span class="op">$</span><span class="kw">one_hot</span>(record<span class="op">$</span>Species, 3L)
+    record
+  })</code></pre></div>
+<p>Note that the <code><a href="reference/csv_dataset.html">csv_dataset()</a></code> function described above is just a wrapper around a <code><a href="reference/text_line_dataset.html">text_line_dataset()</a></code> and the <code><a href="reference/dataset_decode_csv.html">dataset_decode_csv()</a></code> function, which maps text strings into named columns. It can therefore also perform CSV parsing in parallel with <code>num_parallel_calls</code>:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/csv_dataset.html">csv_dataset</a></span>(<span class="st">"iris.csv"</span>, <span class="dt">num_parallel_calls =</span> <span class="dv">4</span>)</code></pre></div>
+</div>
 </div>
 <div id="shuffling-and-batching" class="section level2">
 <h2 class="hasAnchor">
 <a href="#shuffling-and-batching" class="anchor"></a>Shuffling and Batching</h2>
-<p>There are functions which control how batches are drawn from the dataset. For example, the following specifes that data will be drawn in batches of 128 from a shuffled buffer of 5000 records, and that the dataset will be repeated for 10 epochs:</p>
+<p>There are functions which control how batches are drawn from the dataset. For example, the following specifies that data will be drawn in batches of 128 from a shuffled buffer of 5000 records, and that the dataset will be repeated for 10 epochs:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span>dataset <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">5000</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>
@@ -110,18 +139,28 @@ dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/csv_da
 <a href="#reading-batches" class="anchor"></a>Reading Batches</h2>
 <p>Batches are read from datasets using tensors (e.g. a tensor for the features matrix and a tensor for the response variable). You can obtain the tensor(s) for a dataset by calling the <code><a href="reference/batch_from_dataset.html">batch_from_dataset()</a></code> function.</p>
 <p>A very simple example consists of creating a dataset of constant tensors and then reading it:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sess &lt;-<span class="st"> </span>tf<span class="op">$</span><span class="kw">Session</span>()
-dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/tensor_slices_dataset.html">tensor_slices_dataset</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/tensor_slices_dataset.html">tensor_slices_dataset</a></span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">5</span>)
 batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/batch_from_dataset.html">batch_from_dataset</a></span>(dataset)
+batch</code></pre></div>
+<pre><code>Tensor("IteratorGetNext_10:0", shape=(?,), dtype=int32)</code></pre>
+<p>As you can see “batch” is actually a tensor that will yield the next batch of data when it is evaluated:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sess &lt;-<span class="st"> </span>tf<span class="op">$</span><span class="kw">Session</span>()
 sess<span class="op">$</span><span class="kw">run</span>(batch)</code></pre></div>
 <pre><code>[1] 1 2 3 4 5</code></pre>
 <p>The <code><a href="reference/batch_from_dataset.html">batch_from_dataset()</a></code> function also supports yielding batches segregated into feature and response elements (assuming that the dataset consists of a set of named columns). For example, here we create a batch tensor organized into a feature matrix and response array:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sess &lt;-<span class="st"> </span>tf<span class="op">$</span><span class="kw">Session</span>()
-dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/csv_dataset.html">csv_dataset</a></span>(<span class="st">"tests/testthat/data/mtcars.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/csv_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">5</span>)
 batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/batch_from_dataset.html">batch_from_dataset</a></span>(dataset, <span class="dt">features =</span> <span class="kw">c</span>(mpg, disp), <span class="dt">response =</span> cyl)
-sess<span class="op">$</span><span class="kw">run</span>(batch)</code></pre></div>
+batch</code></pre></div>
+<pre><code>$x
+Tensor("IteratorGetNext_13:0", shape=(?, 2), dtype=float32)
+
+$y
+Tensor("IteratorGetNext_13:1", shape=(?,), dtype=int32)</code></pre>
+<p>Here there are separate tensors for the features (“x”) and response (“y”) selected from the dataset. When we evaluate the tensor we see the actual feature and response data in the next batch:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sess<span class="op">$</span><span class="kw">run</span>(batch)</code></pre></div>
 <pre><code>$x
      [,1] [,2]
 [1,] 21.0  160
@@ -132,11 +171,12 @@ sess<span class="op">$</span><span class="kw">run</span>(batch)</code></pre></di
 
 $y
 [1] 6 6 4 6 8</code></pre>
+<p>See the <a href="#batch-iteration">Batch Iteration</a> section below for various ways to iterate over batches within a dataset.</p>
 </div>
 <div id="using-with-tfestimators" class="section level2">
 <h2 class="hasAnchor">
 <a href="#using-with-tfestimators" class="anchor"></a>Using with tfestimators</h2>
-<p>Models created with <strong>tfestimators</strong> use an input function to consume data for training, evaluation, and prediction. For example, here is an example of using an input function to feed data from an R data frame to tfestimators model:</p>
+<p>Models created with <strong>tfestimators</strong> use an input function to consume data for training, evaluation, and prediction. For example, here is an example of using an input function to feed data from an R data frame to a tfestimators model:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">train</span>(
   <span class="kw">input_fn</span>(mtcars, <span class="dt">features =</span> <span class="kw">c</span>(drat, cyl), <span class="dt">response =</span> mpg,
            <span class="dt">batch_size =</span> <span class="dv">128</span>, <span class="dt">epochs =</span> <span class="dv">3</span>)
@@ -154,16 +194,82 @@ model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">tr
 <div id="using-with-keras" class="section level2">
 <h2 class="hasAnchor">
 <a href="#using-with-keras" class="anchor"></a>Using with Keras</h2>
+<p>Keras models are often trained by passing in-memory arrays directly to the <code>fit</code> function. For example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">fit</span>(
+  x_train, y_train, 
+  <span class="dt">epochs =</span> <span class="dv">30</span>, 
+  <span class="dt">batch_size =</span> <span class="dv">128</span>
+)</code></pre></div>
+<p>However, this requires loading data into an R data frame or matrix before calling fit. You can use the <code><a href="http://www.rdocumentation.org/packages/keras/topics/train_on_batch">train_on_batch()</a></code> function to stream data one batch at a time, however the reading and processing of the input data is still being done serially and outside of native code.</p>
+<p>Alternatively, Keras enables you to wire input and output tensors directly into the model definition, which are then evaluated for each training step. You can combine this capability with <code><a href="reference/batch_from_dataset.html">batch_from_dataset()</a></code> to efficiently stream data into Keras training operations. Here is a complete example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(keras)
+<span class="kw">library</span>(tfdatasets)
+  
+<span class="co"># create dataset that yields batches infinitely</span>
+dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/csv_dataset.html">csv_dataset</a></span>(<span class="st">"iris.csv"</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_map.html">dataset_map</a></span>(<span class="cf">function</span>(record) {
+    record<span class="op">$</span>Species &lt;-<span class="st"> </span>tf<span class="op">$</span><span class="kw">one_hot</span>(record<span class="op">$</span>Species, <span class="dt">depth =</span> 3L)
+    record
+  }) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">1000</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>() 
+
+<span class="co"># stream batches from dataset</span>
+batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/batch_from_dataset.html">batch_from_dataset</a></span>(dataset, <span class="dt">features =</span> <span class="op">-</span>Species, <span class="dt">response =</span> Species)
+
+<span class="co"># create model</span>
+input &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/layer_input">layer_input</a></span>(<span class="dt">tensor =</span> batch<span class="op">$</span>x, <span class="dt">shape =</span> <span class="kw">c</span>(<span class="dv">4</span>))
+predictions &lt;-<span class="st"> </span>input <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/layer_dense">layer_dense</a></span>(<span class="dt">units =</span> <span class="dv">10</span>, <span class="dt">activation =</span> <span class="st">"relu"</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/layer_dense">layer_dense</a></span>(<span class="dt">units =</span> <span class="dv">20</span>, <span class="dt">activation =</span> <span class="st">"relu"</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/layer_dense">layer_dense</a></span>(<span class="dt">units =</span> <span class="dv">3</span>, <span class="dt">activation =</span> <span class="st">"softmax"</span>)
+model &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/keras_model">keras_model</a></span>(input, predictions)
+model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/compile">compile</a></span>(
+  <span class="dt">loss =</span> <span class="st">'categorical_crossentropy'</span>,
+  <span class="dt">optimizer =</span> <span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/optimizer_rmsprop">optimizer_rmsprop</a></span>(),
+  <span class="dt">metrics =</span> <span class="kw">c</span>(<span class="st">'accuracy'</span>),
+  <span class="dt">target_tensors =</span> batch<span class="op">$</span>y
+)
+
+<span class="co"># fit the model</span>
+model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/fit">fit</a></span>(
+  <span class="dt">steps_per_epoch =</span> <span class="dv">30</span>,
+  <span class="dt">epochs =</span> <span class="dv">5</span>
+)</code></pre></div>
+<p>Note that we don’t pass <code>x_train</code> or <code>y_train</code> to <code><a href="http://www.rdocumentation.org/packages/keras/topics/fit">fit()</a></code>, rather the feature data (<code>batch$x</code>) is provided as the <code>tensor</code> argument to <code><a href="http://www.rdocumentation.org/packages/keras/topics/layer_input">layer_input()</a></code> and the response data (<code>batch$y</code>) is provided as the <code>target_tensors</code> argument to <code><a href="http://www.rdocumentation.org/packages/keras/topics/compile">compile()</a></code>. The training data is directly wired into the TensorFlow graph built for the model.</p>
+<p>Note also that rather than calling the Keras <code><a href="http://www.rdocumentation.org/packages/keras/topics/to_categorical">to_categorical()</a></code> function to one-hot encode the “Species” field, we do this instead in a <code><a href="reference/dataset_map.html">dataset_map()</a></code> operation that calls the <code>tf$one_hot()</code> function.</p>
 </div>
 <div id="batch-iteration" class="section level2">
 <h2 class="hasAnchor">
 <a href="#batch-iteration" class="anchor"></a>Batch Iteration</h2>
-<p>In the <a href="#reading-batches">Reading Batches</a> section above we demonstrated evaluating the tensors returned from <code><a href="reference/batch_from_dataset.html">batch_from_dataset()</a></code>. If you want to interate over all batches of a dataset, you will need to detect the end of the iteration. This is handled automatically when you use tfestiamtors or keras, however if you are dealing with the tensors directly you need to do this explicitly.</p>
-<p>When the iterator has exhausted all available elements a a runtime error will occur. You can use the <code><a href="reference/out_of_range_error.html">out_of_range_error()</a></code> function to distinguish this error from other errors which may have occurred during iteration. For example:</p>
+<p>In the <a href="#reading-batches">Reading Batches</a> section above we demonstrated evaluating the tensors returned from <code><a href="reference/batch_from_dataset.html">batch_from_dataset()</a></code>. If you want to iterate over all batches of a dataset, you will need to detect the end of the iteration. This is handled automatically when you use tfestimators or keras, however if you are dealing with the tensors directly you need to do this explicitly.</p>
+<div id="infinite-batches" class="section level3">
+<h3 class="hasAnchor">
+<a href="#infinite-batches" class="anchor"></a>Infinite Batches</h3>
+<p>One approach to iteration is to create a dataset that yields batches infinitely (traversing the dataset multiple times with different batches randomly drawn). In this case you’d use another mechanism like a global step counter or check for a learning plateau. For example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tfdatasets)
-dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/csv_dataset.html">csv_dataset</a></span>(<span class="st">"training.csv"</span>) 
-  <span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) 
-  <span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>(<span class="dv">10</span>)
+dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/csv_dataset.html">csv_dataset</a></span>(<span class="st">"training.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">5000</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>()
+
+batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/batch_from_dataset.html">batch_from_dataset</a></span>(dataset, <span class="dt">features =</span> <span class="kw">c</span>(mpg, disp), <span class="dt">response =</span> cyl)
+
+steps &lt;-<span class="st"> </span><span class="dv">200</span>
+<span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>steps) {
+  <span class="co"># use batch$x and batch$y tensors</span>
+}</code></pre></div>
+<p>The call to <code><a href="reference/dataset_repeat.html">dataset_repeat()</a></code> with no <code>count</code> parameter requests that the dataset be traversed infinitely.</p>
+</div>
+<div id="detecting-completion" class="section level3">
+<h3 class="hasAnchor">
+<a href="#detecting-completion" class="anchor"></a>Detecting Completion</h3>
+<p>Another approach to iteration is to detect when all batches have been yielded from the dataset. When the batch tensor reaches the end of iteration a runtime error will occur. You can use the <code><a href="reference/out_of_range_error.html">out_of_range_error()</a></code> function to distinguish this error from other errors which may have occurred during iteration. For example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tfdatasets)
+dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/csv_dataset.html">csv_dataset</a></span>(<span class="st">"training.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>(<span class="dv">10</span>)
   
 batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/batch_from_dataset.html">batch_from_dataset</a></span>(dataset, <span class="dt">features =</span> <span class="kw">c</span>(mpg, disp), <span class="dt">response =</span> cyl)
 <span class="kw">tryCatch</span>({
@@ -175,6 +281,8 @@ batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/batch_fr
   <span class="cf">if</span> (<span class="op">!</span><span class="kw"><a href="reference/out_of_range_error.html">out_of_range_error</a></span>())
     <span class="kw">stop</span>(e)
 })</code></pre></div>
+</div>
+</div>
 </div>
 </div>
   </div>

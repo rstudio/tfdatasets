@@ -1,5 +1,5 @@
 ---
-title: "tfdatasets: High Level Dataset API for TensorFlow"
+title: "tfdatasets: R interface to TensorFlow Datasets API"
 output: html_document
 ---
 
@@ -7,13 +7,15 @@ output: html_document
 knitr::opts_chunk$set(eval = FALSE)
 ```
 
+# tfdatasets: R interface to TensorFlow Datasets API
+
 ## Overview
 
 The TensorFlow Dataset API provides various facilities for creating scalable input pipelines for TensorFlow models, including:
 
 - Reading data from a variety of formats including CSV files and [TFRecords files](https://www.tensorflow.org/api_guides/python/python_io#tfrecords_format_details) (the standard binary format for TensorFlow training data).
 
-- Transforming datasets in a vareity of ways including mapping arbitrary functions against them. 
+- Transforming datasets in a variety of ways including mapping arbitrary functions against them. 
 
 - Shuffling, batching, and repeating datasets over a number of epochs.
 
@@ -21,7 +23,28 @@ The TensorFlow Dataset API provides various facilities for creating scalable inp
 
 - Reading and transforming data are TensorFlow graph operations, so are executed in C++ and in parallel with model training.
 
-The R interface to TensorFlow datasets provides access to the Dataset API, including high-level convenenice functions for easy integration with the [keras](https://tensorflow.rstudio.com/keras) and [tfestimators](https://tensorflow.rstudio.com/tfestimators) R packages.
+The R interface to TensorFlow datasets provides access to the Dataset API, including high-level convenience functions for easy integration with the [keras](https://tensorflow.rstudio.com/keras) and [tfestimators](https://tensorflow.rstudio.com/tfestimators) R packages.
+
+## Installation
+
+To use **tfdatasets** you need to install both the R package as well as [TensorFlow](https://rstudio.github.io/tensorflow/) itself.
+
+First, install the tfdatasets R package as follows:
+
+```{r, eval=FALSE}
+devtools::install_github("rstudio/tfdatasets")
+```
+
+Then, use the `install_tensorflow()` function to install the current nightly build of TensorFlow (see the TensorFlow repository home page for [nightly build URLs](https://github.com/tensorflow/tensorflow#installation) for various platforms):
+
+```{r, eval=FALSE}
+library(tfdtasets)
+install_tensorflow(version = "https://ci.tensorflow.org/view/Nightly/<path-to-tf-package>")
+```
+
+<div class="alert alert-warning" role="alert">
+**IMPORTANT NOTE**: The **tfdatasets** package currently requires the nightly build of TensorFlow, it will not work with the release version as it relies on APIs only in the development version.
+</div>
 
 ## Creating a Dataset
 
@@ -33,16 +56,16 @@ library(tfdatasets)
 dataset <- csv_dataset("iris.csv")
 ```
 
-Dataset columns and data types are detected automatically by reading up to the first 1000 lines of the CSV file. You can provide explicit column names and/or data types using the `col_names` and `record_defaults` parameters:
+Dataset columns and data types are detected automatically by reading up to the first 1,000 lines of the CSV file. You can provide explicit column names and/or data types using the `col_names` and `record_defaults` parameters:
 
 ```{r}
 dataset <- csv_dataset("iris.csv",
   col_names = c("SepalLength", "SepalWidth", "PetalLength", "PetalWidth", "Species"),
-  record_defaults = list(0, 0, 0, 0, 0L)
+  record_defaults = list(0, 0, 0, 0, 0L), skip = 1
 )
 ```
 
-The `record_defaults` parameter serves as both type information and as a default for missing values. Supported types are numeric, integer, and character.  
+The `record_defaults` parameter serves as both type information and as a default for missing values. Supported types are numeric, integer, and character. Note that we've also specified `skip = 1` to indicate that the first row of the CSV that contains column names should be skipped.
 
 ## Transformations
 
@@ -56,13 +79,31 @@ dataset <- dataset %>%
   })
 ```
 
-Note that while `dataset_map()` applies an R function, there are some special constraints on this function which allow it to execute *not within R* but rather within the TensorFlow graph. 
+Note that while `dataset_map()` is defined using an R function, there are some special constraints on this function which allow it to execute *not within R* but rather within the TensorFlow graph. 
 
-For a dataset created with the `csv_dataset()` function, the passed record will be named list of tensors (one for each column of the dataset). The return value should be another set of tensors which were created from TensorFlow functions (e.g. `tf$one_hot` as illustrated above). This function will be converted to a TensorFlow graph operation that performs the transformation within native code.
+For a dataset created with the `csv_dataset()` function, the passed record will be named list of tensors (one for each column of the dataset). The return value should be another set of tensors which were created from TensorFlow functions (e.g. `tf$one_hot` as illustrated above). This function will be converted to a TensorFlow graph operation that performs the transformation within native code. 
+
+### Parallel Mapping
+
+If these transformations are computationally expensive they can be executed on multiple threads using the `num_parallel_calls` parameter. For example:
+
+```{r}
+dataset <- dataset %>% 
+  dataset_map(num_parallel_calls = 4, function(record) {
+    record$Species <- tf$one_hot(record$Species, 3L)
+    record
+  })
+```
+
+Note that the `csv_dataset()` function described above is just a wrapper around a `text_line_dataset()` and the `dataset_decode_csv()` function, which maps text strings into named columns. It can therefore also perform CSV parsing in parallel with `num_parallel_calls`:
+
+```{r}
+dataset <- csv_dataset("iris.csv", num_parallel_calls = 4)
+```
 
 ## Shuffling and Batching 
 
-There are functions which control how batches are drawn from the dataset. For example, the following specifes that data will be drawn in batches of 128 from a shuffled buffer of 5000 records, and that the dataset will be repeated for 10 epochs:
+There are functions which control how batches are drawn from the dataset. For example, the following specifies that data will be drawn in batches of 128 from a shuffled buffer of 5000 records, and that the dataset will be repeated for 10 epochs:
 
 ```{r}
 dataset <- dataset %>% 
@@ -78,10 +119,19 @@ Batches are read from datasets using tensors (e.g. a tensor for the features mat
 A very simple example consists of creating a dataset of constant tensors and then reading it:
 
 ```{r}
-sess <- tf$Session()
 dataset <- tensor_slices_dataset(1:10) %>% 
   dataset_batch(5)
 batch <- batch_from_dataset(dataset)
+batch
+```
+```
+Tensor("IteratorGetNext_10:0", shape=(?,), dtype=int32)
+```
+
+As you can see "batch" is actually a tensor that will yield the next batch of data when it is evaluated:
+
+```{r}
+sess <- tf$Session()
 sess$run(batch)
 ```
 ```
@@ -92,9 +142,22 @@ The `batch_from_dataset()` function also supports yielding batches segregated in
 
 ```{r}
 sess <- tf$Session()
-dataset <- csv_dataset("tests/testthat/data/mtcars.csv") %>% 
+dataset <- csv_dataset("mtcars.csv") %>% 
   dataset_batch(5)
 batch <- batch_from_dataset(dataset, features = c(mpg, disp), response = cyl)
+batch
+```
+```
+$x
+Tensor("IteratorGetNext_13:0", shape=(?, 2), dtype=float32)
+
+$y
+Tensor("IteratorGetNext_13:1", shape=(?,), dtype=int32)
+```
+
+Here there are separate tensors for the features ("x") and response ("y") selected from the dataset. When we evaluate the tensor we see the actual feature and response data in the next batch:
+
+```{r}
 sess$run(batch)
 ```
 ```
@@ -110,9 +173,11 @@ $y
 [1] 6 6 4 6 8
 ```
 
+See the [Batch Iteration] section below for various ways to iterate over batches within a dataset.
+
 ## Using with tfestimators
 
-Models created with **tfestimators** use an input function to consume data for training, evaluation, and prediction. For example, here is an example of using an input function to feed data from an R data frame to tfestimators model:
+Models created with **tfestimators** use an input function to consume data for training, evaluation, and prediction. For example, here is an example of using an input function to feed data from an R data frame to a tfestimators model:
 
 ```{r}
 model %>% train(
@@ -137,23 +202,95 @@ The `input_fn_from_dataset()` function uses the `batch_from_dataset()` function 
 
 ## Using with Keras
 
+Keras models are often trained by passing in-memory arrays directly to the `fit` function. For example:
 
+```{r}
+model %>% fit(
+  x_train, y_train, 
+  epochs = 30, 
+  batch_size = 128
+)
+```
 
+However, this requires loading data into an R data frame or matrix before calling fit. You can use the `train_on_batch()` function to stream data one batch at a time, however the reading and processing of the input data is still being done serially and outside of native code.
 
+Alternatively, Keras enables you to wire input and output tensors directly into the model definition, which are then evaluated for each training step. You can combine this capability with `batch_from_dataset()` to efficiently stream data into Keras training operations. Here is a complete example:
 
+```{r}
+library(keras)
+library(tfdatasets)
+  
+# create dataset that yields batches infinitely
+dataset <- csv_dataset("iris.csv") %>%
+  dataset_map(function(record) {
+    record$Species <- tf$one_hot(record$Species, depth = 3L)
+    record
+  }) %>%
+  dataset_shuffle(1000) %>%
+  dataset_batch(128) %>%
+  dataset_repeat() 
 
+# stream batches from dataset
+batch <- batch_from_dataset(dataset, features = -Species, response = Species)
 
+# create model
+input <- layer_input(tensor = batch$x, shape = c(4))
+predictions <- input %>%
+  layer_dense(units = 10, activation = "relu") %>%
+  layer_dense(units = 20, activation = "relu") %>%
+  layer_dense(units = 3, activation = "softmax")
+model <- keras_model(input, predictions)
+model %>% compile(
+  loss = 'categorical_crossentropy',
+  optimizer = optimizer_rmsprop(),
+  metrics = c('accuracy'),
+  target_tensors = batch$y
+)
+
+# fit the model
+model %>% fit(
+  steps_per_epoch = 30,
+  epochs = 5
+)
+```
+
+Note that we don't pass `x_train` or `y_train` to `fit()`, rather the feature data (`batch$x`) is provided as the `tensor` argument to `layer_input()` and the response data (`batch$y`) is provided as the `target_tensors` argument to `compile()`. The training data is directly wired into the TensorFlow graph built for the model.
+
+Note also that rather than calling the Keras `to_categorical()` function to one-hot encode the "Species" field, we do this instead in a `dataset_map()` operation that calls the `tf$one_hot()` function. 
 
 ## Batch Iteration
 
-In the [Reading Batches] section above we demonstrated evaluating the tensors returned from `batch_from_dataset()`. If you want to interate over all batches of a dataset, you will need to detect the end of the iteration. This is handled automatically when you use tfestiamtors or keras, however if you are dealing with the tensors directly you need to do this explicitly.
+In the [Reading Batches] section above we demonstrated evaluating the tensors returned from `batch_from_dataset()`. If you want to iterate over all batches of a dataset, you will need to detect the end of the iteration. This is handled automatically when you use tfestimators or keras, however if you are dealing with the tensors directly you need to do this explicitly.
 
-When the iterator has exhausted all available elements a a runtime error will occur. You can use the `out_of_range_error()` function to distinguish this error from other errors which may have occurred during iteration. For example:
+### Infinite Batches
+
+One approach to iteration is to create a dataset that yields batches infinitely (traversing the dataset multiple times with different batches randomly drawn). In this case you'd use another mechanism like a global step counter or check for a learning plateau. For example:
 
 ```{r}
 library(tfdatasets)
-dataset <- csv_dataset("training.csv") 
-  dataset_batch(128) 
+dataset <- csv_dataset("training.csv") %>% 
+  dataset_shuffle(5000) %>% 
+  dataset_batch(128) %>% 
+  dataset_repeat()
+
+batch <- batch_from_dataset(dataset, features = c(mpg, disp), response = cyl)
+
+steps <- 200
+for (i in 1:steps) {
+  # use batch$x and batch$y tensors
+}
+```
+
+The call to `dataset_repeat()` with no `count` parameter requests that the dataset be traversed infinitely.
+
+### Detecting Completion
+
+Another approach to iteration is to detect when all batches have been yielded from the dataset. When the batch tensor reaches the end of iteration a runtime error will occur. You can use the `out_of_range_error()` function to distinguish this error from other errors which may have occurred during iteration. For example:
+
+```{r}
+library(tfdatasets)
+dataset <- csv_dataset("training.csv") %>% 
+  dataset_batch(128) %>% 
   dataset_repeat(10)
   
 batch <- batch_from_dataset(dataset, features = c(mpg, disp), response = cyl)

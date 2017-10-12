@@ -23,7 +23,7 @@
 <link href="../pkgdown.css" rel="stylesheet">
 <script src="../jquery.sticky-kit.min.js"></script>
 <script src="../pkgdown.js"></script>
-  
+  <link href="../extra.css" rel="stylesheet">
   
 <!-- mathjax -->
 <script src='https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML'></script>
@@ -122,6 +122,18 @@
             <p><code><a href="tensors_dataset.html">tensors_dataset</a></code> </p>
           </td>
           <td><p>Creates a dataset with a single element, comprising the given tensors.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="tensor_slices_dataset.html">tensor_slices_dataset</a></code> </p>
+          </td>
+          <td><p>Creates a dataset whose elements are slices of the given tensors.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="sparse_tensor_slices_dataset.html">sparse_tensor_slices_dataset</a></code> </p>
+          </td>
+          <td><p>Splits each rank-N <code>tf$SparseTensor</code> in this dataset row-wise.</p></td>
         </tr>
       </tbody><tbody>
         <tr>

@@ -15,8 +15,8 @@ NULL
 #' @export
 tensorflow::tf
 
-#' @importFrom tensorflow shape
+#' @importFrom tensorflow install_tensorflow
 #' @export
-tensorflow::shape
+tensorflow::install_tensorflow
 
 

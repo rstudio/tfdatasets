@@ -21,6 +21,8 @@ reference:
        - tfrecord_dataset
        - text_line_dataset
        - tensors_dataset
+       - tensor_slices_dataset
+       - sparse_tensor_slices_dataset
 
   - title: "Transforming Datasets"
     contents:
