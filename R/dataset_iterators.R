@@ -80,8 +80,8 @@ batch_from_dataset <- function(dataset, features = NULL, response = NULL,
     col_names <- column_names(dataset)
     eq_features <- enquo(features)
     environment(eq_features) <- as_overscope(eq_features, data = tidyselect_data)
-    feature_names <- vars_select(col_names, !! eq_features)
-    feature_cols <- match(feature_names, col_names)
+    feature_col_names <- vars_select(col_names, !! eq_features)
+    feature_cols <- match(feature_col_names, col_names)
   } else {
     col_names <- NULL
     feature_cols <- NULL
@@ -114,7 +114,8 @@ batch_from_dataset <- function(dataset, features = NULL, response = NULL,
 
         # apply names to features if named
         if (named_features) {
-          names(record_features) <- feature_names
+
+          names(record_features) <- feature_col_names
 
         # otherwise stack features into a single tensor
         } else {
