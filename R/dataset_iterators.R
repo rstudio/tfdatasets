@@ -93,7 +93,7 @@ batch_from_dataset <- function(dataset, features = NULL, response = NULL,
     environment(eq_response) <- as_overscope(eq_response, data = tidyselect_data)
     response_name <- vars_select(col_names, !! eq_response)
     if (length(response_name) != 1)
-      stop("More than one response column specified: ", paste(response_name))
+      stop("Invalid response column: ", paste(response_name))
     response_col <- match(response_name, col_names)
   } else {
     response_col <- NULL
