@@ -50,35 +50,6 @@ input_fn_from_dataset <- function(dataset, features, response) {
   }
 }
 
-#' @export
-input_fn.tensorflow.python.data.ops.dataset_ops.Dataset <- function(object, features, response, ...) {
-
-  # alias dataset
-  dataset <- object
-
-  # validate/retreive column names
-  col_names <- column_names(dataset)
-
-  # get tidyselect_data for overscope
-  tidyselect <- asNamespace("tidyselect")
-  exports <- getNamespaceExports(tidyselect)
-  tidyselect_data <- mget(exports, tidyselect, inherits = TRUE)
-
-  # evaluate features (use tidyselect overscope)
-  eq_features <- enquo(features)
-  environment(eq_features) <- as_overscope(eq_features, data = tidyselect_data)
-  feature_names <- vars_select(col_names, !! eq_features)
-
-  # evaluate response (use tidyselect overscope)
-  eq_response <- enquo(response)
-  environment(eq_response) <- as_overscope(eq_response, data = tidyselect_data)
-  response_name <- vars_select(col_names, !! eq_response)
-  if (length(response_name) != 1)
-    stop("More than one response column specified: ", paste(response_name))
-
-  input_fn_from_dataset(dataset, feature_names, response_name)
-}
-
 
 column_names <- function(dataset) {
   if (!is.list(dataset$output_shapes) || is.null(names(dataset$output_shapes)))

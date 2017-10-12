@@ -58,7 +58,7 @@ test_that("input_fn rejects un-named datasets", {
   skip_if_no_tensorflow()
   expect_error({
     dataset <- tensors_dataset(1:100)
-    input_fn(dataset, features = c("disp", "cyl"), response = "mpg")
+    input_fn_from_dataset(dataset, features = c("disp", "cyl"), response = "mpg")
   })
 })
 
@@ -71,7 +71,7 @@ test_succeeds("input_fn supports tidyselect", {
     dataset_repeat(5)
 
   # create input_fn from dataset
-  input_fn(dataset, features = c(disp, cyl), response = mpg)
+  input_fn_from_dataset(dataset, features = c(disp, cyl), response = mpg)
 })
 
 
