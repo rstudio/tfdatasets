@@ -5,7 +5,7 @@
 \title{Tensor(s) for drawing batches from a dataset}
 \usage{
 batch_from_dataset(dataset, features = NULL, response = NULL,
-  names = c("x", "y"), named_features = FALSE)
+  names = TRUE, named_features = FALSE)
 }
 \arguments{
 \item{dataset}{A dataset}
@@ -14,8 +14,9 @@ batch_from_dataset(dataset, features = NULL, response = NULL,
 
 \item{response}{Response variable.}
 
-\item{names}{Names to assign list elements when \code{features} and \code{response} are
-specified (defaults to \code{x} and \code{y} for features and response respectively) .}
+\item{names}{\code{TRUE} to assign names to list elements when \code{features} are
+specified (defaults to \code{x} and \code{y}, provide a character vector to use
+alterate names).}
 
 \item{named_features}{\code{TRUE} to yield features as a named list; \code{FALSE}
 to stack features into a single array. Note that in the case of \code{FALSE}

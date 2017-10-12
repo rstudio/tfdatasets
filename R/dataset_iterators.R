@@ -10,8 +10,9 @@
 #'
 #' @param response Response variable.
 #'
-#' @param names Names to assign list elements when `features` and `response` are
-#'  specified (defaults to `x` and `y` for features and response respectively) .
+#' @param names `TRUE` to assign names to list elements when `features` are
+#'  specified (defaults to `x` and `y`, provide a character vector to use
+#'  alterate names).
 #'
 #' @param named_features `TRUE` to yield features as a named list; `FALSE`
 #'   to stack features into a single array. Note that in the case of `FALSE`
@@ -64,7 +65,7 @@
 #'
 #' @export
 batch_from_dataset <- function(dataset, features = NULL, response = NULL,
-                               names = c("x", "y"), named_features = FALSE) {
+                               names = TRUE, named_features = FALSE) {
 
   # validate dataset
   if (!inherits(dataset, "tensorflow.python.data.ops.dataset_ops.Dataset"))
@@ -135,10 +136,24 @@ batch_from_dataset <- function(dataset, features = NULL, response = NULL,
           record_features
       })
 
+    # get batch tensor
     iterator <- dataset$make_one_shot_iterator()
     batch <- iterator$get_next()
+
+    # if there is no response then reshape to include a NULL response
     if (is.null(response_col))
       batch <- list(batch, NULL)
+
+    # resolve names
+    if (isTRUE(names))
+      names <- c("x", "y")
+    else if (is.character(names))
+      if (length(names) != 2)
+        stop("names must be TRUE, FALSE, or a 2-element character vector")
+    else
+      names <- NULL
+
+    # apply names and return batch
     names(batch) <- names
     batch
 
