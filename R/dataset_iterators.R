@@ -1,32 +1,61 @@
 
-
-#' Create an iterator for enumerating the elements of this dataset.
+#' Tensors for iterating over batches of a dataset.
 #'
-#' The returned iterator will be initialized automatically. The iterator is
-#' "one-shot" (i.e. it performs a single pass over the dataset and cannot be
-#' re-initialized)
+#' Tensor or list(s) of tensors (e.g. for named features and response)
+#' that yield the next batch of data each time they are evaluated.
 #'
 #' @param dataset A dataset
-#' @param features Featured to include. When `features` is specified the
-#'   iterator value will be either:
-#'   - `list(list(feature_name = feature_value, ...), response_value)` when
-#'   `named_features` is `TRUE`; or
-#'   - `list(features_array, response_value)` when `named_features` is `FALSE`,
-#'     where `features_array` is a Rank 2 array of (batch_size, num_features).
-#' @param response Response variable (required from `features` is specified).
-#' @param named_features `TRUE` to yield features as a named list; `FALSE`
+#'
+#' @param features Features to include.
+#'
+#' @param response Response variable (required when `features` is specified).
+#'
+#' @param names `TRUE` to yield features as a named list; `FALSE`
 #'   to stack features into a single array. Note that in the case of `FALSE`
 #'   all features will be stacked into a single 2D tensor so need to have the
 #'   same underlying data type.
 #'
-#' @details Pass the iterator to [next_element()] in order to retreive the value
-#'   of the next element, or [next_element_tensor()] to retreive a tensor that
-#'   can be evaluated repeatedly to retreive the value of the next element.
+#' @return Tensors that can be evaluated to yield the next batch of training data.
 #'
-#' @return An iterator over the elements of this dataset.
+#' When `features` is specified the tensor will have a structure of either:
+#'   - `list(list(feature_name = feature_value, ...), response_value)` when
+#'   `names` is `TRUE`; or
+#'   - `list(features_array, response_value)` when `names` is `FALSE`,
+#'     where `features_array` is a Rank 2 array of (batch_size, num_features).
+#'
+#' When `features` is not specified the tensors will conform to the
+#' shape and types of the dataset (see [output_shapes()] and [output_types()]).
+#'
+#' @section Batch Iteration:
+#'
+#' In many cases you won't need to directly evaluate the batch tensors,
+#' rather, you will pass the tensors to another function that will perform
+#' the evaluation (e.g. the Keras `layer_input()` and `compile()` functions).
+#'
+#' If you do need to perform iteration manually by evaluating the tensors,
+#' a runtime error will occur when the iterator has exhausted all available elements.
+#' You can use the `is_out_of_range_error()` to distinguish this error from other
+#' errors which may have occurred. For example:
+#'
+#' ```r
+#' library(tfdatasets)
+#' sess <- tf$Session()
+#' dataset <- tensors_dataset(1:10)
+#' batch <- batch_from_dataset(dataset)
+#' tryCatch({
+#'   while(TRUE) {
+#'     batch_values <- sess$run(batch)
+#'     print(batch_values)
+#'   }
+#' },
+#' error = function(e) {
+#'   if (!is_out_of_range_error())
+#'     stop(e)
+#' })
+#' ```
 #'
 #' @export
-iterator_from_dataset <- function(dataset, features = NULL, response = NULL, named_features = TRUE) {
+batch_from_dataset <- function(dataset, features = NULL, response = NULL, names = FALSE) {
 
   # get tidyselect_data for overscope
   tidyselect <- asNamespace("tidyselect")
@@ -70,7 +99,7 @@ iterator_from_dataset <- function(dataset, features = NULL, response = NULL, nam
       dataset_map(function(record) {
         record_features <- record[feature_cols]
         record_response <- record[[response_col]]
-        if (named_features) {
+        if (names) {
           names(record_features) <- feature_names
           tuple(record_features, record_response)
         } else {
@@ -86,99 +115,12 @@ iterator_from_dataset <- function(dataset, features = NULL, response = NULL, nam
       })
   }
 
-  # create and return iterator
-  dataset$make_one_shot_iterator()
-}
-
-
-
-#' Get the next element from an iterator
-#'
-#' @param iterator Dataset iterator
-#' @param session TensorFlow session to evaluate iterator within. If not
-#'   specified then default TensorFlow session (as given by `tf$get_default_session()`)
-#'   will be used if available.
-#' @param completed Sentinel value to return from `next_element()` if the
-#'   iteration completes (defaults to `NULL` but can be any value you specify).
-#'
-#' @return For `next_element()`, the value of the next element, or `completed`
-#'   if there are no more elements available. For `next_element_tensor()`, a
-#'   tensor which can be evaluated repeatedly to obtain the next element.
-#'
-#' @section Value Iteration:
-#' To iterate using `next_element()`, check for a `NULL` return value
-#' (or other custom value specified via `completed`) to detect the
-#' end of the iteration. For example:
-#'
-#' ```r
-#' library(tfdatasets)
-#' sess <- tf$Session()
-#' dataset <- tensors_dataset(1:10)
-#' iterator <- iterator_from_dataset(dataset)
-#' while(!is.null(value <- next_element(iterator, sess))) {
-#'   # do something with the value
-#' }
-#' ```
-#'
-#' Note that a TensorFlow session is required to evaluate element values.
-#' If no session is provided and a default TensorFlow session exists (as
-#' given by `tf$get_default_session()`) then it will be utilized.
-#'
-#' @section Tensor Iteration:
-#' If you use are iterating based on evaluating the tensor returned from
-#' `next_element_tensor()` a runtime error will occur when the iterator
-#' has exhausted all available elements. You can use the `is_out_of_range_error()`
-#' to distinguish this error from other errors which may have occurred. For example:
-#'
-#' ```r
-#' library(tfdatasets)
-#' dataset <- tensors_dataset(1:10)
-#' iterator <- iterator_from_dataset(dataset)
-#' next_element <- next_element_tensor(iterator)
-#' tryCatch({
-#'   while(TRUE) {
-#'     # do something with the next_element tensor
-#'   }
-#' },
-#' error = function(e) {
-#'   if (!is_out_of_range_error())
-#'     stop(e)
-#' })
-#' ```
-#'
-#' @family dataset iterators
-#'
-#' @export
-next_element <- function(iterator, session = "default", completed = NULL) {
-
-  # resolve session
-  if (identical(session, "default"))
-    session <- tf$get_default_session()
-
-  # validate session
-  if (is.null(session))
-    stop("No session specified and no default session available.")
-
-  tryCatch({
-    session$run(next_element_tensor(iterator))
-  },
-  error = function(e) {
-    if (is_out_of_range_error())
-      completed
-    else
-      stop(e)
-  })
-}
-
-
-#' @rdname next_element
-#' @export
-next_element_tensor <- function(iterator) {
+  # create iterator and return get_next() tensor
+  iterator <- dataset$make_one_shot_iterator()
   iterator$get_next()
 }
 
-
-#' @rdname next_element
+#' @rdname batch_from_dataset
 #' @export
 is_out_of_range_error <- function() {
   last_error <- py_last_error()

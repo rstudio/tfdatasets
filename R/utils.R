@@ -42,14 +42,12 @@ resolve_filenames <- function(filenames) {
     return(all_filenames)
   }
 
-  # resolve filename wildcards then iterate over the results
-  filenames <- tf$data$Dataset$list_files(filenames)
-  iter <- iterator_from_dataset(filenames)
+  # list files and return all results
+  filenames <- tf$data$Dataset$list_files(filenames) %>%
+    dataset_take(-1)
+  batch <- batch_from_dataset(filenames)
   with_session(function(sess) {
-    all_filenames <- character()
-    while(!is.null(filename <- next_element(iter, sess)))
-      all_filenames <- c(all_filenames, filename)
-    all_filenames
+    sess$run(batch)
   })
 }
 

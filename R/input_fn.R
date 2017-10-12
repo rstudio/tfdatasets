@@ -39,13 +39,12 @@ input_fn_from_dataset <- function(dataset, features, response) {
   # return function which yields a features/response iterator for the dataset
   function(estimator) {
     function() {
-      iterator <- iterator_from_dataset(
+      batch_from_dataset(
         dataset = dataset,
         features = feature_names,
         response = response_name,
-        named_features = !inherits(estimator, "tf_custom_estimator")
+        names = !inherits(estimator, "tf_custom_estimator")
       )
-      next_element_tensor(iterator)
     }
   }
 }

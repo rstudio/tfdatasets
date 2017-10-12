@@ -32,9 +32,8 @@ test_succeeds("iterators can provide keras input tensors", {
     dataset_batch(10) %>%
     dataset_repeat(5)
 
-  # generator to stream batches from the dataset
-  iterator <- iterator_from_dataset(dataset, features = -Species, response = Species, named_features = FALSE)
-  train_batch <- next_element_tensor(iterator)
+  # stream batches from dataset
+  train_batch <- batch_from_dataset(dataset, features = -Species, response = Species)
 
   # create model
   input <- layer_input(tensor = train_batch[[1]], batch_shape = shape(NULL, 4))
