@@ -8,7 +8,7 @@
 #'
 #' @param features Features to include.
 #'
-#' @param response Response variable (required when `features` is specified).
+#' @param response Response variable.
 #'
 #' @param names Names to assign list elements when `features` and `response` are
 #'  specified (defaults to `x` and `y` for features and response respectively) .
@@ -66,6 +66,10 @@
 batch_from_dataset <- function(dataset, features = NULL, response = NULL,
                                names = c("x", "y"), named_features = FALSE) {
 
+  # validate dataset
+  if (!inherits(dataset, "tensorflow.python.data.ops.dataset_ops.Dataset"))
+    stop("Provided dataset is not a TensorFlow Dataset")
+
   # get tidyselect_data for overscope
   tidyselect <- asNamespace("tidyselect")
   exports <- getNamespaceExports(tidyselect)
@@ -73,8 +77,6 @@ batch_from_dataset <- function(dataset, features = NULL, response = NULL,
 
   # get features if specified
   if (!missing(features)) {
-    if (missing(response))
-      stop("You must specify a response if you specify features")
     col_names <- column_names(dataset)
     eq_features <- enquo(features)
     environment(eq_features) <- as_overscope(eq_features, data = tidyselect_data)
@@ -86,19 +88,19 @@ batch_from_dataset <- function(dataset, features = NULL, response = NULL,
   }
 
   # get response if specified
+  response_col <- NULL
   if (!missing(response)) {
     if (is.null(col_names))
       stop("You must specify features if you specify a response")
     eq_response <- enquo(response)
     environment(eq_response) <- as_overscope(eq_response, data = tidyselect_data)
     response_name <- vars_select(col_names, !! eq_response)
-    if (length(response_name) != 1)
-      stop("Invalid response column: ", paste(response_name))
-    response_col <- match(response_name, col_names)
-  } else {
-    response_col <- NULL
+    if (length(response_name) > 0) {
+      if (length(response_name) != 1)
+        stop("Invalid response column: ", paste(response_name))
+      response_col <- match(response_name, col_names)
+    }
   }
-
 
   # return the right kind of iterator depending on the request
 
@@ -106,11 +108,15 @@ batch_from_dataset <- function(dataset, features = NULL, response = NULL,
   if (!is.null(feature_cols)) {
     dataset <- dataset %>%
       dataset_map(function(record) {
+
+        # select features
         record_features <- record[feature_cols]
-        record_response <- record[[response_col]]
+
+        # apply names to features if named
         if (named_features) {
           names(record_features) <- feature_names
-          tuple(record_features, record_response)
+
+        # otherwise stack features into a single tensor
         } else {
           record_features <- unname(record_features)
           # determine the axis based on the shape of the tensor
@@ -119,12 +125,19 @@ batch_from_dataset <- function(dataset, features = NULL, response = NULL,
           shape <- record_features[[1]]$get_shape()$as_list()
           axis <- length(shape)
           record_features <- tf$stack(record_features, axis = axis)
-          tuple(record_features, record_response)
         }
+
+        # return with or without response
+        if (!is.null(response_col))
+          tuple(record_features, record[[response_col]])
+        else
+          record_features
       })
 
     iterator <- dataset$make_one_shot_iterator()
     batch <- iterator$get_next()
+    if (is.null(response_col))
+      batch <- list(batch, NULL)
     names(batch) <- names
     batch
 

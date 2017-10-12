@@ -14,7 +14,7 @@
 #'   [predict][tfestimators::predict.tf_estimator] methods
 #'
 #' @export
-input_fn_from_dataset <- function(dataset, features, response) {
+input_fn_from_dataset <- function(dataset, features, response = NULL) {
 
   # validate/retreive column names
   col_names <- column_names(dataset)
@@ -30,11 +30,18 @@ input_fn_from_dataset <- function(dataset, features, response) {
   feature_names <- vars_select(col_names, !! eq_features)
 
   # evaluate response (use tidyselect overscope)
-  eq_response <- enquo(response)
-  environment(eq_response) <- as_overscope(eq_response, data = tidyselect_data)
-  response_name <- vars_select(col_names, !! eq_response)
-  if (length(response_name) != 1)
-    stop("More than one response column specified: ", paste(response_name))
+  response_name <- NULL
+  if (!missing(response)) {
+    eq_response <- enquo(response)
+    environment(eq_response) <- as_overscope(eq_response, data = tidyselect_data)
+    response_name <- vars_select(col_names, !! eq_response)
+    if (length(response_name) > 0) {
+      if (length(response_name) != 1)
+        stop("More than one response column specified: ", paste(response_name))
+    } else {
+      response_name <- NULL
+    }
+  }
 
   # return function which yields a features/response iterator for the dataset
   function(estimator) {
@@ -53,7 +60,7 @@ input_fn_from_dataset <- function(dataset, features, response) {
 
 column_names <- function(dataset) {
   if (!is.list(dataset$output_shapes) || is.null(names(dataset$output_shapes)))
-    stop("Dataset does not have named outputs", call. = FALSE)
+    stop("Unable to resolve features for dataset that does not have named outputs", call. = FALSE)
   names(dataset$output_shapes)
 }
 

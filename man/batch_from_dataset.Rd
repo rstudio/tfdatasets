@@ -12,7 +12,7 @@ batch_from_dataset(dataset, features = NULL, response = NULL,
 
 \item{features}{Features to include.}
 
-\item{response}{Response variable (required when \code{features} is specified).}
+\item{response}{Response variable.}
 
 \item{names}{Names to assign list elements when \code{features} and \code{response} are
 specified (defaults to \code{x} and \code{y} for features and response respectively) .}

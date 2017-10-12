@@ -4,7 +4,7 @@
 \alias{input_fn_from_dataset}
 \title{Construct an input function from a dataset}
 \usage{
-input_fn_from_dataset(dataset, features, response)
+input_fn_from_dataset(dataset, features, response = NULL)
 }
 \arguments{
 \item{dataset}{A dataset}
