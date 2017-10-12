@@ -6,13 +6,6 @@ K$get_session()
 
 source("utils.R")
 
-# TODO:
-#  - is there a way to repeat "forever"
-#
-#  - extend example to save and load weights
-#
-
-
 test_succeeds("iterators can provide keras input tensors", {
 
   # create dataset
@@ -23,7 +16,7 @@ test_succeeds("iterators can provide keras input tensors", {
     }) %>%
     dataset_shuffle(50) %>%
     dataset_batch(10) %>%
-    dataset_repeat(5)
+    dataset_repeat()
 
   # stream batches from dataset
   train_batch <- batch_from_dataset(dataset, features = -Species, response = Species)
