@@ -7,13 +7,6 @@ K$get_session()
 source("utils.R")
 
 # TODO:
-#  - iterator_from_dataset should return the tensor (rename to e.g. records_from_dataset?)
-#
-#  - get rid of next_element and next_element_tensor (since both estimators and keras will
-#    already take care of evaluating the tensor in the right session)
-#
-#  - named_features should be FALSE by default and input_fn will pass TRUE as necessary
-#
 #  - is there a way to repeat "forever"
 #
 #  - extend example to save and load weights

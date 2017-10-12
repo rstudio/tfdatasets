@@ -47,23 +47,29 @@ that yield the next batch of data each time they are evaluated.
 
 
 In many cases you won't need to explicitly iterate over the batches,
-rather, you will pass the batch tensors to another function that
-evaluates them as part of a training loop (e.g. the Keras
-\code{layer_input()} and \code{compile()} functions).
+rather, you will pass the tensors to another function that will perform
+the evaluation (e.g. the Keras \code{layer_input()} and \code{compile()} functions).
 
-If you do need to iterate explicitly over the batches, you can use
-the \code{\link[=for_each_batch]{for_each_batch()}} function. For example:\preformatted{library(tfdatasets)
+If you do need to perform iteration manually by evaluating the tensors,
+a runtime error will occur when the iterator has exhausted all available elements.
+You can use the \code{\link[=out_of_range_error]{out_of_range_error()}} function to distinguish this error from other
+errors which may have occurred. For example:\preformatted{library(tfdatasets)
 dataset <- csv_dataset("training.csv") %>%
   dataset_batch(128) %>%
   dataset_repeat(10)
 batch <- batch_from_dataset(dataset)
-for_each_batch(batch, function(batch) {
-  # use batch$x and batch$y tensors
-  # (return FALSE to stop iteration early)
+tryCatch({
+  while(TRUE) {
+    # use batch$x and batch$y tensors
+  }
+},
+error = function(e) {
+  if (!out_of_range_error())
+    stop(e)
 })
 }
 }
 
 \seealso{
-\code{\link[=for_each_batch]{for_each_batch()}}; \code{\link[=input_fn_from_dataset]{input_fn_from_dataset()}} for use with \pkg{tfestimators}.
+\code{\link[=input_fn_from_dataset]{input_fn_from_dataset()}} for use with \pkg{tfestimators}.
 }
