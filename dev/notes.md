@@ -15,6 +15,11 @@ dataset_prepare <- function(dataset, x, y = NULL,
 
 }
 
+
+batch_tensor
+input_fn.dataset
+
+
 batch_from_dataset(dataset) (make an iterator and get it's tensor)
 
 separate iterator functions as necessary
