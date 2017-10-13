@@ -35,11 +35,11 @@ First, install the tfdatasets R package as follows:
 devtools::install_github("rstudio/tfdatasets")
 ```
 
-Then, use the `install_tensorflow()` function to install the current nightly build of TensorFlow (see the TensorFlow repository home page for [nightly build URLs](https://github.com/tensorflow/tensorflow#installation) for various platforms):
+Then, use the `install_tensorflow()` function to install the current nightly build of TensorFlow:
 
 ```{r, eval=FALSE}
 library(tfdtasets)
-install_tensorflow(version = "https://ci.tensorflow.org/view/Nightly/<path-to-tf-package>")
+install_tensorflow(version = "nightly")
 ```
 
 <div class="alert alert-warning" role="alert">
