@@ -1,13 +1,6 @@
-- dataset_decode_delim
-   - csv_dataset
-   - delim_dataset
-
 
 - col_types as character vector ("integer", "numeric", "character") or "INC" as readr (also look at readxl type specifier)
 
-- field_delim becomes delim
-
-- dataset_recipe
 
 
 dataset_prepare <- function(dataset, x, y = NULL,
@@ -18,7 +11,6 @@ dataset_prepare <- function(dataset, x, y = NULL,
 
 batch_tensor
 input_fn.dataset
-
 
 batch_from_dataset(dataset) (make an iterator and get it's tensor)
 

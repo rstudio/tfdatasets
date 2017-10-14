@@ -32,45 +32,79 @@ text_line_dataset <- function(filenames, compression_type = "auto") {
 }
 
 
-#' Create a dataset from a text file with comma separated values
+#' Create a dataset from a text file with delimited values
 #'
 #' @inheritParams text_line_dataset
-#' @inheritParams dataset_decode_csv
+#' @inheritParams dataset_decode_delim
 #'
 #' @param skip Number of lines to skip before reading data. Note that if
 #'   `col_names` is explicitly provided and there are column names witin the CSV
 #'   file then `skip` should be set to 1 to ensure that the column names are
 #'   bypassed.
 #'
-#' @note The [csv_dataset()] function is a convenience wrapper for the
-#'   [text_line_dataset()] and [dataset_decode_csv()] functions.
+#' @note The [delim_dataset()] function is a convenience wrapper for the
+#'   [text_line_dataset()] and [dataset_decode_delim()] functions.
+#'
+#'   The [csv_dataset()] and [tsv_dataset()] are wrappers that parse comma
+#'   and tab separated text files respectively.
 #'
 #' @export
-csv_dataset <- function(filenames, compression_type = NULL,
-                        col_names = NULL, record_defaults = NULL,
-                        field_delim = ",", skip = 0,
+delim_dataset <- function(filenames, compression_type = NULL, delim,
+                        col_names = NULL, record_defaults = NULL, skip = 0,
                         num_parallel_calls = NULL) {
   text_line_dataset(filenames, compression_type = compression_type) %>%
     dataset_skip(skip) %>%
-    dataset_decode_csv(
+    dataset_decode_delim(
+      delim = delim,
       col_names = col_names,
       record_defaults = record_defaults,
-      field_delim = field_delim,
       num_parallel_calls = num_parallel_calls
     )
 }
 
+#' @rdname delim_dataset
+#' @export
+csv_dataset <- function(filenames, compression_type = NULL,
+                        col_names = NULL, record_defaults = NULL, skip = 0,
+                        num_parallel_calls = NULL) {
+  delim_dataset(
+    filenames = filenames,
+    compression_type = compression_type,
+    delim = ",",
+    col_names = col_names,
+    record_defaults = record_defaults,
+    skip = skip,
+    num_parallel_calls = num_parallel_calls
+  )
+}
 
-#' Transform a dataset with CSV text lines into a dataset with named columns
+#' @rdname delim_dataset
+#' @export
+tsv_dataset <- function(filenames, compression_type = NULL,
+                        col_names = NULL, record_defaults = NULL, skip = 0,
+                        num_parallel_calls = NULL) {
+  delim_dataset(
+    filenames = filenames,
+    compression_type = compression_type,
+    delim = "\t",
+    col_names = col_names,
+    record_defaults = record_defaults,
+    skip = skip,
+    num_parallel_calls = num_parallel_calls
+  )
+}
+
+
+#' Transform a dataset with delimted text lines into a dataset with named columns
 #'
-#' @param dataset Dataset with CSV text lines
+#' @param dataset Dataset containing delimited text lines (e.g. a CSV)
 #'
 #' @param col_names Character vector with column names (or `NULL` to automatically
 #'   detect the column names from the first row of the input file).
 #'
 #'   If `col_names` is a character vector, the values will be used as the names
 #'   of the columns, and the first row of the input will be read into the first
-#'   row of the datset. Note that if the underlying CSV file also includes
+#'   row of the datset. Note that if the underlying text file also includes
 #'   column names in it's first row, this row should be skipped explicitly with
 #'   [dataset_skip()].
 #'
@@ -84,8 +118,8 @@ csv_dataset <- function(filenames, compression_type = NULL,
 #'   you can pass a single value or type specifier (e.g. `record_defaults = 0` or
 #'   `record_defaults = "numeric"`).
 #'
-#' @param field_delim An optional string. Defaults to ",". char delimiter to
-#'   separate fields in a record.
+#' @param delim Character delimiter to separate fields in a record
+#'   (defaults to ",")
 #'
 #' @param num_parallel_calls (Optional) An integer, representing the
 #'   number of elements to process in parallel If not specified, elements will
@@ -94,13 +128,13 @@ csv_dataset <- function(filenames, compression_type = NULL,
 #' @importFrom utils read.csv
 #'
 #' @note The [csv_dataset()] function is a convenience wrapper for the
-#'   [text_line_dataset()] and [dataset_decode_csv()] functions.
+#'   [text_line_dataset()] and [dataset_decode_delim()] functions.
 #'
 #' @family dataset methods
 #'
 #' @export
-dataset_decode_csv <- function(dataset, col_names = NULL, record_defaults = NULL,
-                               field_delim = ",", num_parallel_calls = NULL) {
+dataset_decode_delim <- function(dataset, delim = ",", col_names = NULL, record_defaults = NULL,
+                                 num_parallel_calls = NULL) {
 
   # read the first 1000 rows to faciliate deduction of column names / types as well
   # as checking that any specified col_names or record_defaults have the correct length
@@ -127,7 +161,7 @@ dataset_decode_csv <- function(dataset, col_names = NULL, record_defaults = NULL
   preview_csv <- read.csv(
     file = preview_con,
     header = is.null(col_names) || is.character(col_names),
-    sep = field_delim,
+    sep = delim,
     comment.char = "",
     stringsAsFactors = FALSE
   )
@@ -195,7 +229,7 @@ dataset_decode_csv <- function(dataset, col_names = NULL, record_defaults = NULL
         decoded <- tf$decode_csv(
           records = line,
           record_defaults = record_defaults,
-          field_delim = field_delim
+          field_delim = delim
         )
         names(decoded) <- col_names
         decoded

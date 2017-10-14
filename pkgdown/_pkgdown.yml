@@ -17,7 +17,7 @@ navbar:
 reference:
   - title: "Creating Datasets"
     contents:
-       - csv_dataset
+       - delim_dataset
        - tfrecord_dataset
        - text_line_dataset
        - tensors_dataset
@@ -31,7 +31,7 @@ reference:
        - dataset_batch
        - dataset_repeat
        - dataset_map
-       - dataset_decode_csv
+       - dataset_decode_delim
        - dataset_cache
        - dataset_take
        - dataset_concatenate
