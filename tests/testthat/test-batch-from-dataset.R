@@ -21,7 +21,7 @@ test_succeeds("batch_from_dataset does not require response", {
 
 test_succeeds("batch_from_dataset can return named features", {
   batch <- batch_from_dataset(mtcars_dataset(), features = c(mpg, disp), named_features = TRUE)
-  expect_named(batch$x, c("mpg", "disp"))
+  expect_length(setdiff(names(batch$x), c("mpg", "disp")), 0)
 })
 
 test_succeeds("batch_from_dataset can return an unnamed list", {
