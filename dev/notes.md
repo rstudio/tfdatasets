@@ -1,7 +1,4 @@
 
-- col_types as character vector ("integer", "numeric", "character") or "INC" as readr (also look at readxl type specifier)
-
-
 
 dataset_prepare <- function(dataset, x, y = NULL,
                             named = TRUE, named_features = FALSE) {
