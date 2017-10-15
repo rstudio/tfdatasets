@@ -115,7 +115,7 @@ test_succeeds("input_fn works with custom estimators", {
 
   # define dataset
   col_names <- c("SepalLength", "SepalWidth", "PetalLength", "PetalWidth","Species")
-  dataset <- csv_dataset("data/iris.csv", col_names = col_names, record_defaults = "numeric", skip = 1) %>%
+  dataset <- csv_dataset("data/iris.csv", col_names = col_names, col_types = "ddddi", skip = 1) %>%
     dataset_map(function(record) {
       record$Species <- tf$cast(record$Species, tf$int32)
       record

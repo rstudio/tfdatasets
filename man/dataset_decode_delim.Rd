@@ -2,19 +2,21 @@
 % Please edit documentation in R/text_line_dataset.R
 \name{dataset_decode_delim}
 \alias{dataset_decode_delim}
-\title{Transform a dataset with delimted text lines into a dataset with named columns}
+\title{Transform a dataset with delimted text lines into a dataset with named
+columns}
 \usage{
 dataset_decode_delim(dataset, delim = ",", col_names = NULL,
-  record_defaults = NULL, num_parallel_calls = NULL)
+  col_types = NULL, col_defaults = NULL, num_parallel_calls = NULL)
 }
 \arguments{
 \item{dataset}{Dataset containing delimited text lines (e.g. a CSV)}
 
-\item{delim}{Character delimiter to separate fields in a record
-(defaults to ",")}
+\item{delim}{Character delimiter to separate fields in a record (defaults to
+",")}
 
-\item{col_names}{Character vector with column names (or \code{NULL} to automatically
-detect the column names from the first row of the input file).
+\item{col_names}{Character vector with column names (or \code{NULL} to
+automatically detect the column names from the first row of the input
+file).
 
 If \code{col_names} is a character vector, the values will be used as the names
 of the columns, and the first row of the input will be read into the first
@@ -25,19 +27,30 @@ column names in it's first row, this row should be skipped explicitly with
 If \code{NULL}, the first row of the input will be used as the column names, and
 will not be included in dataset.}
 
-\item{record_defaults}{List of default values for records. Default values
-must be of type integer, numeric, or character. This is used both to indicate the
-type of each field as well as to provide defaults for missing values.
-If you want all fields to default to a certain type (e.g. numeric) then
-you can pass a single value or type specifier (e.g. \code{record_defaults = 0} or
-\code{record_defaults = "numeric"}).}
+\item{col_types}{Column types. If NULL, all column types will be imputed from
+the first 1000 rows on the input. This is convenient (and fast), but not
+robust. If the imputation fails, you'll need to supply the correct types
+yourself.
 
-\item{num_parallel_calls}{(Optional) An integer, representing the
-number of elements to process in parallel If not specified, elements will
-be processed sequentially.}
+Types can be explicitliy specified in a character vector as "integer",
+"double", and "character" (e.g. \code{col_types = c("double", "double", "integer"}).
+
+Alternatively, you can use a compact string representation where each
+character represents one column: c = character, i = integer, d = double
+(e.g. \code{col_types =}ddi`).}
+
+\item{col_defaults}{List of default values which are used when data is
+missing from a record (e.g. \code{list(0, 0, 0L}). If \code{NULL} then defaults will
+be automatically provided based on \code{col_types} (\code{0} for numeric columns and
+\code{""} for character columns).}
+
+\item{num_parallel_calls}{(Optional) An integer, representing the number of
+elements to process in parallel If not specified, elements will be
+processed sequentially.}
 }
 \description{
-Transform a dataset with delimted text lines into a dataset with named columns
+Transform a dataset with delimted text lines into a dataset with named
+columns
 }
 \note{
 The \code{\link[=csv_dataset]{csv_dataset()}} function is a convenience wrapper for the

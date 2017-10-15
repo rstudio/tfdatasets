@@ -7,13 +7,15 @@
 \title{Create a dataset from a text file with delimited values}
 \usage{
 delim_dataset(filenames, compression_type = NULL, delim, col_names = NULL,
-  record_defaults = NULL, skip = 0, num_parallel_calls = NULL)
+  col_types = NULL, col_defaults = NULL, skip = 0,
+  num_parallel_calls = NULL)
 
 csv_dataset(filenames, compression_type = NULL, col_names = NULL,
-  record_defaults = NULL, skip = 0, num_parallel_calls = NULL)
+  col_types = NULL, col_defaults = NULL, skip = 0,
+  num_parallel_calls = NULL)
 
 tsv_dataset(filenames, compression_type = NULL, col_names = NULL,
-  record_defaults = NULL, skip = 0, num_parallel_calls = NULL)
+  col_defaults = NULL, skip = 0, num_parallel_calls = NULL)
 }
 \arguments{
 \item{filenames}{Characater vector containing one or more filenames or
@@ -26,11 +28,12 @@ the \code{filenames} have a .gz extension and ZLIB will be automatically
 selected if any of the \code{filenames} have a .zlib extension (otherwise
 no compression will be used).}
 
-\item{delim}{Character delimiter to separate fields in a record
-(defaults to ",")}
+\item{delim}{Character delimiter to separate fields in a record (defaults to
+",")}
 
-\item{col_names}{Character vector with column names (or \code{NULL} to automatically
-detect the column names from the first row of the input file).
+\item{col_names}{Character vector with column names (or \code{NULL} to
+automatically detect the column names from the first row of the input
+file).
 
 If \code{col_names} is a character vector, the values will be used as the names
 of the columns, and the first row of the input will be read into the first
@@ -41,21 +44,31 @@ column names in it's first row, this row should be skipped explicitly with
 If \code{NULL}, the first row of the input will be used as the column names, and
 will not be included in dataset.}
 
-\item{record_defaults}{List of default values for records. Default values
-must be of type integer, numeric, or character. This is used both to indicate the
-type of each field as well as to provide defaults for missing values.
-If you want all fields to default to a certain type (e.g. numeric) then
-you can pass a single value or type specifier (e.g. \code{record_defaults = 0} or
-\code{record_defaults = "numeric"}).}
+\item{col_types}{Column types. If NULL, all column types will be imputed from
+the first 1000 rows on the input. This is convenient (and fast), but not
+robust. If the imputation fails, you'll need to supply the correct types
+yourself.
+
+Types can be explicitliy specified in a character vector as "integer",
+"double", and "character" (e.g. \code{col_types = c("double", "double", "integer"}).
+
+Alternatively, you can use a compact string representation where each
+character represents one column: c = character, i = integer, d = double
+(e.g. \code{col_types =}ddi`).}
+
+\item{col_defaults}{List of default values which are used when data is
+missing from a record (e.g. \code{list(0, 0, 0L}). If \code{NULL} then defaults will
+be automatically provided based on \code{col_types} (\code{0} for numeric columns and
+\code{""} for character columns).}
 
 \item{skip}{Number of lines to skip before reading data. Note that if
 \code{col_names} is explicitly provided and there are column names witin the CSV
 file then \code{skip} should be set to 1 to ensure that the column names are
 bypassed.}
 
-\item{num_parallel_calls}{(Optional) An integer, representing the
-number of elements to process in parallel If not specified, elements will
-be processed sequentially.}
+\item{num_parallel_calls}{(Optional) An integer, representing the number of
+elements to process in parallel If not specified, elements will be
+processed sequentially.}
 }
 \description{
 Create a dataset from a text file with delimited values

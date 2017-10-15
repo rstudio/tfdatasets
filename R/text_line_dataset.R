@@ -50,14 +50,15 @@ text_line_dataset <- function(filenames, compression_type = "auto") {
 #'
 #' @export
 delim_dataset <- function(filenames, compression_type = NULL, delim,
-                        col_names = NULL, record_defaults = NULL, skip = 0,
-                        num_parallel_calls = NULL) {
+                        col_names = NULL, col_types = NULL, col_defaults = NULL,
+                        skip = 0, num_parallel_calls = NULL) {
   text_line_dataset(filenames, compression_type = compression_type) %>%
     dataset_skip(skip) %>%
     dataset_decode_delim(
       delim = delim,
       col_names = col_names,
-      record_defaults = record_defaults,
+      col_types = col_types,
+      col_defaults = col_defaults,
       num_parallel_calls = num_parallel_calls
     )
 }
@@ -65,14 +66,15 @@ delim_dataset <- function(filenames, compression_type = NULL, delim,
 #' @rdname delim_dataset
 #' @export
 csv_dataset <- function(filenames, compression_type = NULL,
-                        col_names = NULL, record_defaults = NULL, skip = 0,
-                        num_parallel_calls = NULL) {
+                        col_names = NULL, col_types = NULL, col_defaults = NULL,
+                        skip = 0, num_parallel_calls = NULL) {
   delim_dataset(
     filenames = filenames,
     compression_type = compression_type,
     delim = ",",
     col_names = col_names,
-    record_defaults = record_defaults,
+    col_defaults = col_defaults,
+    col_types = col_types,
     skip = skip,
     num_parallel_calls = num_parallel_calls
   )
@@ -81,26 +83,29 @@ csv_dataset <- function(filenames, compression_type = NULL,
 #' @rdname delim_dataset
 #' @export
 tsv_dataset <- function(filenames, compression_type = NULL,
-                        col_names = NULL, record_defaults = NULL, skip = 0,
+                        col_names = NULL, col_defaults = NULL, skip = 0,
                         num_parallel_calls = NULL) {
   delim_dataset(
     filenames = filenames,
     compression_type = compression_type,
     delim = "\t",
     col_names = col_names,
-    record_defaults = record_defaults,
+    col_types = col_types,
+    col_defaults = col_defaults,
     skip = skip,
     num_parallel_calls = num_parallel_calls
   )
 }
 
 
-#' Transform a dataset with delimted text lines into a dataset with named columns
+#' Transform a dataset with delimted text lines into a dataset with named
+#' columns
 #'
 #' @param dataset Dataset containing delimited text lines (e.g. a CSV)
 #'
-#' @param col_names Character vector with column names (or `NULL` to automatically
-#'   detect the column names from the first row of the input file).
+#' @param col_names Character vector with column names (or `NULL` to
+#'   automatically detect the column names from the first row of the input
+#'   file).
 #'
 #'   If `col_names` is a character vector, the values will be used as the names
 #'   of the columns, and the first row of the input will be read into the first
@@ -111,19 +116,30 @@ tsv_dataset <- function(filenames, compression_type = NULL,
 #'   If `NULL`, the first row of the input will be used as the column names, and
 #'   will not be included in dataset.
 #'
-#' @param record_defaults List of default values for records. Default values
-#'   must be of type integer, numeric, or character. This is used both to indicate the
-#'   type of each field as well as to provide defaults for missing values.
-#'   If you want all fields to default to a certain type (e.g. numeric) then
-#'   you can pass a single value or type specifier (e.g. `record_defaults = 0` or
-#'   `record_defaults = "numeric"`).
+#' @param col_types Column types. If NULL, all column types will be imputed from
+#'   the first 1000 rows on the input. This is convenient (and fast), but not
+#'   robust. If the imputation fails, you'll need to supply the correct types
+#'   yourself.
 #'
-#' @param delim Character delimiter to separate fields in a record
-#'   (defaults to ",")
+#'   Types can be explicitliy specified in a character vector as "integer",
+#'   "double", and "character" (e.g. `col_types = c("double", "double",
+#'   "integer"`).
 #'
-#' @param num_parallel_calls (Optional) An integer, representing the
-#'   number of elements to process in parallel If not specified, elements will
-#'   be processed sequentially.
+#'   Alternatively, you can use a compact string representation where each
+#'   character represents one column: c = character, i = integer, d = double
+#'   (e.g. `col_types = `ddi`).
+#'
+#' @param col_defaults List of default values which are used when data is
+#'   missing from a record (e.g. `list(0, 0, 0L`). If `NULL` then defaults will
+#'   be automatically provided based on `col_types` (`0` for numeric columns and
+#'   `""` for character columns).
+#'
+#' @param delim Character delimiter to separate fields in a record (defaults to
+#'   ",")
+#'
+#' @param num_parallel_calls (Optional) An integer, representing the number of
+#'   elements to process in parallel If not specified, elements will be
+#'   processed sequentially.
 #'
 #' @importFrom utils read.csv
 #'
@@ -133,11 +149,13 @@ tsv_dataset <- function(filenames, compression_type = NULL,
 #' @family dataset methods
 #'
 #' @export
-dataset_decode_delim <- function(dataset, delim = ",", col_names = NULL, record_defaults = NULL,
+dataset_decode_delim <- function(dataset, delim = ",",
+                                 col_names = NULL, col_types = NULL, col_defaults = NULL,
                                  num_parallel_calls = NULL) {
 
   # read the first 1000 rows to faciliate deduction of column names / types as well
-  # as checking that any specified col_names or record_defaults have the correct length
+  # as checking that any specified col_names, col_types, or col_defaults
+  # have the correct length
   preview <- dataset %>%
     dataset_take(1000) %>%
     dataset_batch(1000)
@@ -185,40 +203,71 @@ dataset_decode_delim <- function(dataset, delim = ",", col_names = NULL, record_
     stop("col_names must be a character vector")
   }
 
+  # resolve/validate col_types
+  if (is.character(col_types)) {
+
+    # convert to lower
+    col_types <- tolower(col_types)
+
+    # unpack abbreviations in a single string
+    if (length(col_types) == 1 && grepl("^[idc]+$", col_types))
+      col_types <- strsplit(col_types, "")[[1]]
+
+    # resolve abbreviations
+    col_types <- sapply(tolower(col_types), simplify = TRUE, function(type) {
+      switch(type,
+        i = "integer",
+        d = "double",
+        c = "character",
+        type
+      )
+    })
+
+    # validate the type specifiers
+    if (!all(col_types %in% c("integer", "double", "character")))
+      stop('Invalid column type specification. Valid types are "integer", "double", ',
+           'and "character"\n  (or abbreviations "i", "d", and "c").')
+
+    # validate we have the correct number of columns
+    validate_columns(col_types, 'col_types')
+
+
+  } else if (is.null(col_types)) {
+
+    # derive types from data
+    col_types <- sapply(preview_csv, simplify = TRUE, typeof)
+
+    # map into just integer, double, and character
+    col_types <- sapply(col_types, simplify = TRUE, function(type) {
+      switch(type,
+        integer = "integer",
+        double = "double",
+        character = "character",
+        "character" # default
+      )
+    })
+  }
+
   # resolve/validate record defaults
-  if (is.list(record_defaults)) {
-    validate_columns(record_defaults, 'record_defaults')
-    record_defaults <- lapply(record_defaults, function(x) {
+  if (is.null(col_defaults)) {
+    col_defaults <- lapply(unname(col_types), function(type) {
+      switch(type,
+        integer = list(0L),
+        double = list(0),
+        character = list(""),
+        list("") # default
+      )
+    })
+  } else if (is.list(col_defaults)) {
+    validate_columns(col_defaults, 'col_defaults')
+    col_defaults <- lapply(col_defaults, function(x) {
       if (!is.list(x))
         list(x)
       else
         x
     })
-  } else if (length(record_defaults) == 1) {
-    if (!is.character(record_defaults))
-      record_defaults <- typeof(record_defaults)
-    record_defaults <- lapply(1:ncol(preview_csv), function(x) {
-      switch(record_defaults,
-             integer = list(0L),
-             double = list(0),
-             numeric = list(0),
-             character = list(""),
-             list("") # default
-      )
-    })
-  } else if (is.null(record_defaults)) {
-    record_types <- lapply(preview_csv, typeof)
-    record_defaults <- lapply(unname(record_types), function(x) {
-      switch(x,
-             integer = list(0L),
-             double = list(0),
-             character = list(""),
-             list("") # default
-      )
-    })
   } else {
-    stop('record_defaults must be NULL (auto-detect), a list of default values, ",
-         "or a global default value or type specifier (e.g. 0 or "numeric")')
+    stop("col_defaults must be NULL (automatic) or a list of default values")
   }
 
   # read csv
@@ -228,7 +277,7 @@ dataset_decode_delim <- function(dataset, delim = ",", col_names = NULL, record_
       map_func = function(line) {
         decoded <- tf$decode_csv(
           records = line,
-          record_defaults = record_defaults,
+          record_defaults = col_defaults,
           field_delim = delim
         )
         names(decoded) <- col_names

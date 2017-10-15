@@ -2,6 +2,14 @@ library(testthat)
 library(tensorflow)
 library(tfdatasets)
 
-test_check("tfdatasets")
+# run tests in default tf session
+sess <- tf$Session()
+with(sess$as_default(), {
+  test_check("tfdatasets")
+})
+
+
+
+
 
 

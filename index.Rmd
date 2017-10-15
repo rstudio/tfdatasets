@@ -56,16 +56,18 @@ library(tfdatasets)
 dataset <- csv_dataset("iris.csv")
 ```
 
-Dataset columns and data types are detected automatically by reading up to the first 1,000 lines of the CSV file. You can provide explicit column names and/or data types using the `col_names` and `record_defaults` parameters:
+Dataset columns and data types are detected automatically by reading up to the first 1,000 lines of the CSV file. You can provide explicit column names and/or data types using the `col_names` and `col_types` parameters:
 
 ```{r}
 dataset <- csv_dataset("iris.csv",
   col_names = c("SepalLength", "SepalWidth", "PetalLength", "PetalWidth", "Species"),
-  record_defaults = list(0, 0, 0, 0, 0L), skip = 1
+  col_types = c("double", "double", "double", "double", "integer"), skip = 1
 )
 ```
 
-The `record_defaults` parameter serves as both type information and as a default for missing values. Supported types are numeric, integer, and character. Note that we've also specified `skip = 1` to indicate that the first row of the CSV that contains column names should be skipped.
+Supported column types are integer, double, and character. You can also provide `col_types` in a more compact form using single-letter abbreviations (e.g. `col_types = "dddi"`).
+
+Note that we've also specified `skip = 1` to indicate that the first row of the CSV that contains column names should be skipped.
 
 ## Transformations
 
