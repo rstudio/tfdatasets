@@ -83,8 +83,8 @@ csv_dataset <- function(filenames, compression_type = NULL,
 #' @rdname delim_dataset
 #' @export
 tsv_dataset <- function(filenames, compression_type = NULL,
-                        col_names = NULL, col_defaults = NULL, skip = 0,
-                        num_parallel_calls = NULL) {
+                        col_names = NULL, col_types = NULL, col_defaults = NULL,
+                        skip = 0, num_parallel_calls = NULL) {
   delim_dataset(
     filenames = filenames,
     compression_type = compression_type,

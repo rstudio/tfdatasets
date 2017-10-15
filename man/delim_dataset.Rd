@@ -15,7 +15,8 @@ csv_dataset(filenames, compression_type = NULL, col_names = NULL,
   num_parallel_calls = NULL)
 
 tsv_dataset(filenames, compression_type = NULL, col_names = NULL,
-  col_defaults = NULL, skip = 0, num_parallel_calls = NULL)
+  col_types = NULL, col_defaults = NULL, skip = 0,
+  num_parallel_calls = NULL)
 }
 \arguments{
 \item{filenames}{Characater vector containing one or more filenames or
