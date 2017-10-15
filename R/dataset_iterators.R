@@ -39,27 +39,49 @@
 #' rather, you will pass the tensors to another function that will perform
 #' the evaluation (e.g. the Keras `layer_input()` and `compile()` functions).
 #'
-#' If you do need to perform iteration manually by evaluating the tensors,
-#' a runtime error will occur when the iterator has exhausted all available elements.
-#' You can use the [out_of_range_error()] function to distinguish this error from other
-#' errors which may have occurred. For example:
+#' If you do need to perform iteration manually by evaluating the tensors, there
+#' are a couple of possible approaches to controlling/detecting when iteration should
+#' end.
 #'
-#' ```r
+#' One approach is to create a dataset that yields batches infinitely (traversing
+#' the dataset multiple times with different batches randomly drawn). In this case you'd
+#' use another mechanism like a global step counter or check for a learning plateau.
+#'
+#' Another approach is to iteration is to detect when all batches have been yielded
+#' from the dataset. When the batch tensor reaches the end of iteration a runtime
+#' error will occur. You can catch and ignore the error when it occurs by wrapping
+#' your iteration code in the `with_dataset_iterator()` function.
+#'
+#' See the examples below for a demonstration of each of these methods of iteration.
+#'
+#' @examples \dontrun{
+#'
+#' # iteration with 'infinite' dataset and explicit step counter
+#'
+#' library(tfdatasets)
+#' dataset <- csv_dataset("training.csv") %>%
+#'   dataset_shuffle(5000) %>%
+#'   dataset_batch(128) %>%
+#'   dataset_repeat()
+#' batch <- batch_from_dataset(dataset, features = c(mpg, disp), response = cyl)
+#' steps <- 200
+#' for (i in 1:steps) {
+#'   # use batch$x and batch$y tensors
+#' }
+#'
+#' # iteration that detects and ignores end of iteration error
+#'
 #' library(tfdatasets)
 #' dataset <- csv_dataset("training.csv") %>%
 #'   dataset_batch(128) %>%
 #'   dataset_repeat(10)
-#' batch <- batch_from_dataset(dataset, features = c(mpg, disp), response = cyl))
-#' tryCatch({
+#' batch <- batch_from_dataset(dataset, features = c(mpg, disp), response = cyl)
+#' with_dataset_iterator({
 #'   while(TRUE) {
 #'     # use batch$x and batch$y tensors
 #'   }
-#' },
-#' error = function(e) {
-#'   if (!out_of_range_error())
-#'     stop(e)
 #' })
-#' ```
+#' }
 #'
 #' @seealso [input_fn_from_dataset()] for use with \pkg{tfestimators}.
 #'
@@ -167,20 +189,45 @@ batch_from_dataset <- function(dataset, features = NULL, response = NULL,
   }
 }
 
-#' Check if the last TensorFlow error was OutOfRangeError
+
+#' Execute code that checks for end of dataset iteration
 #'
-#' Used to detect end of iteration when evaluating tensors returned by
-#' [batch_from_dataset()].
+#' @param expr Expression to execute
 #'
-#' @return `TRUE` if the last error was OutOfRangeError
+#' @details  When a dataset iterator reaches the end, an out of range runtime error
+#'   will occur. You can catch and ignore the error when it occurs by wrapping
+#'   your iteration code in the `with_dataset_iterator()` (see the example
+#'   below for an illustration).
 #'
-#' @keywords internal
+#' @examples \dontrun{
+#' library(tfdatasets)
+#' dataset <- csv_dataset("training.csv") %>%
+#'   dataset_batch(128) %>%
+#'   dataset_repeat(10)
+#'
+#' batch <- batch_from_dataset(dataset, features = c(mpg, disp), response = cyl)
+#' with_dataset_iterator({
+#'   while(TRUE) {
+#'     # use batch$x and batch$y tensors
+#'   }
+#' })
+#' }
 #'
 #' @export
-out_of_range_error <- function() {
-  last_error <- py_last_error()
-  !is.null(last_error) && identical(last_error$type, "OutOfRangeError")
+with_dataset_iterator <- function(expr) {
+  tryCatch({
+    force(expr)
+  },
+  error = function(e) {
+    last_error <- py_last_error()
+    if (is.null(last_error) || !identical(last_error$type, "OutOfRangeError"))
+      stop(e)
+  })
 }
+
+
+
+
 
 
 

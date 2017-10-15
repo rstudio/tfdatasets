@@ -139,30 +139,52 @@ shape and types of the dataset (see <code><a href='output_types.html'>output_sha
     <p>In many cases you won't need to explicitly iterate over the batches,
 rather, you will pass the tensors to another function that will perform
 the evaluation (e.g. the Keras <code>layer_input()</code> and <code>compile()</code> functions).</p>
-<p>If you do need to perform iteration manually by evaluating the tensors,
-a runtime error will occur when the iterator has exhausted all available elements.
-You can use the <code><a href='out_of_range_error.html'>out_of_range_error()</a></code> function to distinguish this error from other
-errors which may have occurred. For example:</p><pre>library(tfdatasets)
-dataset &lt;- csv_dataset("training.csv") <!-- %&gt;% -->
-  dataset_batch(128) <!-- %&gt;% -->
-  dataset_repeat(10)
-batch &lt;- batch_from_dataset(dataset, features = c(mpg, disp), response = cyl))
-tryCatch({
-  while(TRUE) {
-    # use batch$x and batch$y tensors
-  }
-},
-error = function(e) {
-  if (!out_of_range_error())
-    stop(e)
-})
-</pre>
+<p>If you do need to perform iteration manually by evaluating the tensors, there
+are a couple of possible approaches to controlling/detecting when iteration should
+end.</p>
+<p>One approach is to create a dataset that yields batches infinitely (traversing
+the dataset multiple times with different batches randomly drawn). In this case you'd
+use another mechanism like a global step counter or check for a learning plateau.</p>
+<p>Another approach is to iteration is to detect when all batches have been yielded
+from the dataset. When the batch tensor reaches the end of iteration a runtime
+error will occur. You can catch and ignore the error when it occurs by wrapping
+your iteration code in the <code><a href='with_dataset_iterator.html'>with_dataset_iterator()</a></code> function.</p>
+<p>See the examples below for a demonstration of each of these methods of iteration.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <p><code><a href='input_fn_from_dataset.html'>input_fn_from_dataset()</a></code> for use with <span class="pkg">tfestimators</span>.</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='co'># iteration with 'infinite' dataset and explicit step counter</span>
+
+<span class='fu'>library</span>(<span class='no'>tfdatasets</span>)
+<span class='no'>dataset</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='delim_dataset.html'>csv_dataset</a></span>(<span class='st'>"training.csv"</span>) <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='dataset_shuffle.html'>dataset_shuffle</a></span>(<span class='fl'>5000</span>) <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='dataset_batch.html'>dataset_batch</a></span>(<span class='fl'>128</span>) <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='dataset_repeat.html'>dataset_repeat</a></span>()
+<span class='no'>batch</span> <span class='kw'>&lt;-</span> <span class='fu'>batch_from_dataset</span>(<span class='no'>dataset</span>, <span class='kw'>features</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='no'>mpg</span>, <span class='no'>disp</span>), <span class='kw'>response</span> <span class='kw'>=</span> <span class='no'>cyl</span>)
+<span class='no'>steps</span> <span class='kw'>&lt;-</span> <span class='fl'>200</span>
+<span class='kw'>for</span> (<span class='no'>i</span> <span class='kw'>in</span> <span class='fl'>1</span>:<span class='no'>steps</span>) {
+  <span class='co'># use batch$x and batch$y tensors</span>
+}
+
+<span class='co'># iteration that detects and ignores end of iteration error</span>
+
+<span class='fu'>library</span>(<span class='no'>tfdatasets</span>)
+<span class='no'>dataset</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='delim_dataset.html'>csv_dataset</a></span>(<span class='st'>"training.csv"</span>) <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='dataset_batch.html'>dataset_batch</a></span>(<span class='fl'>128</span>) <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='dataset_repeat.html'>dataset_repeat</a></span>(<span class='fl'>10</span>)
+<span class='no'>batch</span> <span class='kw'>&lt;-</span> <span class='fu'>batch_from_dataset</span>(<span class='no'>dataset</span>, <span class='kw'>features</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='no'>mpg</span>, <span class='no'>disp</span>), <span class='kw'>response</span> <span class='kw'>=</span> <span class='no'>cyl</span>)
+<span class='fu'><a href='with_dataset_iterator.html'>with_dataset_iterator</a></span>({
+  <span class='kw'>while</span>(<span class='fl'>TRUE</span>) {
+    <span class='co'># use batch$x and batch$y tensors</span>
+  }
+})
+<span class='co'># }</span><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -174,7 +196,9 @@ error = function(e) {
       <li><a href="#batch-iteration">Batch Iteration</a></li>
 
       <li><a href="#see-also">See also</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

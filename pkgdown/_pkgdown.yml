@@ -41,6 +41,7 @@ reference:
     contents:
        - batch_from_dataset
        - input_fn_from_dataset
+       - with_dataset_iterator
 
   - title: "Dataset Properites"
     contents:

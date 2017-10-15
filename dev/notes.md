@@ -17,16 +17,3 @@ separate iterator functions as necessary
   
   
 iterator_get_next() could also take a dataset and do a one_shot iterator by default?
-
-iterator_error_handler and/or: 
-
-with_dataset_iterator({
- 
- 
-
-})
-
-
-
-
-

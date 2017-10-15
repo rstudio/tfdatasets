@@ -51,26 +51,53 @@ In many cases you won't need to explicitly iterate over the batches,
 rather, you will pass the tensors to another function that will perform
 the evaluation (e.g. the Keras \code{layer_input()} and \code{compile()} functions).
 
-If you do need to perform iteration manually by evaluating the tensors,
-a runtime error will occur when the iterator has exhausted all available elements.
-You can use the \code{\link[=out_of_range_error]{out_of_range_error()}} function to distinguish this error from other
-errors which may have occurred. For example:\preformatted{library(tfdatasets)
-dataset <- csv_dataset("training.csv") %>%
-  dataset_batch(128) %>%
+If you do need to perform iteration manually by evaluating the tensors, there
+are a couple of possible approaches to controlling/detecting when iteration should
+end.
+
+One approach is to create a dataset that yields batches infinitely (traversing
+the dataset multiple times with different batches randomly drawn). In this case you'd
+use another mechanism like a global step counter or check for a learning plateau.
+
+Another approach is to iteration is to detect when all batches have been yielded
+from the dataset. When the batch tensor reaches the end of iteration a runtime
+error will occur. You can catch and ignore the error when it occurs by wrapping
+your iteration code in the \code{with_dataset_iterator()} function.
+
+See the examples below for a demonstration of each of these methods of iteration.
+}
+
+\examples{
+\dontrun{
+
+# iteration with 'infinite' dataset and explicit step counter
+
+library(tfdatasets)
+dataset <- csv_dataset("training.csv") \%>\%
+  dataset_shuffle(5000) \%>\%
+  dataset_batch(128) \%>\%
+  dataset_repeat()
+batch <- batch_from_dataset(dataset, features = c(mpg, disp), response = cyl)
+steps <- 200
+for (i in 1:steps) {
+  # use batch$x and batch$y tensors
+}
+
+# iteration that detects and ignores end of iteration error
+
+library(tfdatasets)
+dataset <- csv_dataset("training.csv") \%>\%
+  dataset_batch(128) \%>\%
   dataset_repeat(10)
-batch <- batch_from_dataset(dataset, features = c(mpg, disp), response = cyl))
-tryCatch({
+batch <- batch_from_dataset(dataset, features = c(mpg, disp), response = cyl)
+with_dataset_iterator({
   while(TRUE) {
     # use batch$x and batch$y tensors
   }
-},
-error = function(e) {
-  if (!out_of_range_error())
-    stop(e)
 })
 }
-}
 
+}
 \seealso{
 \code{\link[=input_fn_from_dataset]{input_fn_from_dataset()}} for use with \pkg{tfestimators}.
 }

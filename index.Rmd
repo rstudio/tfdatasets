@@ -287,7 +287,7 @@ The call to `dataset_repeat()` with no `count` parameter requests that the datas
 
 ### Detecting Completion
 
-Another approach to iteration is to detect when all batches have been yielded from the dataset. When the batch tensor reaches the end of iteration a runtime error will occur. You can use the `out_of_range_error()` function to distinguish this error from other errors which may have occurred during iteration. For example:
+Another approach to iteration is to detect when all batches have been yielded from the dataset. When the batch tensor reaches the end of iteration a runtime error will occur. You can catch and ignore the error when it occurs by wrapping your iteration code in the `with_dataset_iterator()` function. For example:
 
 ```{r}
 library(tfdatasets)
@@ -296,14 +296,10 @@ dataset <- csv_dataset("training.csv") %>%
   dataset_repeat(10)
   
 batch <- batch_from_dataset(dataset, features = c(mpg, disp), response = cyl)
-tryCatch({
+with_dataset_iterator({
   while(TRUE) {
     # use batch$x and batch$y tensors
   }
-},
-error = function(e) {
-  if (!out_of_range_error())
-    stop(e)
 })
 ```
 
