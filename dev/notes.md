@@ -6,14 +6,11 @@ dataset_prepare <- function(dataset, x, y = NULL,
 }
 
 
-batch_tensor
-input_fn.dataset
 
-batch_from_dataset(dataset) (make an iterator and get it's tensor)
+input_fn.dataset?
 
 separate iterator functions as necessary
   - one_shot_iterator()
   - iterator_get_next()
-  
   
 iterator_get_next() could also take a dataset and do a one_shot iterator by default?
