@@ -67,8 +67,17 @@
 #'
 #' @export
 next_batch <- function(dataset) {
+
+  # get the iterator
   iter <- dataset$make_one_shot_iterator()
-  iter$get_next()
+  next_batch <- iter$get_next()
+
+  # re-arrange x and y if necessary
+  if (identical(names(next_batch), c("y", "x")))
+    next_batch <- list(x = next_batch[["x"]], y = next_batch[["y"]])
+
+  # return
+  next_batch
 }
 
 
