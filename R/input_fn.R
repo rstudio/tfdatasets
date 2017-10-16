@@ -13,6 +13,8 @@
 #' @return An input_fn suitable for use with tfestimators [train][tfestimators::train.tf_estimator],
 #'   [evaluate][tfestimators::evaluate.tf_estimator], and [predict][tfestimators::predict.tf_estimator] methods
 #'
+#' @family reading_datasets
+#'
 #' @export
 input_fn_from_dataset <- function(dataset, features, response = NULL) {
 
@@ -57,14 +59,14 @@ input_fn_from_dataset <- function(dataset, features, response = NULL) {
         )
 
       # get the iterator
-      iter <- iterator_get_next(dataset)
+      batch <- next_batch(dataset)
 
       # add `NULL` response if needed
       if (is.null(response_name))
-        iter[2] <- list(NULL)
+        batch[2] <- list(NULL)
 
       # return iterator
-      iter
+      batch
     }
   }
 }
