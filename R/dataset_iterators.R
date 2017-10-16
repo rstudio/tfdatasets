@@ -1,19 +1,21 @@
 
 
 
-#' Tensor(s) for retreiving the next element from a dataset
+#' Tensor(s) for retreiving the next batch from a dataset
 #'
-#' @param x A dataset or an iterator
-#'
-#' @family iterators
+#' @param dataset A dataset
 #'
 #' @return Tensor(s) that can be evaluated to yield the next batch of training data.
 #'
-#' @section Batch Iteration:
+#' @details
 #'
-#' In many cases you won't need to explicitly evaluate the tensors,
-#' rather, you will pass the tensors to another function that will perform
-#' the evaluation (e.g. the Keras `layer_input()` and `compile()` functions).
+#' To access the underlying data within the dataset you iteratively evaluate the
+#' tensor(s) to read batches of data.
+#'
+#' Note that in many cases you won't need to explicitly evaluate the tensors.
+#' Rather, you will pass the tensors to another function that will perform
+#' the evaluation (e.g. the Keras [layer_input()][keras::layer_input()] and
+#' [compile()][keras::compile()] functions).
 #'
 #' If you do need to perform iteration manually by evaluating the tensors, there
 #' are a couple of possible approaches to controlling/detecting when iteration should
@@ -39,8 +41,8 @@
 #'   dataset_prepare(x = c(mpg, disp), y = cyl) %>%
 #'   dataset_shuffle(5000) %>%
 #'   dataset_batch(128) %>%
-#'   dataset_repeat()
-#' batch <- iterator_get_next(dataset)
+#'   dataset_repeat() # repeat infinitely
+#' batch <- next_batch(dataset)
 #' steps <- 200
 #' for (i in 1:steps) {
 #'   # use batch$x and batch$y tensors
@@ -53,7 +55,7 @@
 #'   dataset_prepare(x = c(mpg, disp), y = cyl) %>%
 #'   dataset_batch(128) %>%
 #'   dataset_repeat(10)
-#' batch <- iterator_get_next(dataset)
+#' batch <- next_batch(dataset)
 #' with_dataset({
 #'   while(TRUE) {
 #'     # use batch$x and batch$y tensors
@@ -61,18 +63,12 @@
 #' })
 #' }
 #'
-#' @family iterators
+#' @family reading datasets
 #'
 #' @export
-iterator_get_next <- function(x) {
-
-  # if it's a dataset then create a one-shot iterator from it
-  if (inherits(x, "tensorflow.python.data.ops.dataset_ops.Dataset"))
-    x <- x$make_one_shot_iterator()
-
-  # return get_next tensor(s)
-  x$get_next()
-
+next_batch <- function(dataset) {
+  iter <- dataset$make_one_shot_iterator()
+  iter$get_next()
 }
 
 
@@ -93,7 +89,8 @@ iterator_get_next <- function(x) {
 #'   dataset_batch(128) %>%
 #'   dataset_repeat(10)
 #'
-#' batch <- iterator_get_next(dataset)
+#' batch <- next_batch(dataset)
+#'
 #' with_dataset({
 #'   while(TRUE) {
 #'     # use batch$x and batch$y tensors
@@ -101,7 +98,7 @@ iterator_get_next <- function(x) {
 #' })
 #' }
 #'
-#' @family iterators
+#' @family reading datasets
 #'
 #' @export
 with_dataset <- function(expr) {

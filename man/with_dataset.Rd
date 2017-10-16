@@ -26,7 +26,8 @@ dataset <- csv_dataset("training.csv") \%>\%
   dataset_batch(128) \%>\%
   dataset_repeat(10)
 
-batch <- iterator_get_next(dataset)
+batch <- next_batch(dataset)
+
 with_dataset({
   while(TRUE) {
     # use batch$x and batch$y tensors
@@ -36,5 +37,5 @@ with_dataset({
 
 }
 \seealso{
-Other iterators: \code{\link{iterator_get_next}}
+Other reading datasets: \code{\link{next_batch}}
 }

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Execute code that traverses a dataset — with_dataset • tfdatasets</title>
+<title>Tensor(s) for retreiving the next batch from a dataset — next_batch • tfdatasets</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -77,47 +77,78 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Execute code that traverses a dataset</h1>
+    <h1>Tensor(s) for retreiving the next batch from a dataset</h1>
     </div>
 
     
-    <p>Execute code that traverses a dataset</p>
+    <p>Tensor(s) for retreiving the next batch from a dataset</p>
     
 
-    <pre class="usage"><span class='fu'>with_dataset</span>(<span class='no'>expr</span>)</pre>
+    <pre class="usage"><span class='fu'>next_batch</span>(<span class='no'>dataset</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>expr</th>
-      <td><p>Expression to execute</p></td>
+      <th>dataset</th>
+      <td><p>A dataset</p></td>
     </tr>
     </table>
     
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+
+    <p>Tensor(s) that can be evaluated to yield the next batch of training data.</p>
+    
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>When a dataset iterator reaches the end, an out of range runtime error
-will occur. You can catch and ignore the error when it occurs by wrapping
-your iteration code in a call to <code>with_dataset()</code> (see the example
-below for an illustration).</p>
+    <p>To access the underlying data within the dataset you iteratively evaluate the
+tensor(s) to read batches of data.</p>
+<p>Note that in many cases you won't need to explicitly evaluate the tensors.
+Rather, you will pass the tensors to another function that will perform
+the evaluation (e.g. the Keras <a href='http://www.rdocumentation.org/packages/keras/topics/layer_input'>layer_input()</a> and
+<a href='http://www.rdocumentation.org/packages/keras/topics/compile'>compile()</a> functions).</p>
+<p>If you do need to perform iteration manually by evaluating the tensors, there
+are a couple of possible approaches to controlling/detecting when iteration should
+end.</p>
+<p>One approach is to create a dataset that yields batches infinitely (traversing
+the dataset multiple times with different batches randomly drawn). In this case you'd
+use another mechanism like a global step counter or detecting a learning plateau.</p>
+<p>Another approach is to detect when all batches have been yielded
+from the dataset. When the tensor reaches the end of iteration a runtime
+error will occur. You can catch and ignore the error when it occurs by wrapping
+your iteration code in the <code><a href='with_dataset.html'>with_dataset()</a></code> function.</p>
+<p>See the examples below for a demonstration of each of these methods of iteration.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <p>Other reading datasets: <code><a href='next_batch.html'>next_batch</a></code></p>
+    <p>Other reading datasets: <code><a href='with_dataset.html'>with_dataset</a></code></p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='co'># iteration with 'infinite' dataset and explicit step counter</span>
+
+<span class='fu'>library</span>(<span class='no'>tfdatasets</span>)
+<span class='no'>dataset</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='delim_dataset.html'>csv_dataset</a></span>(<span class='st'>"training.csv"</span>) <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='dataset_prepare.html'>dataset_prepare</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='no'>mpg</span>, <span class='no'>disp</span>), <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>cyl</span>) <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='dataset_shuffle.html'>dataset_shuffle</a></span>(<span class='fl'>5000</span>) <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='dataset_batch.html'>dataset_batch</a></span>(<span class='fl'>128</span>) <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='dataset_repeat.html'>dataset_repeat</a></span>() <span class='co'># repeat infinitely</span>
+<span class='no'>batch</span> <span class='kw'>&lt;-</span> <span class='fu'>next_batch</span>(<span class='no'>dataset</span>)
+<span class='no'>steps</span> <span class='kw'>&lt;-</span> <span class='fl'>200</span>
+<span class='kw'>for</span> (<span class='no'>i</span> <span class='kw'>in</span> <span class='fl'>1</span>:<span class='no'>steps</span>) {
+  <span class='co'># use batch$x and batch$y tensors</span>
+}
+
+<span class='co'># iteration that detects and ignores end of iteration error</span>
+
 <span class='fu'>library</span>(<span class='no'>tfdatasets</span>)
 <span class='no'>dataset</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='delim_dataset.html'>csv_dataset</a></span>(<span class='st'>"training.csv"</span>) <span class='kw'>%&gt;%</span>
   <span class='fu'><a href='dataset_prepare.html'>dataset_prepare</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='no'>mpg</span>, <span class='no'>disp</span>), <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>cyl</span>) <span class='kw'>%&gt;%</span>
   <span class='fu'><a href='dataset_batch.html'>dataset_batch</a></span>(<span class='fl'>128</span>) <span class='kw'>%&gt;%</span>
   <span class='fu'><a href='dataset_repeat.html'>dataset_repeat</a></span>(<span class='fl'>10</span>)
-
-<span class='no'>batch</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='next_batch.html'>next_batch</a></span>(<span class='no'>dataset</span>)
-
-<span class='fu'>with_dataset</span>({
+<span class='no'>batch</span> <span class='kw'>&lt;-</span> <span class='fu'>next_batch</span>(<span class='no'>dataset</span>)
+<span class='fu'><a href='with_dataset.html'>with_dataset</a></span>({
   <span class='kw'>while</span>(<span class='fl'>TRUE</span>) {
     <span class='co'># use batch$x and batch$y tensors</span>
   }
@@ -130,6 +161,8 @@ below for an illustration).</p>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
+      <li><a href="#value">Value</a></li>
+
       <li><a href="#details">Details</a></li>
 
       <li><a href="#see-also">See also</a></li>

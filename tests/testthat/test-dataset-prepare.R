@@ -12,28 +12,28 @@ mtcars_dataset <- function() {
 test_succeeds("dataset_prepare yields list of x and y tensors", {
   batch <- mtcars_dataset() %>%
     dataset_prepare(x = c(mpg, disp), y = cyl) %>%
-    iterator_get_next()
+    next_batch()
   expect_length(setdiff(names(batch), c("x", "y")), 0)
 })
 
 test_succeeds("dataset_prepare does not require y", {
   batch <- mtcars_dataset() %>%
     dataset_prepare(x = c(mpg, disp)) %>%
-    iterator_get_next()
+    next_batch()
   expect_null(batch$y)
 })
 
 test_succeeds("dataset_prepare can return named features", {
   batch <- mtcars_dataset() %>%
     dataset_prepare(x = c(mpg, disp), named_features = TRUE) %>%
-    iterator_get_next()
+    next_batch()
   expect_length(setdiff(names(batch$x), c("mpg", "disp")), 0)
 })
 
 test_succeeds("dataset_prepare can return an unnamed list", {
   batch <- mtcars_dataset() %>%
     dataset_prepare(x = c(mpg, disp), named = FALSE) %>%
-    iterator_get_next()
+    next_batch()
   expect_null(names(batch))
 })
 
@@ -53,7 +53,7 @@ test_succeeds("dataset_prepare can provide keras input tensors", {
     dataset_repeat() # repeat infinitely
 
   # stream batches from dataset
-  train_batch <- iterator_get_next(dataset)
+  train_batch <- next_batch(dataset)
 
   # create model
   input <- layer_input(tensor = train_batch$x, shape = c(4))

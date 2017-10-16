@@ -148,19 +148,19 @@ iris_dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/d
 <div id="reading-datasets" class="section level2">
 <h2 class="hasAnchor">
 <a href="#reading-datasets" class="anchor"></a>Reading Datasets</h2>
-<p>To read batches from a dataset you obtain an iterator for the dataset and then evaluate a “get next” tensor which yields the next batch. You can use the <code><a href="reference/iterator_get_next.html">iterator_get_next()</a></code> function to obtain this tensor from a dataset:</p>
+<p>You read batches of data from a dataset by using tensors that yield the next batch. You can obatain this tensor from a dataset via the <code><a href="reference/next_batch.html">next_batch()</a></code> function. For example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(<span class="dt">x =</span> <span class="kw">c</span>(mpg, disp), <span class="dt">y =</span> cyl) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">20</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">5</span>)
-batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/iterator_get_next.html">iterator_get_next</a></span>(dataset)
+batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/next_batch.html">next_batch</a></span>(dataset)
 batch</code></pre></div>
 <pre><code>$x
 Tensor("IteratorGetNext_13:0", shape=(?, 2), dtype=float32)
 
 $y
 Tensor("IteratorGetNext_13:1", shape=(?,), dtype=int32)</code></pre>
-<p>As you can see “batch” isn’t the data itself but rather a tensor that will yield the next batch of data when it is evaluated:</p>
+<p>As you can see <code>batch</code> isn’t the data itself but rather a tensor that will yield the next batch of data when it is evaluated:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">sess &lt;-<span class="st"> </span>tf<span class="op">$</span><span class="kw">Session</span>()
 sess<span class="op">$</span><span class="kw">run</span>(batch)</code></pre></div>
 <pre><code>$x
@@ -173,17 +173,51 @@ sess<span class="op">$</span><span class="kw">run</span>(batch)</code></pre></di
 
 $y
 [1] 6 6 4 6 8</code></pre>
-<p>See the <a href="#batch-iteration">Batch Iteration</a> section below for various ways to iterate over batches within a dataset.</p>
+</div>
+<div id="dataset-iteration" class="section level2">
+<h2 class="hasAnchor">
+<a href="#dataset-iteration" class="anchor"></a>Dataset Iteration</h2>
+<p>If you are iterating over an entire dataset by evaluating the <code><a href="reference/next_batch.html">next_batch()</a></code> tensor you will need to determine at what point to stop iteration. There are a couple of possible approaches to controlling/detecting when iteration should end.</p>
+<p>One approach is to create a dataset that yields batches infinitely (traversing the dataset multiple times with different batches randomly drawn). In this case you’d use another mechanism like a global step counter or detecting a learning plateau:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tfdatasets)
+dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"training.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(<span class="dt">x =</span> <span class="kw">c</span>(mpg, disp), <span class="dt">y =</span> cyl) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">5000</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>() <span class="co"># repeat infinitely</span>
+
+batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/next_batch.html">next_batch</a></span>(dataset)
+
+steps &lt;-<span class="st"> </span><span class="dv">200</span>
+<span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>steps) {
+  <span class="co"># use batch$x and batch$y tensors</span>
+}</code></pre></div>
+<p>The call to <code><a href="reference/dataset_repeat.html">dataset_repeat()</a></code> with no <code>count</code> parameter requests that the dataset be traversed infinitely.</p>
+<p>Another approach is to detect when all batches have been yielded from the dataset. When the tensor reaches the end of iteration a runtime error will occur. You can catch and ignore the error when it occurs by wrapping your iteration code in the <code><a href="reference/with_dataset.html">with_dataset()</a></code> function:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tfdatasets)
+dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(<span class="dt">x =</span> <span class="kw">c</span>(mpg, disp), <span class="dt">y =</span> cyl) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>(<span class="dv">10</span>)
+  
+batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/next_batch.html">next_batch</a></span>(dataset)
+
+<span class="kw"><a href="reference/with_dataset.html">with_dataset</a></span>({
+  <span class="cf">while</span>(<span class="ot">TRUE</span>) {
+    <span class="co"># use batch$x and batch$y tensors</span>
+  }
+})</code></pre></div>
 </div>
 <div id="using-with-tfestimators" class="section level2">
 <h2 class="hasAnchor">
 <a href="#using-with-tfestimators" class="anchor"></a>Using with tfestimators</h2>
-<p>Models created with <strong>tfestimators</strong> use an input function to consume data for training, evaluation, and prediction. For example, here is an example of using an input function to feed data from an R data frame to a tfestimators model:</p>
+<p>If you are using <strong>tfdatasets</strong> with the <strong>tfestimators</strong> package, you can pass datasets directly to estimators training functions by using the <code><a href="reference/input_fn_from_dataset.html">input_fn_from_dataset()</a></code> function.</p>
+<p>Models created with <strong>tfestimators</strong> use an input function to consume data for training, evaluation, and prediction. For example, here is an example of using an input function to feed data from an in-memory R data frame to an estimators model:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">train</span>(
   <span class="kw">input_fn</span>(mtcars, <span class="dt">features =</span> <span class="kw">c</span>(drat, cyl), <span class="dt">response =</span> mpg,
            <span class="dt">batch_size =</span> <span class="dv">128</span>, <span class="dt">epochs =</span> <span class="dv">3</span>)
 )</code></pre></div>
-<p>To use <strong>tfdatasets</strong> with a dataset streamed from a CSV instead you would do the following:</p>
+<p>To use <strong>tfdatasets</strong> with a dataset streamed from a CSV instead, you would do the following:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>(<span class="dv">3</span>)
@@ -191,7 +225,7 @@ $y
 model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">train</span>(
   <span class="kw"><a href="reference/input_fn_from_dataset.html">input_fn_from_dataset</a></span>(dataset, <span class="dt">features =</span> <span class="kw">c</span>(drat, cyl), <span class="dt">response =</span> mpg)
 )</code></pre></div>
-<p>Note that we don’t use <code><a href="reference/dataset_prepare.html">dataset_prepare()</a></code> and <code><a href="reference/iterator_get_next.html">iterator_get_next()</a></code> in this example. Rather, these functions are used by <code><a href="reference/input_fn_from_dataset.html">input_fn_from_dataset()</a></code> under the hood to provide the <code>input_fn</code> interface expected by tfestimators models.</p>
+<p>Note that we don’t use the <code><a href="reference/dataset_prepare.html">dataset_prepare()</a></code> or <code><a href="reference/next_batch.html">next_batch()</a></code> functions in this example. Rather, these functions are called under the hood by <code><a href="reference/input_fn_from_dataset.html">input_fn_from_dataset()</a></code> to provide the <code>input_fn</code> interface expected by tfestimators models.</p>
 </div>
 <div id="using-with-keras" class="section level2">
 <h2 class="hasAnchor">
@@ -203,7 +237,7 @@ model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">tr
   <span class="dt">batch_size =</span> <span class="dv">128</span>
 )</code></pre></div>
 <p>However, this requires loading data into an R data frame or matrix before calling fit. You can use the <code><a href="http://www.rdocumentation.org/packages/keras/topics/train_on_batch">train_on_batch()</a></code> function to stream data one batch at a time, however the reading and processing of the input data is still being done serially and outside of native code.</p>
-<p>Alternatively, Keras enables you to wire input and output tensors directly into the model definition, which are then evaluated for each training step. You can combine this capability with <code><a href="reference/dataset_prepare.html">dataset_prepare()</a></code> and <code><a href="reference/iterator_get_next.html">iterator_get_next()</a></code> to efficiently stream data into Keras training operations. Here is a complete example:</p>
+<p>Alternatively, Keras enables you to wire input and output tensors directly into the model definition, which are then evaluated for each training step. You can combine this capability with <code><a href="reference/dataset_prepare.html">dataset_prepare()</a></code> and <code><a href="reference/next_batch.html">next_batch()</a></code> to efficiently stream data into Keras training operations. Here is a complete example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(keras)
 <span class="kw">library</span>(tfdatasets)
   
@@ -219,7 +253,7 @@ dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_
 <span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>() 
 
 <span class="co"># stream batches from dataset</span>
-batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/iterator_get_next.html">iterator_get_next</a></span>(dataset)
+batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/next_batch.html">next_batch</a></span>(dataset)
 
 <span class="co"># create model</span>
 input &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/layer_input">layer_input</a></span>(<span class="dt">tensor =</span> batch<span class="op">$</span>x, <span class="dt">shape =</span> <span class="kw">c</span>(<span class="dv">4</span>))
@@ -242,48 +276,6 @@ model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a
 )</code></pre></div>
 <p>Note that we don’t pass <code>x_train</code> or <code>y_train</code> to <code><a href="http://www.rdocumentation.org/packages/keras/topics/fit">fit()</a></code>, rather the feature data (<code>batch$x</code>) is provided as the <code>tensor</code> argument to <code><a href="http://www.rdocumentation.org/packages/keras/topics/layer_input">layer_input()</a></code> and the response data (<code>batch$y</code>) is provided as the <code>target_tensors</code> argument to <code><a href="http://www.rdocumentation.org/packages/keras/topics/compile">compile()</a></code>. The training data is directly wired into the TensorFlow graph built for the model.</p>
 <p>Note also that rather than calling the Keras <code><a href="http://www.rdocumentation.org/packages/keras/topics/to_categorical">to_categorical()</a></code> function to one-hot encode the “Species” field, we do this instead in a <code><a href="reference/dataset_map.html">dataset_map()</a></code> operation that calls the <code>tf$one_hot()</code> function.</p>
-</div>
-<div id="batch-iteration" class="section level2">
-<h2 class="hasAnchor">
-<a href="#batch-iteration" class="anchor"></a>Batch Iteration</h2>
-<p>In the [Reading Batches] section above we demonstrated evaluating the tensors returned from <code><a href="reference/iterator_get_next.html">iterator_get_next()</a></code>. If you want to iterate over all batches of a dataset, you will need to detect the end of the iteration. This is handled automatically when you use tfestimators or keras, however if you are dealing with the tensors directly you need to do this explicitly.</p>
-<div id="infinite-batches" class="section level3">
-<h3 class="hasAnchor">
-<a href="#infinite-batches" class="anchor"></a>Infinite Batches</h3>
-<p>One approach to iteration is to create a dataset that yields batches infinitely (traversing the dataset multiple times with different batches randomly drawn). In this case you’d use another mechanism like a global step counter or check for a learning plateau. For example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tfdatasets)
-dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"training.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(<span class="dt">x =</span> <span class="kw">c</span>(mpg, disp), <span class="dt">y =</span> cyl) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">5000</span>) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>() <span class="co"># repeat infinitely</span>
-
-batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/iterator_get_next.html">iterator_get_next</a></span>(dataset)
-
-steps &lt;-<span class="st"> </span><span class="dv">200</span>
-<span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>steps) {
-  <span class="co"># use batch$x and batch$y tensors</span>
-}</code></pre></div>
-<p>The call to <code><a href="reference/dataset_repeat.html">dataset_repeat()</a></code> with no <code>count</code> parameter requests that the dataset be traversed infinitely.</p>
-</div>
-<div id="detecting-completion" class="section level3">
-<h3 class="hasAnchor">
-<a href="#detecting-completion" class="anchor"></a>Detecting Completion</h3>
-<p>Another approach to iteration is to detect when all batches have been yielded from the dataset. When the batch tensor reaches the end of iteration a runtime error will occur. You can catch and ignore the error when it occurs by wrapping your iteration code in the <code>with_dataset()</code> function. For example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tfdatasets)
-dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(<span class="dt">x =</span> <span class="kw">c</span>(mpg, disp), <span class="dt">y =</span> cyl) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>(<span class="dv">10</span>)
-  
-batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/iterator_get_next.html">iterator_get_next</a></span>(dataset)
-
-<span class="kw">with_dataset</span>({
-  <span class="cf">while</span>(<span class="ot">TRUE</span>) {
-    <span class="co"># use batch$x and batch$y tensors</span>
-  }
-})</code></pre></div>
-</div>
 </div>
 </div>
 </div>
