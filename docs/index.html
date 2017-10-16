@@ -135,15 +135,15 @@ dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_
 iris_dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"iris.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(<span class="dt">x =</span> <span class="op">-</span>Species, <span class="dt">y =</span> Species)</code></pre></div>
 </div>
-</div>
-<div id="shuffling-and-batching" class="section level2">
-<h2 class="hasAnchor">
-<a href="#shuffling-and-batching" class="anchor"></a>Shuffling and Batching</h2>
+<div id="shuffling-and-batching" class="section level3">
+<h3 class="hasAnchor">
+<a href="#shuffling-and-batching" class="anchor"></a>Shuffling and Batching</h3>
 <p>There are several functions which control how batches are drawn from the dataset. For example, the following specifies that data will be drawn in batches of 128 from a shuffled buffer of 5000 records, and that the dataset will be repeated for 10 epochs:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span>dataset <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">5000</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>(<span class="dv">10</span>)</code></pre></div>
+</div>
 </div>
 <div id="reading-datasets" class="section level2">
 <h2 class="hasAnchor">
@@ -151,6 +151,7 @@ iris_dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/d
 <p>To read batches from a dataset you obtain an iterator for the dataset and then evaluate a “get next” tensor which yields the next batch. You can use the <code><a href="reference/iterator_get_next.html">iterator_get_next()</a></code> function to obtain this tensor from a dataset:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(<span class="dt">x =</span> <span class="kw">c</span>(mpg, disp), <span class="dt">y =</span> cyl) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">20</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">5</span>)
 batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/iterator_get_next.html">iterator_get_next</a></span>(dataset)
 batch</code></pre></div>
@@ -268,7 +269,7 @@ steps &lt;-<span class="st"> </span><span class="dv">200</span>
 <div id="detecting-completion" class="section level3">
 <h3 class="hasAnchor">
 <a href="#detecting-completion" class="anchor"></a>Detecting Completion</h3>
-<p>Another approach to iteration is to detect when all batches have been yielded from the dataset. When the batch tensor reaches the end of iteration a runtime error will occur. You can catch and ignore the error when it occurs by wrapping your iteration code in the <code><a href="reference/with_dataset_iterator.html">with_dataset_iterator()</a></code> function. For example:</p>
+<p>Another approach to iteration is to detect when all batches have been yielded from the dataset. When the batch tensor reaches the end of iteration a runtime error will occur. You can catch and ignore the error when it occurs by wrapping your iteration code in the <code>with_dataset()</code> function. For example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tfdatasets)
 dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(<span class="dt">x =</span> <span class="kw">c</span>(mpg, disp), <span class="dt">y =</span> cyl) <span class="op">%&gt;%</span><span class="st"> </span>
@@ -276,7 +277,8 @@ dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_
 <span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>(<span class="dv">10</span>)
   
 batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/iterator_get_next.html">iterator_get_next</a></span>(dataset)
-<span class="kw"><a href="reference/with_dataset_iterator.html">with_dataset_iterator</a></span>({
+
+<span class="kw">with_dataset</span>({
   <span class="cf">while</span>(<span class="ot">TRUE</span>) {
     <span class="co"># use batch$x and batch$y tensors</span>
   }

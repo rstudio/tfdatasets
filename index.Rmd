@@ -115,7 +115,7 @@ iris_dataset <- csv_dataset("iris.csv") %>%
   dataset_prepare(x = -Species, y = Species)
 ```
 
-## Shuffling and Batching 
+### Shuffling and Batching 
 
 There are several functions which control how batches are drawn from the dataset. For example, the following specifies that data will be drawn in batches of 128 from a shuffled buffer of 5000 records, and that the dataset will be repeated for 10 epochs:
 
@@ -133,6 +133,7 @@ To read batches from a dataset you obtain an iterator for the dataset and then e
 ```{r}
 dataset <- csv_dataset("mtcars.csv") %>% 
   dataset_prepare(x = c(mpg, disp), y = cyl) %>% 
+  dataset_shuffle(20) %>% 
   dataset_batch(5)
 batch <- iterator_get_next(dataset)
 batch
@@ -278,7 +279,7 @@ The call to `dataset_repeat()` with no `count` parameter requests that the datas
 
 ### Detecting Completion
 
-Another approach to iteration is to detect when all batches have been yielded from the dataset. When the batch tensor reaches the end of iteration a runtime error will occur. You can catch and ignore the error when it occurs by wrapping your iteration code in the `with_dataset_iterator()` function. For example:
+Another approach to iteration is to detect when all batches have been yielded from the dataset. When the batch tensor reaches the end of iteration a runtime error will occur. You can catch and ignore the error when it occurs by wrapping your iteration code in the `with_dataset()` function. For example:
 
 ```{r}
 library(tfdatasets)
@@ -288,7 +289,8 @@ dataset <- csv_dataset("mtcars.csv") %>%
   dataset_repeat(10)
   
 batch <- iterator_get_next(dataset)
-with_dataset_iterator({
+
+with_dataset({
   while(TRUE) {
     # use batch$x and batch$y tensors
   }

@@ -1,12 +1,5 @@
 
 
-dataset_prepare <- function(dataset, x, y = NULL,
-                            named = TRUE, named_features = FALSE) {
-
-}
-
-
-
 input_fn.dataset?
 
 separate iterator functions as necessary

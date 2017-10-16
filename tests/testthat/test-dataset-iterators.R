@@ -2,7 +2,7 @@ context("iterators")
 
 source("utils.R")
 
-test_succeeds("with_dataset_iterator catches end of iteration", {
+test_succeeds("with_dataset catches end of iteration", {
 
   sess <- tf$Session()
   on.exit(sess$close(), add = TRUE)
@@ -10,7 +10,7 @@ test_succeeds("with_dataset_iterator catches end of iteration", {
     dataset_batch(10)
   batch <- iterator_get_next(dataset)
 
-  with_dataset_iterator({
+  with_dataset({
     while(TRUE) {
       value <- sess$run(batch)
       print(value)

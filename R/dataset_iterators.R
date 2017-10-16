@@ -26,7 +26,7 @@
 #' Another approach is to detect when all batches have been yielded
 #' from the dataset. When the tensor reaches the end of iteration a runtime
 #' error will occur. You can catch and ignore the error when it occurs by wrapping
-#' your iteration code in the `with_dataset_iterator()` function.
+#' your iteration code in the `with_dataset()` function.
 #'
 #' See the examples below for a demonstration of each of these methods of iteration.
 #'
@@ -54,7 +54,7 @@
 #'   dataset_batch(128) %>%
 #'   dataset_repeat(10)
 #' batch <- iterator_get_next(dataset)
-#' with_dataset_iterator({
+#' with_dataset({
 #'   while(TRUE) {
 #'     # use batch$x and batch$y tensors
 #'   }
@@ -77,23 +77,24 @@ iterator_get_next <- function(x) {
 
 
 
-#' Execute code that checks for end of dataset iteration
+#' Execute code that traverses a dataset
 #'
 #' @param expr Expression to execute
 #'
 #' @details  When a dataset iterator reaches the end, an out of range runtime error
 #'   will occur. You can catch and ignore the error when it occurs by wrapping
-#'   your iteration code in the `with_dataset_iterator()` (see the example
+#'   your iteration code in a call to `with_dataset()` (see the example
 #'   below for an illustration).
 #'
 #' @examples \dontrun{
 #' library(tfdatasets)
 #' dataset <- csv_dataset("training.csv") %>%
+#'   dataset_prepare(x = c(mpg, disp), y = cyl) %>%
 #'   dataset_batch(128) %>%
 #'   dataset_repeat(10)
 #'
-#' batch <- batch_from_dataset(dataset, features = c(mpg, disp), response = cyl)
-#' with_dataset_iterator({
+#' batch <- iterator_get_next(dataset)
+#' with_dataset({
 #'   while(TRUE) {
 #'     # use batch$x and batch$y tensors
 #'   }
@@ -103,7 +104,7 @@ iterator_get_next <- function(x) {
 #' @family iterators
 #'
 #' @export
-with_dataset_iterator <- function(expr) {
+with_dataset <- function(expr) {
   tryCatch({
     force(expr)
   },

@@ -41,7 +41,7 @@ reference:
     contents:
        - iterator_get_next
        - input_fn_from_dataset
-       - with_dataset_iterator
+       - with_dataset
 
   - title: "Dataset Properites"
     contents:
