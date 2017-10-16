@@ -103,9 +103,21 @@ Note that the `csv_dataset()` function described above is just a wrapper around 
 dataset <- csv_dataset("iris.csv", num_parallel_calls = 4)
 ```
 
+### Features and Response 
+
+A common tranformation is taking a column oriented dataset (e.g. one created by `csv_dataset()` or `tfrecord_dataset()`) and transforming it into a two-element list with features ("x") and response ("y"). You can use the `dataset_prepare()` function to do this type of transformation. For example:
+
+```{r}
+mtcars_dataset <- csv_dataset("mtcars.csv") %>% 
+  dataset_prepare(x = c(mpg, disp), y = cyl)
+
+iris_dataset <- csv_dataset("iris.csv") %>% 
+  dataset_prepare(x = -Species, y = Species)
+```
+
 ## Shuffling and Batching 
 
-There are functions which control how batches are drawn from the dataset. For example, the following specifies that data will be drawn in batches of 128 from a shuffled buffer of 5000 records, and that the dataset will be repeated for 10 epochs:
+There are several functions which control how batches are drawn from the dataset. For example, the following specifies that data will be drawn in batches of 128 from a shuffled buffer of 5000 records, and that the dataset will be repeated for 10 epochs:
 
 ```{r}
 dataset <- dataset %>% 
@@ -114,39 +126,15 @@ dataset <- dataset %>%
   dataset_repeat(10)
 ```
 
-## Reading Batches
+## Reading Datasets
 
-Batches are read from datasets using tensors (e.g. a tensor for the features matrix and a tensor for the response variable). You can obtain the tensor(s) for a dataset by calling the `batch_from_dataset()` function.
-
-A very simple example consists of creating a dataset of constant tensors and then reading it:
+To read batches from a dataset you obtain an iterator for the dataset and then evaluate a "get next" tensor which yields the next batch. You can use the `iterator_get_next()` function to obtain this tensor from a dataset:
 
 ```{r}
-dataset <- tensor_slices_dataset(1:10) %>% 
-  dataset_batch(5)
-batch <- batch_from_dataset(dataset)
-batch
-```
-```
-Tensor("IteratorGetNext_10:0", shape=(?,), dtype=int32)
-```
-
-As you can see "batch" is actually a tensor that will yield the next batch of data when it is evaluated:
-
-```{r}
-sess <- tf$Session()
-sess$run(batch)
-```
-```
-[1] 1 2 3 4 5
-```
-
-The `batch_from_dataset()` function also supports yielding batches segregated into feature and response elements (assuming that the dataset consists of a set of named columns). For example, here we create a batch tensor organized into a feature matrix and response array:
-
-```{r}
-sess <- tf$Session()
 dataset <- csv_dataset("mtcars.csv") %>% 
+  dataset_prepare(x = c(mpg, disp), y = cyl) %>% 
   dataset_batch(5)
-batch <- batch_from_dataset(dataset, features = c(mpg, disp), response = cyl)
+batch <- iterator_get_next(dataset)
 batch
 ```
 ```
@@ -157,9 +145,10 @@ $y
 Tensor("IteratorGetNext_13:1", shape=(?,), dtype=int32)
 ```
 
-Here there are separate tensors for the features ("x") and response ("y") selected from the dataset. When we evaluate the tensor we see the actual feature and response data in the next batch:
+As you can see "batch" isn't the data itself but rather a tensor that will yield the next batch of data when it is evaluated:
 
 ```{r}
+sess <- tf$Session()
 sess$run(batch)
 ```
 ```
@@ -200,7 +189,7 @@ model %>% train(
 )
 ```
 
-The `input_fn_from_dataset()` function uses the `batch_from_dataset()` function under the hood to provide the `input_fn` interface expected by tfestimators models.
+Note that we don't use `dataset_prepare()` and `iterator_get_next()` in this example. Rather, these functions are used by `input_fn_from_dataset()` under the hood to provide the `input_fn` interface expected by tfestimators models.
 
 ## Using with Keras
 
@@ -216,7 +205,7 @@ model %>% fit(
 
 However, this requires loading data into an R data frame or matrix before calling fit. You can use the `train_on_batch()` function to stream data one batch at a time, however the reading and processing of the input data is still being done serially and outside of native code.
 
-Alternatively, Keras enables you to wire input and output tensors directly into the model definition, which are then evaluated for each training step. You can combine this capability with `batch_from_dataset()` to efficiently stream data into Keras training operations. Here is a complete example:
+Alternatively, Keras enables you to wire input and output tensors directly into the model definition, which are then evaluated for each training step. You can combine this capability with `dataset_prepare()` and `iterator_get_next()` to efficiently stream data into Keras training operations. Here is a complete example:
 
 ```{r}
 library(keras)
@@ -228,12 +217,13 @@ dataset <- csv_dataset("iris.csv") %>%
     record$Species <- tf$one_hot(record$Species, depth = 3L)
     record
   }) %>%
+  dataset_prepare(x = -Species, y = Species) %>% 
   dataset_shuffle(1000) %>%
   dataset_batch(128) %>%
   dataset_repeat() 
 
 # stream batches from dataset
-batch <- batch_from_dataset(dataset, features = -Species, response = Species)
+batch <- iterator_get_next(dataset)
 
 # create model
 input <- layer_input(tensor = batch$x, shape = c(4))
@@ -262,7 +252,7 @@ Note also that rather than calling the Keras `to_categorical()` function to one-
 
 ## Batch Iteration
 
-In the [Reading Batches] section above we demonstrated evaluating the tensors returned from `batch_from_dataset()`. If you want to iterate over all batches of a dataset, you will need to detect the end of the iteration. This is handled automatically when you use tfestimators or keras, however if you are dealing with the tensors directly you need to do this explicitly.
+In the [Reading Batches] section above we demonstrated evaluating the tensors returned from `iterator_get_next()`. If you want to iterate over all batches of a dataset, you will need to detect the end of the iteration. This is handled automatically when you use tfestimators or keras, however if you are dealing with the tensors directly you need to do this explicitly.
 
 ### Infinite Batches
 
@@ -271,11 +261,12 @@ One approach to iteration is to create a dataset that yields batches infinitely 
 ```{r}
 library(tfdatasets)
 dataset <- csv_dataset("training.csv") %>% 
+  dataset_prepare(x = c(mpg, disp), y = cyl) %>% 
   dataset_shuffle(5000) %>% 
   dataset_batch(128) %>% 
-  dataset_repeat()
+  dataset_repeat() # repeat infinitely
 
-batch <- batch_from_dataset(dataset, features = c(mpg, disp), response = cyl)
+batch <- iterator_get_next(dataset)
 
 steps <- 200
 for (i in 1:steps) {
@@ -291,11 +282,12 @@ Another approach to iteration is to detect when all batches have been yielded fr
 
 ```{r}
 library(tfdatasets)
-dataset <- csv_dataset("training.csv") %>% 
+dataset <- csv_dataset("mtcars.csv") %>% 
+  dataset_prepare(x = c(mpg, disp), y = cyl) %>% 
   dataset_batch(128) %>% 
   dataset_repeat(10)
   
-batch <- batch_from_dataset(dataset, features = c(mpg, disp), response = cyl)
+batch <- iterator_get_next(dataset)
 with_dataset_iterator({
   while(TRUE) {
     # use batch$x and batch$y tensors

@@ -8,7 +8,7 @@ test_succeeds("with_dataset_iterator catches end of iteration", {
   on.exit(sess$close(), add = TRUE)
   dataset <- tensor_slices_dataset(1:50) %>%
     dataset_batch(10)
-  batch <- batch_from_dataset(dataset)
+  batch <- iterator_get_next(dataset)
 
   with_dataset_iterator({
     while(TRUE) {

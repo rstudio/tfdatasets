@@ -45,7 +45,7 @@ resolve_filenames <- function(filenames) {
   # list files and return all results
   filenames <- tf$data$Dataset$list_files(filenames) %>%
     dataset_take(-1)
-  batch <- batch_from_dataset(filenames)
+  batch <- iterator_get_next(filenames)
   with_session(function(sess) {
     sess$run(batch)
   })
@@ -64,6 +64,12 @@ validate_tf_version <- function() {
         call. = FALSE
       )
   }
+}
+
+column_names <- function(dataset) {
+  if (!is.list(dataset$output_shapes) || is.null(names(dataset$output_shapes)))
+    stop("Unable to resolve features for dataset that does not have named outputs", call. = FALSE)
+  names(dataset$output_shapes)
 }
 
 

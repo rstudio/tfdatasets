@@ -10,8 +10,8 @@
 #'   consist of a set of named output tensors (e.g. like the dataset
 #'   produced by the [csv_dataset()] function).
 #'
-#' @return An input_fn suitable for use with tfestimators [train][tfestimators::train.tf_estimator], [evaluate][tfestimators::evaluate.tf_estimator], and
-#'   [predict][tfestimators::predict.tf_estimator] methods
+#' @return An input_fn suitable for use with tfestimators [train][tfestimators::train.tf_estimator],
+#'   [evaluate][tfestimators::evaluate.tf_estimator], and [predict][tfestimators::predict.tf_estimator] methods
 #'
 #' @export
 input_fn_from_dataset <- function(dataset, features, response = NULL) {
@@ -46,22 +46,27 @@ input_fn_from_dataset <- function(dataset, features, response = NULL) {
   # return function which yields a features/response iterator for the dataset
   function(estimator) {
     function() {
-      batch_from_dataset(
-        dataset = dataset,
-        features = feature_names,
-        response = response_name,
-        named = FALSE,
-        named_features = !inherits(estimator, "tf_custom_estimator")
-      )
+
+      # create new dataset
+      dataset <- dataset %>%
+        dataset_prepare(
+          x = feature_names,
+          y = response_name,
+          named = FALSE,
+          named_features = !inherits(estimator, "tf_custom_estimator")
+        )
+
+      # get the iterator
+      iter <- iterator_get_next(dataset)
+
+      # add `NULL` response if needed
+      if (is.null(response_name))
+        iter[2] <- list(NULL)
+
+      # return iterator
+      iter
     }
   }
-}
-
-
-column_names <- function(dataset) {
-  if (!is.list(dataset$output_shapes) || is.null(names(dataset$output_shapes)))
-    stop("Unable to resolve features for dataset that does not have named outputs", call. = FALSE)
-  names(dataset$output_shapes)
 }
 
 

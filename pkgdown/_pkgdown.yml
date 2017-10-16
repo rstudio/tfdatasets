@@ -39,7 +39,7 @@ reference:
 
   - title: "Reading Datasets"
     contents:
-       - batch_from_dataset
+       - iterator_get_next
        - input_fn_from_dataset
        - with_dataset_iterator
 

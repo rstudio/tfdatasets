@@ -160,7 +160,7 @@ dataset_decode_delim <- function(dataset, delim = ",",
     dataset_take(1000) %>%
     dataset_batch(1000)
   preview <- with_session(function(session) {
-    batch <- batch_from_dataset(preview)
+    batch <- iterator_get_next(preview)
     session$run(batch)
   })
 

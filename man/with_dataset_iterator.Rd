@@ -34,3 +34,6 @@ with_dataset_iterator({
 }
 
 }
+\seealso{
+Other iterators: \code{\link{iterator_get_next}}
+}

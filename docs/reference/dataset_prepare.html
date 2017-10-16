@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Execute code that checks for end of dataset iteration — with_dataset_iterator • tfdatasets</title>
+<title>Prepare a dataset for analysis — dataset_prepare • tfdatasets</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -77,63 +77,78 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Execute code that checks for end of dataset iteration</h1>
+    <h1>Prepare a dataset for analysis</h1>
     </div>
 
     
-    <p>Execute code that checks for end of dataset iteration</p>
+    <p>Transform a dataset with named columns into a list with features (<code>x</code>) and
+response (<code>y</code>) elements.</p>
     
 
-    <pre class="usage"><span class='fu'>with_dataset_iterator</span>(<span class='no'>expr</span>)</pre>
+    <pre class="usage"><span class='fu'>dataset_prepare</span>(<span class='no'>dataset</span>, <span class='no'>x</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>named</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>named_features</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>num_parallel_calls</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>expr</th>
-      <td><p>Expression to execute</p></td>
+      <th>dataset</th>
+      <td><p>A dataset</p></td>
+    </tr>
+    <tr>
+      <th>x</th>
+      <td><p>Features to include. When <code>named_features</code> is <code>FALSE</code> all features
+will be stacked into a single tensor so must have an identical data type.</p></td>
+    </tr>
+    <tr>
+      <th>y</th>
+      <td><p>(Optional). Response variable.</p></td>
+    </tr>
+    <tr>
+      <th>named</th>
+      <td><p><code>TRUE</code> to name the dataset elements "x" and "y", <code>FALSE</code> to
+not name the dataset elements.</p></td>
+    </tr>
+    <tr>
+      <th>named_features</th>
+      <td><p><code>TRUE</code> to yield features as a named list; <code>FALSE</code> to
+stack features into a single array. Note that in the case of <code>FALSE</code> (the
+default) all features will be stacked into a single 2D tensor so need to
+have the same underlying data type.</p></td>
+    </tr>
+    <tr>
+      <th>num_parallel_calls</th>
+      <td><p>(Optional) An integer, representing the
+number of elements to process in parallel If not specified, elements will
+be processed sequentially.</p></td>
     </tr>
     </table>
     
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>When a dataset iterator reaches the end, an out of range runtime error
-will occur. You can catch and ignore the error when it occurs by wrapping
-your iteration code in the <code>with_dataset_iterator()</code> (see the example
-below for an illustration).</p>
+    <p>A dataset. The dataset will have a structure of either:</p><ul>
+<li><p>When <code>named_features</code> is <code>TRUE</code>: <code>list(x = list(feature_name = feature_values, ...), y = response_values)</code></p></li>
+<li><p>When <code>named_features</code> is <code>FALSE</code>: <code>list(x = features_array, y = response_values)</code>,
+where <code>features_array</code> is a Rank 2 array of <code>(batch_size, num_features)</code>.</p></li>
+</ul>
+
+<p>Note that the <code>y</code> element will be omitted when <code>y</code> is <code>NULL</code>.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <p>Other iterators: <code><a href='iterator_get_next.html'>iterator_get_next</a></code></p>
+    <p><code><a href='input_fn_from_dataset.html'>input_fn_from_dataset()</a></code> for use with <span class="pkg">tfestimators</span>.</p>
     
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><span class='co'># NOT RUN {</span>
-<span class='fu'>library</span>(<span class='no'>tfdatasets</span>)
-<span class='no'>dataset</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='delim_dataset.html'>csv_dataset</a></span>(<span class='st'>"training.csv"</span>) <span class='kw'>%&gt;%</span>
-  <span class='fu'><a href='dataset_batch.html'>dataset_batch</a></span>(<span class='fl'>128</span>) <span class='kw'>%&gt;%</span>
-  <span class='fu'><a href='dataset_repeat.html'>dataset_repeat</a></span>(<span class='fl'>10</span>)
-
-<span class='no'>batch</span> <span class='kw'>&lt;-</span> <span class='fu'>batch_from_dataset</span>(<span class='no'>dataset</span>, <span class='kw'>features</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='no'>mpg</span>, <span class='no'>disp</span>), <span class='kw'>response</span> <span class='kw'>=</span> <span class='no'>cyl</span>)
-<span class='fu'>with_dataset_iterator</span>({
-  <span class='kw'>while</span>(<span class='fl'>TRUE</span>) {
-    <span class='co'># use batch$x and batch$y tensors</span>
-  }
-})
-<span class='co'># }</span><div class='input'>
-</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#details">Details</a></li>
+      <li><a href="#value">Value</a></li>
 
       <li><a href="#see-also">See also</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
+          </ul>
 
   </div>
 </div>
