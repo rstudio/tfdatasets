@@ -190,7 +190,7 @@ dataset_skip <- function(dataset, count) {
 #'
 #' Note that the `y` element will be omitted when `y` is `NULL`.
 #'
-#' @seealso [input_fn_from_dataset()] for use with \pkg{tfestimators}.
+#' @seealso [input_fn()][input_fn.tensorflow.python.data.ops.dataset_ops.Dataset()] for use with \pkg{tfestimators}.
 #'
 #' @export
 dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features = FALSE,

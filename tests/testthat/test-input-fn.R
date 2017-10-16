@@ -17,7 +17,7 @@ use_input_fn <- function(features, response) {
       dataset_repeat(5)
 
     # create input_fn from dataset
-    input_fn_from_dataset(dataset, features, response)
+    input_fn(dataset, features, response)
   }
 
   # define feature columns
@@ -58,7 +58,7 @@ test_that("input_fn rejects un-named datasets", {
   skip_if_no_tensorflow()
   expect_error({
     dataset <- tensors_dataset(1:100)
-    input_fn_from_dataset(dataset, features = c("disp", "cyl"), response = "mpg")
+    input_fn(dataset, features = c("disp", "cyl"), response = "mpg")
   })
 })
 
@@ -71,7 +71,7 @@ test_succeeds("input_fn supports tidyselect", {
     dataset_repeat(3)
 
   # create input_fn from dataset
-  input_fn_from_dataset(dataset, features = c(disp, cyl), response = mpg)
+  input_fn(dataset, features = c(disp, cyl), response = mpg)
 })
 
 
@@ -128,7 +128,7 @@ test_succeeds("input_fn works with custom estimators", {
   classifier <- estimator(model_fn = simple_custom_model_fn, model_dir = tempfile())
 
   # train
-  train(classifier, input_fn_from_dataset(dataset, features = -Species, response = Species))
+  train(classifier, input_fn(dataset, features = -Species, response = Species))
 
 
 })

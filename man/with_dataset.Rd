@@ -37,5 +37,6 @@ with_dataset({
 
 }
 \seealso{
-Other reading datasets: \code{\link{next_batch}}
+Other reading datasets: \code{\link{input_fn.tensorflow.python.data.ops.dataset_ops.Dataset}},
+  \code{\link{next_batch}}
 }

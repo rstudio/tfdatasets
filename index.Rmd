@@ -210,8 +210,6 @@ with_dataset({
 
 ## Using with tfestimators
 
-If you are using **tfdatasets** with the **tfestimators** package, you can pass datasets directly to estimators training functions by using the `input_fn_from_dataset()` function. 
-
 Models created with **tfestimators** use an input function to consume data for training, evaluation, and prediction. For example, here is an example of using an input function to feed data from an in-memory R data frame to an estimators model:
 
 ```{r}
@@ -221,7 +219,7 @@ model %>% train(
 )
 ```
 
-To use **tfdatasets** with a dataset streamed from a CSV instead, you would do the following:
+If you are using **tfdatasets** with the **tfestimators** package, you can create an estimators input function directly from a dataset as follows:
 
 ```{r}
 dataset <- csv_dataset("mtcars.csv") %>% 
@@ -229,11 +227,11 @@ dataset <- csv_dataset("mtcars.csv") %>%
   dataset_repeat(3)
 
 model %>% train(
-  input_fn_from_dataset(dataset, features = c(drat, cyl), response = mpg)
+  input_fn(dataset, features = c(drat, cyl), response = mpg)
 )
 ```
 
-Note that we don't use the `dataset_prepare()` or `next_batch()` functions in this example. Rather, these functions are called under the hood by `input_fn_from_dataset()` to provide the `input_fn` interface expected by tfestimators models.
+Note that we don't use the `dataset_prepare()` or `next_batch()` functions in this example. Rather, these functions are used under the hood to provide the `input_fn` interface expected by tfestimators models.
 
 ## Using with Keras
 

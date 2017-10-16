@@ -13,10 +13,12 @@
 #' @return An input_fn suitable for use with tfestimators [train][tfestimators::train.tf_estimator],
 #'   [evaluate][tfestimators::evaluate.tf_estimator], and [predict][tfestimators::predict.tf_estimator] methods
 #'
-#' @family reading_datasets
+#' @family reading datasets
 #'
+#' @rdname input_fn
+#' @aliases input_fn
 #' @export
-input_fn_from_dataset <- function(dataset, features, response = NULL) {
+input_fn.tensorflow.python.data.ops.dataset_ops.Dataset <- function(dataset, features, response = NULL) {
 
   # validate/retreive column names
   col_names <- column_names(dataset)

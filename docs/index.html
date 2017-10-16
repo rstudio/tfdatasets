@@ -10,7 +10,7 @@
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script><!-- Font Awesome icons --><link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-T8Gy5hrqNKT+hzMclPo118YTQO6cYprQmhrYwIiQ/3axmI1hQomh7Ud2hPOy8SP1" crossorigin="anonymous">
 <!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="jquery.sticky-kit.min.js"></script><script src="pkgdown.js"></script><link href="extra.css" rel="stylesheet">
-<!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
+<script src="extra.js"></script><!-- mathjax --><script src="https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
 <![endif]-->
@@ -211,21 +211,20 @@ batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/next_bat
 <div id="using-with-tfestimators" class="section level2">
 <h2 class="hasAnchor">
 <a href="#using-with-tfestimators" class="anchor"></a>Using with tfestimators</h2>
-<p>If you are using <strong>tfdatasets</strong> with the <strong>tfestimators</strong> package, you can pass datasets directly to estimators training functions by using the <code><a href="reference/input_fn_from_dataset.html">input_fn_from_dataset()</a></code> function.</p>
 <p>Models created with <strong>tfestimators</strong> use an input function to consume data for training, evaluation, and prediction. For example, here is an example of using an input function to feed data from an in-memory R data frame to an estimators model:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">train</span>(
-  <span class="kw">input_fn</span>(mtcars, <span class="dt">features =</span> <span class="kw">c</span>(drat, cyl), <span class="dt">response =</span> mpg,
+  <span class="kw"><a href="reference/input_fn.html">input_fn</a></span>(mtcars, <span class="dt">features =</span> <span class="kw">c</span>(drat, cyl), <span class="dt">response =</span> mpg,
            <span class="dt">batch_size =</span> <span class="dv">128</span>, <span class="dt">epochs =</span> <span class="dv">3</span>)
 )</code></pre></div>
-<p>To use <strong>tfdatasets</strong> with a dataset streamed from a CSV instead, you would do the following:</p>
+<p>If you are using <strong>tfdatasets</strong> with the <strong>tfestimators</strong> package, you can create an estimators input function directly from a dataset as follows:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>(<span class="dv">3</span>)
 
 model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">train</span>(
-  <span class="kw"><a href="reference/input_fn_from_dataset.html">input_fn_from_dataset</a></span>(dataset, <span class="dt">features =</span> <span class="kw">c</span>(drat, cyl), <span class="dt">response =</span> mpg)
+  <span class="kw"><a href="reference/input_fn.html">input_fn</a></span>(dataset, <span class="dt">features =</span> <span class="kw">c</span>(drat, cyl), <span class="dt">response =</span> mpg)
 )</code></pre></div>
-<p>Note that we don’t use the <code><a href="reference/dataset_prepare.html">dataset_prepare()</a></code> or <code><a href="reference/next_batch.html">next_batch()</a></code> functions in this example. Rather, these functions are called under the hood by <code><a href="reference/input_fn_from_dataset.html">input_fn_from_dataset()</a></code> to provide the <code>input_fn</code> interface expected by tfestimators models.</p>
+<p>Note that we don’t use the <code><a href="reference/dataset_prepare.html">dataset_prepare()</a></code> or <code><a href="reference/next_batch.html">next_batch()</a></code> functions in this example. Rather, these functions are used under the hood to provide the <code>input_fn</code> interface expected by tfestimators models.</p>
 </div>
 <div id="using-with-keras" class="section level2">
 <h2 class="hasAnchor">

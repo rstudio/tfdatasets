@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Combines consecutive elements of this dataset into batches. — dataset_batch • tfdatasets</title>
+<title>Construct a tfestimators input function from a dataset — input_fn.tensorflow.python.data.ops.dataset_ops.Dataset • tfdatasets</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -77,14 +77,15 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Combines consecutive elements of this dataset into batches.</h1>
+    <h1>Construct a tfestimators input function from a dataset</h1>
     </div>
 
     
-    <p>Combines consecutive elements of this dataset into batches.</p>
+    <p>Construct a tfestimators input function from a dataset</p>
     
 
-    <pre class="usage"><span class='fu'>dataset_batch</span>(<span class='no'>dataset</span>, <span class='no'>batch_size</span>)</pre>
+    <pre class="usage"><span class='fu'>input_fn.tensorflow.python.data.ops.dataset_ops.Dataset</span>(<span class='no'>dataset</span>, <span class='no'>features</span>,
+  <span class='kw'>response</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -94,24 +95,30 @@
       <td><p>A dataset</p></td>
     </tr>
     <tr>
-      <th>batch_size</th>
-      <td><p>An integer, representing the number of consecutive elements
-of this dataset to combine in a single batch.</p></td>
+      <th>features</th>
+      <td><p>The names of feature variables to be used.</p></td>
+    </tr>
+    <tr>
+      <th>response</th>
+      <td><p>The name of the response variable.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A dataset</p>
+    <p>An input_fn suitable for use with tfestimators <a href='http://www.rdocumentation.org/packages/tfestimators/topics/train.tf_estimator'>train</a>,
+<a href='http://www.rdocumentation.org/packages/tfestimators/topics/evaluate.tf_estimator'>evaluate</a>, and <a href='http://www.rdocumentation.org/packages/tfestimators/topics/predict.tf_estimator'>predict</a> methods</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>Creating an input_fn from a dataset requires that the dataset
+consist of a set of named output tensors (e.g. like the dataset
+produced by the <code><a href='delim_dataset.html'>csv_dataset()</a></code> function).</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <p>Other dataset methods: <code><a href='dataset_cache.html'>dataset_cache</a></code>,
-  <code><a href='dataset_concatenate.html'>dataset_concatenate</a></code>,
-  <code><a href='dataset_decode_delim.html'>dataset_decode_delim</a></code>,
-  <code><a href='dataset_map.html'>dataset_map</a></code>, <code><a href='dataset_repeat.html'>dataset_repeat</a></code>,
-  <code><a href='dataset_shuffle.html'>dataset_shuffle</a></code>,
-  <code><a href='dataset_skip.html'>dataset_skip</a></code>, <code><a href='dataset_take.html'>dataset_take</a></code></p>
+    <p>Other reading datasets: <code><a href='next_batch.html'>next_batch</a></code>,
+  <code><a href='with_dataset.html'>with_dataset</a></code></p>
     
 
   </div>
@@ -121,6 +128,8 @@ of this dataset to combine in a single batch.</p></td>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
 
       <li><a href="#see-also">See also</a></li>
           </ul>

@@ -26,22 +26,23 @@ reference:
 
   - title: "Transforming Datasets"
     contents:
+       - dataset_map
+       - dataset_prepare
        - dataset_skip
        - dataset_shuffle
        - dataset_batch
        - dataset_repeat
-       - dataset_map
-       - dataset_decode_delim
        - dataset_cache
        - dataset_take
+       - dataset_decode_delim
        - dataset_concatenate
        - zip_datasets
 
   - title: "Reading Datasets"
     contents:
        - next_batch
-       - input_fn_from_dataset
        - with_dataset
+       - input_fn
 
   - title: "Dataset Properites"
     contents:
