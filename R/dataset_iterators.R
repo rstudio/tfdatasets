@@ -117,7 +117,7 @@ with_dataset <- function(expr) {
   error = function(e) {
     last_error <- py_last_error()
     if (is.null(last_error) || !identical(last_error$type, "OutOfRangeError"))
-      stop(e)
+      stop(e$message, call. = FALSE)
   })
 }
 

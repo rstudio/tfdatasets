@@ -1,5 +1,4 @@
-context("batch-from-dataset")
-
+context("dataset-prepare")
 
 source("utils.R")
 
@@ -12,6 +11,13 @@ mtcars_dataset <- function() {
 test_succeeds("dataset_prepare yields list of x and y tensors", {
   batch <- mtcars_dataset() %>%
     dataset_prepare(x = c(mpg, disp), y = cyl) %>%
+    next_batch()
+  expect_length(setdiff(names(batch), c("x", "y")), 0)
+})
+
+test_succeeds("dataset_prepare accepts formula syntax", {
+  batch <- mtcars_dataset() %>%
+    dataset_prepare(cyl ~ mpg + disp) %>%
     next_batch()
   expect_length(setdiff(names(batch), c("x", "y")), 0)
 })

@@ -75,6 +75,18 @@ test_succeeds("input_fn supports tidyselect", {
 })
 
 
+test_succeeds("input_fn accepts formula syntax", {
+
+  dataset <- csv_dataset("data/mtcars-train.csv") %>%
+    dataset_shuffle(2000) %>%
+    dataset_batch(128) %>%
+    dataset_repeat(3)
+
+  # create input_fn from dataset
+  input_fn(dataset, mpg ~ disp + cyl)
+})
+
+
 test_succeeds("input_fn works with custom estimators", {
 
   skip_if_no_tensorflow()

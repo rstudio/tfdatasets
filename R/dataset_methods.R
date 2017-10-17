@@ -205,16 +205,35 @@ dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features =
   exports <- getNamespaceExports(tidyselect)
   tidyselect_data <- mget(exports, tidyselect, inherits = TRUE)
 
+  # default to null response_col
+  response_col <- NULL
+
   # get features
   col_names <- column_names(dataset)
   eq_features <- enquo(x)
   environment(eq_features) <- as_overscope(eq_features, data = tidyselect_data)
-  feature_col_names <- vars_select(col_names, !! eq_features)
+
+  # attempt use of tidyselect. if there is an error it could be because 'x'
+  # is a formula. in that case attempt to parse the formula
+  feature_col_names <- tryCatch({
+    vars_select(col_names, !! eq_features)
+  },
+  error = function(e) {
+    if (is_formula(x)) {
+      parsed <- parse_formula(x)
+      if (!is.null(parsed$response))
+        response_col <<- match(parsed$response, col_names)
+      parsed$features
+    } else {
+      stop(e$message, call. = FALSE)
+    }
+  })
+
+  # get column indexes
   feature_cols <- match(feature_col_names, col_names)
 
   # get response if specified
-  response_col <- NULL
-  if (!missing(y)) {
+  if (!missing(y) && is.null(response_col)) {
     eq_response <- enquo(y)
     environment(eq_response) <- as_overscope(eq_response, data = tidyselect_data)
     response_name <- vars_select(col_names, !! eq_response)
@@ -266,4 +285,6 @@ dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features =
       record
     })
 }
+
+
 

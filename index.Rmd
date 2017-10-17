@@ -105,7 +105,7 @@ dataset <- csv_dataset("iris.csv", num_parallel_calls = 4)
 
 ### Features and Response 
 
-A common tranformation is taking a column oriented dataset (e.g. one created by `csv_dataset()` or `tfrecord_dataset()`) and transforming it into a two-element list with features ("x") and response ("y"). You can use the `dataset_prepare()` function to do this type of transformation. For example:
+A common transformation is taking a column oriented dataset (e.g. one created by `csv_dataset()` or `tfrecord_dataset()`) and transforming it into a two-element list with features ("x") and response ("y"). You can use the `dataset_prepare()` function to do this type of transformation. For example:
 
 ```{r}
 mtcars_dataset <- csv_dataset("mtcars.csv") %>% 
@@ -114,6 +114,14 @@ mtcars_dataset <- csv_dataset("mtcars.csv") %>%
 iris_dataset <- csv_dataset("iris.csv") %>% 
   dataset_prepare(x = -Species, y = Species)
 ```
+
+The `dataset_prepare()` function also accepts standard R formula syntax for defining features and response:
+
+```{r}
+mtcars_dataset <- csv_dataset("mtcars.csv") %>% 
+  dataset_prepare(cyl ~ mpg + disp)
+```
+
 
 ### Shuffling and Batching 
 
@@ -128,11 +136,11 @@ dataset <- dataset %>%
 
 ## Reading Datasets
 
-You read batches of data from a dataset by using tensors that yield the next batch. You can obatain this tensor from a dataset via the `next_batch()` function. For example:
+You read batches of data from a dataset by using tensors that yield the next batch. You can obtain this tensor from a dataset via the `next_batch()` function. For example:
 
 ```{r}
 dataset <- csv_dataset("mtcars.csv") %>% 
-  dataset_prepare(x = c(mpg, disp), y = cyl) %>% 
+  dataset_prepare(cyl ~ mpg + disp) %>% 
   dataset_shuffle(20) %>% 
   dataset_batch(5)
 batch <- next_batch(dataset)
@@ -214,7 +222,7 @@ Models created with **tfestimators** use an input function to consume data for t
 
 ```{r}
 model %>% train(
-  input_fn(mtcars, features = c(drat, cyl), response = mpg,
+  input_fn(mtcars, features = c(mpg, disp), response = cyl,
            batch_size = 128, epochs = 3)
 )
 ```
@@ -227,11 +235,19 @@ dataset <- csv_dataset("mtcars.csv") %>%
   dataset_repeat(3)
 
 model %>% train(
-  input_fn(dataset, features = c(drat, cyl), response = mpg)
+  input_fn(dataset, features = c(mpg, disp), response = cyl)
 )
 ```
 
 Note that we don't use the `dataset_prepare()` or `next_batch()` functions in this example. Rather, these functions are used under the hood to provide the `input_fn` interface expected by tfestimators models.
+
+As with `dataset_prepare()`, you can alternatively use an R formula to specify features and response:
+
+```{r}
+model %>% train(
+  input_fn(dataset, cyl ~ mpg + disp)
+)
+```
 
 ## Using with Keras
 

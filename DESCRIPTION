@@ -29,7 +29,8 @@ Imports:
     tensorflow (>= 1.4.0.9002),
     magrittr,
     rlang,
-    tidyselect
+    tidyselect,
+    stats
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.0.1
 Suggests:

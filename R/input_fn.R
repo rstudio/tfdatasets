@@ -28,14 +28,31 @@ input_fn.tensorflow.python.data.ops.dataset_ops.Dataset <- function(dataset, fea
   exports <- getNamespaceExports(tidyselect)
   tidyselect_data <- mget(exports, tidyselect, inherits = TRUE)
 
+  # default to null response_name
+  response_name <- NULL
+
   # evaluate features (use tidyselect overscope)
   eq_features <- enquo(features)
   environment(eq_features) <- as_overscope(eq_features, data = tidyselect_data)
-  feature_names <- vars_select(col_names, !! eq_features)
+
+  # attempt use of tidyselect. if there is an error it could be because 'x'
+  # is a formula. in that case attempt to parse the formula
+  feature_names <- tryCatch({
+    vars_select(col_names, !! eq_features)
+  },
+  error = function(e) {
+    if (is_formula(features)) {
+      parsed <- parse_formula(features)
+      if (!is.null(parsed$response))
+        response_name <<- parsed$response
+      parsed$features
+    } else {
+      stop(e$message, call. = FALSE)
+    }
+  })
 
   # evaluate response (use tidyselect overscope)
-  response_name <- NULL
-  if (!missing(response)) {
+  if (!missing(response) && is.null(response_name)) {
     eq_response <- enquo(response)
     environment(eq_response) <- as_overscope(eq_response, data = tidyselect_data)
     response_name <- vars_select(col_names, !! eq_response)
