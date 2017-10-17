@@ -60,6 +60,20 @@ test_succeeds("dataset_map handles threads correctly and returns a dataset", {
 })
 
 
+test_succeeds("dataset_filter narrows the dataset", {
+  dataset <- csv_dataset("data/mtcars.csv") %>%
+    dataset_filter(function(record) {
+      record$mpg >= 20 & record$cyl >= 6L
+    }) %>%
+    dataset_batch(1000)
+
+  sess <- tf$Session()
+  on.exit(sess$close(), add = TRUE)
+  batch <- next_batch(dataset)
+  expect_length(sess$run(batch)$mpg, 3)
+
+})
+
 test_succeeds("zip_datasets returns a dataset", {
   zip_datasets(list(tensors_dataset(tf$constant(1:100)), tensors_dataset(tf$constant(101:200))))
 })

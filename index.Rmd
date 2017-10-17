@@ -71,6 +71,8 @@ Note that we've also specified `skip = 1` to indicate that the first row of the 
 
 ## Transformations
 
+### Mapping
+
 You can map arbitrary transformation functions onto dataset records using the `dataset_map()` function. For example, to transform the "Species" column into a one-hot encoded vector you would do this:
 
 ```{r}
@@ -85,7 +87,7 @@ Note that while `dataset_map()` is defined using an R function, there are some s
 
 For a dataset created with the `csv_dataset()` function, the passed record will be named list of tensors (one for each column of the dataset). The return value should be another set of tensors which were created from TensorFlow functions (e.g. `tf$one_hot` as illustrated above). This function will be converted to a TensorFlow graph operation that performs the transformation within native code. 
 
-### Parallel Mapping
+#### Parallel Mapping
 
 If these transformations are computationally expensive they can be executed on multiple threads using the `num_parallel_calls` parameter. For example:
 
@@ -102,6 +104,25 @@ Note that the `csv_dataset()` function described above is just a wrapper around 
 ```{r}
 dataset <- csv_dataset("iris.csv", num_parallel_calls = 4)
 ```
+
+### Filtering
+
+You can filter the elements of a dataset using the `dataset_filter()` function, which takes a `predicate` function that returns a boolean tensor for records that should be included. For example:
+
+```{r}
+dataset <- csv_dataset("mtcars.csv") %>%
+  dataset_filter(function(record) {
+    record$mpg >= 20
+})
+
+dataset <- csv_dataset("mtcars.csv") %>%
+  dataset_filter(function(record) {
+    record$mpg >= 20 & record$cyl >= 6L
+  })
+```
+
+Note that the functions used inside the predicate must be tensor operations (e.g. `tf$not_equal`, `tf$less`, etc.). R generic methods for relational operators (e.g. <, >, <=, etc.) and logical operators (e.g. !, &, |, etc.) are provided so you can use shorthand syntax for most common comparisions (as illustrated above).
+
 
 ### Features and Response 
 
@@ -125,11 +146,27 @@ mtcars_dataset <- csv_dataset("mtcars.csv") %>%
 
 ### Shuffling and Batching 
 
-There are several functions which control how batches are drawn from the dataset. For example, the following specifies that data will be drawn in batches of 128 from a shuffled buffer of 5000 records, and that the dataset will be repeated for 10 epochs:
+There are several functions which control how batches are drawn from the dataset. For example, the following specifies that data will be drawn in batches of 128 from a shuffled window of 1000 records, and that the dataset will be repeated for 10 epochs:
 
 ```{r}
 dataset <- dataset %>% 
-  dataset_shuffle(5000) %>% 
+  dataset_shuffle(1000) %>% 
+  dataset_batch(128) %>% 
+  dataset_repeat(10)
+```
+
+
+### Complete Example
+
+Here's a complete example of using the various dataset transformation functions together. We'll read the `mtcars` dataset from a CSV, filter it on some threshold values, map it into `x` and `y` components for modeling, and specify desired shuffling and batch iteration behavior:
+
+```{r}
+dataset <- csv_dataset("mtcars.csv") %>%
+  dataset_filter(function(record) {
+    record$mpg >= 20 & record$cyl >= 6L
+  }) %>% 
+  dataset_prepare(cyl ~ mpg + disp) %>% 
+  dataset_shuffle(1000) %>% 
   dataset_batch(128) %>% 
   dataset_repeat(10)
 ```

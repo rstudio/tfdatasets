@@ -139,6 +139,44 @@ dataset_map <- function(dataset, map_func, num_parallel_calls = NULL) {
 }
 
 
+#' Filter a dataset by a predicate
+#'
+#' @param dataset A dataset
+#'
+#' @param predicate A function mapping a nested structure of tensors (having
+#'   shapes and types defined by [output_shapes()] and [output_types()] to a
+#'   scalar `tf$bool` tensor.
+#'
+#' @return A dataset composed of records that matched the predicate.
+#'
+#' @details Note that the functions used inside the predicate must be
+#'   tensor operations (e.g. `tf$not_equal`, `tf$less`, etc.). R
+#'   generic methods for relational operators (e.g. `<`, `>`, `<=`,
+#'   etc.) and logical operators (e.g. `!`, `&`, `|`, etc.) are
+#'   provided so you can use shorthand syntax for most common
+#'   comparisions (this is illustrated by the example below).
+#'
+#' @family dataset methods
+#'
+#' @examples \dontrun{
+#'
+#' dataset <- csv_dataset("mtcars.csv") %>%
+#'   dataset_filter(function(record) {
+#'     record$mpg >= 20
+#' })
+#'
+#' dataset <- csv_dataset("mtcars.csv") %>%
+#'   dataset_filter(function(record) {
+#'     record$mpg >= 20 & record$cyl >= 6L
+#'   })
+#'
+#' }
+#'
+#' @export
+dataset_filter <- function(dataset, predicate) {
+  dataset$filter(predicate)
+}
+
 
 #' Creates a dataset that skips count elements from this dataset
 #'

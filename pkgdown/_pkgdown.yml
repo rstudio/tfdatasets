@@ -29,6 +29,7 @@ reference:
        - dataset_map
        - dataset_prepare
        - dataset_skip
+       - dataset_filter
        - dataset_shuffle
        - dataset_batch
        - dataset_repeat

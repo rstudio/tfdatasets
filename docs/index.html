@@ -105,6 +105,9 @@ dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_
 <div id="transformations" class="section level2">
 <h2 class="hasAnchor">
 <a href="#transformations" class="anchor"></a>Transformations</h2>
+<div id="mapping" class="section level3">
+<h3 class="hasAnchor">
+<a href="#mapping" class="anchor"></a>Mapping</h3>
 <p>You can map arbitrary transformation functions onto dataset records using the <code><a href="reference/dataset_map.html">dataset_map()</a></code> function. For example, to transform the “Species” column into a one-hot encoded vector you would do this:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span>dataset <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_map.html">dataset_map</a></span>(<span class="cf">function</span>(record) {
@@ -113,9 +116,9 @@ dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_
   })</code></pre></div>
 <p>Note that while <code><a href="reference/dataset_map.html">dataset_map()</a></code> is defined using an R function, there are some special constraints on this function which allow it to execute <em>not within R</em> but rather within the TensorFlow graph.</p>
 <p>For a dataset created with the <code><a href="reference/delim_dataset.html">csv_dataset()</a></code> function, the passed record will be named list of tensors (one for each column of the dataset). The return value should be another set of tensors which were created from TensorFlow functions (e.g. <code>tf$one_hot</code> as illustrated above). This function will be converted to a TensorFlow graph operation that performs the transformation within native code.</p>
-<div id="parallel-mapping" class="section level3">
-<h3 class="hasAnchor">
-<a href="#parallel-mapping" class="anchor"></a>Parallel Mapping</h3>
+<div id="parallel-mapping" class="section level4">
+<h4 class="hasAnchor">
+<a href="#parallel-mapping" class="anchor"></a>Parallel Mapping</h4>
 <p>If these transformations are computationally expensive they can be executed on multiple threads using the <code>num_parallel_calls</code> parameter. For example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span>dataset <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_map.html">dataset_map</a></span>(<span class="dt">num_parallel_calls =</span> <span class="dv">4</span>, <span class="cf">function</span>(record) {
@@ -125,22 +128,54 @@ dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_
 <p>Note that the <code><a href="reference/delim_dataset.html">csv_dataset()</a></code> function described above is just a wrapper around a <code><a href="reference/text_line_dataset.html">text_line_dataset()</a></code> and the <code><a href="reference/dataset_decode_delim.html">dataset_decode_delim()</a></code> function, which maps text strings into named columns. It can therefore also perform CSV parsing in parallel with <code>num_parallel_calls</code>:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"iris.csv"</span>, <span class="dt">num_parallel_calls =</span> <span class="dv">4</span>)</code></pre></div>
 </div>
+</div>
+<div id="filtering" class="section level3">
+<h3 class="hasAnchor">
+<a href="#filtering" class="anchor"></a>Filtering</h3>
+<p>You can filter the elements of a dataset using the <code><a href="reference/dataset_filter.html">dataset_filter()</a></code> function, which takes a <code>predicate</code> function that returns a boolean tensor for records that should be included. For example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_filter.html">dataset_filter</a></span>(<span class="cf">function</span>(record) {
+    record<span class="op">$</span>mpg <span class="op">&gt;=</span><span class="st"> </span><span class="dv">20</span>
+})
+
+dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_filter.html">dataset_filter</a></span>(<span class="cf">function</span>(record) {
+    record<span class="op">$</span>mpg <span class="op">&gt;=</span><span class="st"> </span><span class="dv">20</span> <span class="op">&amp;</span><span class="st"> </span>record<span class="op">$</span>cyl <span class="op">&gt;=</span><span class="st"> </span>6L
+  })</code></pre></div>
+<p>Note that the functions used inside the predicate must be tensor operations (e.g. <code>tf$not_equal</code>, <code>tf$less</code>, etc.). R generic methods for relational operators (e.g. &lt;, &gt;, &lt;=, etc.) and logical operators (e.g. !, &amp;, |, etc.) are provided so you can use shorthand syntax for most common comparisions (as illustrated above).</p>
+</div>
 <div id="features-and-response" class="section level3">
 <h3 class="hasAnchor">
 <a href="#features-and-response" class="anchor"></a>Features and Response</h3>
-<p>A common tranformation is taking a column oriented dataset (e.g. one created by <code><a href="reference/delim_dataset.html">csv_dataset()</a></code> or <code><a href="reference/tfrecord_dataset.html">tfrecord_dataset()</a></code>) and transforming it into a two-element list with features (“x”) and response (“y”). You can use the <code><a href="reference/dataset_prepare.html">dataset_prepare()</a></code> function to do this type of transformation. For example:</p>
+<p>A common transformation is taking a column oriented dataset (e.g. one created by <code><a href="reference/delim_dataset.html">csv_dataset()</a></code> or <code><a href="reference/tfrecord_dataset.html">tfrecord_dataset()</a></code>) and transforming it into a two-element list with features (“x”) and response (“y”). You can use the <code><a href="reference/dataset_prepare.html">dataset_prepare()</a></code> function to do this type of transformation. For example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mtcars_dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(<span class="dt">x =</span> <span class="kw">c</span>(mpg, disp), <span class="dt">y =</span> cyl)
 
 iris_dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"iris.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(<span class="dt">x =</span> <span class="op">-</span>Species, <span class="dt">y =</span> Species)</code></pre></div>
+<p>The <code><a href="reference/dataset_prepare.html">dataset_prepare()</a></code> function also accepts standard R formula syntax for defining features and response:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mtcars_dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(cyl <span class="op">~</span><span class="st"> </span>mpg <span class="op">+</span><span class="st"> </span>disp)</code></pre></div>
 </div>
 <div id="shuffling-and-batching" class="section level3">
 <h3 class="hasAnchor">
 <a href="#shuffling-and-batching" class="anchor"></a>Shuffling and Batching</h3>
-<p>There are several functions which control how batches are drawn from the dataset. For example, the following specifies that data will be drawn in batches of 128 from a shuffled buffer of 5000 records, and that the dataset will be repeated for 10 epochs:</p>
+<p>There are several functions which control how batches are drawn from the dataset. For example, the following specifies that data will be drawn in batches of 128 from a shuffled window of 1000 records, and that the dataset will be repeated for 10 epochs:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span>dataset <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">5000</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">1000</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>(<span class="dv">10</span>)</code></pre></div>
+</div>
+<div id="complete-example" class="section level3">
+<h3 class="hasAnchor">
+<a href="#complete-example" class="anchor"></a>Complete Example</h3>
+<p>Here’s a complete example of using the various dataset transformation functions together. We’ll read the <code>mtcars</code> dataset from a CSV, filter it on some threshold values, map it into <code>x</code> and <code>y</code> components for modeling, and specify desired shuffling and batch iteration behavior:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_filter.html">dataset_filter</a></span>(<span class="cf">function</span>(record) {
+    record<span class="op">$</span>mpg <span class="op">&gt;=</span><span class="st"> </span><span class="dv">20</span> <span class="op">&amp;</span><span class="st"> </span>record<span class="op">$</span>cyl <span class="op">&gt;=</span><span class="st"> </span>6L
+  }) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(cyl <span class="op">~</span><span class="st"> </span>mpg <span class="op">+</span><span class="st"> </span>disp) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">1000</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>(<span class="dv">10</span>)</code></pre></div>
 </div>
@@ -148,9 +183,9 @@ iris_dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/d
 <div id="reading-datasets" class="section level2">
 <h2 class="hasAnchor">
 <a href="#reading-datasets" class="anchor"></a>Reading Datasets</h2>
-<p>You read batches of data from a dataset by using tensors that yield the next batch. You can obatain this tensor from a dataset via the <code><a href="reference/next_batch.html">next_batch()</a></code> function. For example:</p>
+<p>You read batches of data from a dataset by using tensors that yield the next batch. You can obtain this tensor from a dataset via the <code><a href="reference/next_batch.html">next_batch()</a></code> function. For example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(<span class="dt">x =</span> <span class="kw">c</span>(mpg, disp), <span class="dt">y =</span> cyl) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(cyl <span class="op">~</span><span class="st"> </span>mpg <span class="op">+</span><span class="st"> </span>disp) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">20</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">5</span>)
 batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/next_batch.html">next_batch</a></span>(dataset)
@@ -213,7 +248,7 @@ batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/next_bat
 <a href="#using-with-tfestimators" class="anchor"></a>Using with tfestimators</h2>
 <p>Models created with <strong>tfestimators</strong> use an input function to consume data for training, evaluation, and prediction. For example, here is an example of using an input function to feed data from an in-memory R data frame to an estimators model:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">train</span>(
-  <span class="kw"><a href="reference/input_fn.html">input_fn</a></span>(mtcars, <span class="dt">features =</span> <span class="kw">c</span>(drat, cyl), <span class="dt">response =</span> mpg,
+  <span class="kw"><a href="reference/input_fn.html">input_fn</a></span>(mtcars, <span class="dt">features =</span> <span class="kw">c</span>(mpg, disp), <span class="dt">response =</span> cyl,
            <span class="dt">batch_size =</span> <span class="dv">128</span>, <span class="dt">epochs =</span> <span class="dv">3</span>)
 )</code></pre></div>
 <p>If you are using <strong>tfdatasets</strong> with the <strong>tfestimators</strong> package, you can create an estimators input function directly from a dataset as follows:</p>
@@ -222,9 +257,13 @@ batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/next_bat
 <span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>(<span class="dv">3</span>)
 
 model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">train</span>(
-  <span class="kw"><a href="reference/input_fn.html">input_fn</a></span>(dataset, <span class="dt">features =</span> <span class="kw">c</span>(drat, cyl), <span class="dt">response =</span> mpg)
+  <span class="kw"><a href="reference/input_fn.html">input_fn</a></span>(dataset, <span class="dt">features =</span> <span class="kw">c</span>(mpg, disp), <span class="dt">response =</span> cyl)
 )</code></pre></div>
 <p>Note that we don’t use the <code><a href="reference/dataset_prepare.html">dataset_prepare()</a></code> or <code><a href="reference/next_batch.html">next_batch()</a></code> functions in this example. Rather, these functions are used under the hood to provide the <code>input_fn</code> interface expected by tfestimators models.</p>
+<p>As with <code><a href="reference/dataset_prepare.html">dataset_prepare()</a></code>, you can alternatively use an R formula to specify features and response:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">train</span>(
+  <span class="kw"><a href="reference/input_fn.html">input_fn</a></span>(dataset, cyl <span class="op">~</span><span class="st"> </span>mpg <span class="op">+</span><span class="st"> </span>disp)
+)</code></pre></div>
 </div>
 <div id="using-with-keras" class="section level2">
 <h2 class="hasAnchor">
