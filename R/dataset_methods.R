@@ -212,6 +212,60 @@ dataset_skip <- function(dataset, count) {
 }
 
 
+#' Maps map_func across this dataset, and interleaves the results
+#'
+#' @param dataset A dataset
+#' @param map_func A function mapping a nested structure of tensors (having
+#'   shapes and types defined by [output_shapes()] and [output_types()] to a
+#'   dataset.
+#' @param cycle_length The number of elements from this dataset that will be
+#'   processed concurrently.
+#' @param block_length The number of consecutive elements to produce from each
+#'   input element before cycling to another input element.
+#'
+#' @details
+#'
+#' The `cycle_length` and `block_length` arguments control the order in which
+#' elements are produced. `cycle_length` controls the number of input elements
+#' that are processed concurrently. In general, this transformation will apply
+#' `map_func` to `cycle_length` input elements, open iterators on the returned
+#' dataset objects, and cycle through them producing `block_length` consecutive
+#' elements from each iterator, and consuming the next input element each time
+#' it reaches the end of an iterator.
+#'
+#' @examples \dontrun{
+#'
+#' dataset <- tensor_slices_dataset(c(1,2,3,4,5)) %>%
+#'  dataset_interleave(cycle_length = 2, block_length = 4, function(x) {
+#'    tensors_dataset(x) %>%
+#'      dataset_repeat(6)
+#'  })
+#'
+#' # resulting dataset (newlines indicate "block" boundaries):
+#' c(1, 1, 1, 1,
+#'   2, 2, 2, 2,
+#'   1, 1,
+#'   2, 2,
+#'   3, 3, 3, 3,
+#'   4, 4, 4, 4,
+#'   3, 3,
+#'   4, 4,
+#'   5, 5, 5, 5,
+#'   5, 5,
+#' )
+#'
+#' }
+#'
+#' @export
+dataset_interleave <- function(dataset, map_func, cycle_length, block_length = 1) {
+  dataset$interleave(
+    map_func = map_func,
+    cycle_length = as_integer_tensor(cycle_length),
+    block_length = as_integer_tensor(block_length)
+  )
+}
+
+
 
 #' Prepare a dataset for analysis
 #'
