@@ -31,6 +31,7 @@ reference:
        - dataset_skip
        - dataset_filter
        - dataset_shuffle
+       - dataset_prefetch
        - dataset_batch
        - dataset_repeat
        - dataset_cache

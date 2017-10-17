@@ -56,7 +56,8 @@ test_succeeds("dataset_map handles threads correctly and returns a dataset", {
   # actually called on the background thread but rather called with a placeholder
   # to yield a TF tensor which is used later.
   dataset <- tensors_dataset(tf$constant(1:100)) %>%
-    dataset_map(function(x) { gc(); tf$negative(x) }, num_parallel_calls = 8)
+    dataset_map(function(x) { gc(); tf$negative(x) }, num_parallel_calls = 8) %>%
+    dataset_prefetch(20)
 })
 
 

@@ -99,10 +99,21 @@ dataset <- dataset %>%
   })
 ```
 
+You can control the maximum number of processed elements that will be buffered when processing in parallel using the `dataset_prefetch()` transformation. For example:
+
+```{r}
+dataset <- dataset %>% 
+  dataset_map(num_parallel_calls = 4, function(record) {
+    record$Species <- tf$one_hot(record$Species, 3L)
+    record
+  }) %>% 
+  datset_prefetch(100)
+```
+
 Note that the `csv_dataset()` function described above is just a wrapper around a `text_line_dataset()` and the `dataset_decode_delim()` function, which maps text strings into named columns. It can therefore also perform CSV parsing in parallel with `num_parallel_calls`:
 
 ```{r}
-dataset <- csv_dataset("iris.csv", num_parallel_calls = 4)
+dataset <- csv_dataset("iris.csv", num_parallel_calls = 4) 
 ```
 
 ### Filtering

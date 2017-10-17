@@ -138,6 +138,22 @@ dataset_map <- function(dataset, map_func, num_parallel_calls = NULL) {
   )
 }
 
+#' Creates a Dataset that prefetches elements from this dataset.
+#'
+#'
+#' @param dataset A dataset
+#' @param buffer_size An integer, representing the maximum number elements that
+#'   will be buffered when prefetching.
+#'
+#' @return A dataset
+#'
+#' @family dataset methods
+#'
+#' @export
+dataset_prefetch <- function(dataset, buffer_size) {
+  dataset$prefetch(as_integer_tensor(buffer_size))
+}
+
 
 #' Filter a dataset by a predicate
 #'
