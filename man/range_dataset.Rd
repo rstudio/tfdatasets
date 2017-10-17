@@ -9,7 +9,7 @@ range_dataset(from = 0, to = 0, by = 1)
 \arguments{
 \item{from}{Range start}
 
-\item{to}{Range end (inclusive)}
+\item{to}{Range end (exclusive)}
 
 \item{by}{Increment of the sequence}
 }

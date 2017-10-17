@@ -4,7 +4,7 @@
 #' Creates a dataset of a step-separated range of values.
 #'
 #' @param from Range start
-#' @param to Range end (inclusive)
+#' @param to Range end (exclusive)
 #' @param by Increment of the sequence
 #'
 #' @export
