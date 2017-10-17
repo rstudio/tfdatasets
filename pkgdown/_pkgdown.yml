@@ -23,6 +23,7 @@ reference:
        - tensors_dataset
        - tensor_slices_dataset
        - sparse_tensor_slices_dataset
+       - file_list_dataset
 
   - title: "Transforming Datasets"
     contents:
