@@ -6,8 +6,8 @@
 \alias{tsv_dataset}
 \title{Create a dataset from a text file with delimited values}
 \usage{
-delim_dataset(filenames, compression_type = NULL, delim, col_names = NULL,
-  col_types = NULL, col_defaults = NULL, skip = 0,
+delim_dataset(filenames, compression_type = NULL, delim, skip = 0,
+  col_names = NULL, col_types = NULL, col_defaults = NULL,
   parallel_records = NULL)
 
 csv_dataset(filenames, compression_type = NULL, col_names = NULL,
@@ -26,6 +26,11 @@ tsv_dataset(filenames, compression_type = NULL, col_names = NULL,
 
 \item{delim}{Character delimiter to separate fields in a record (defaults to
 ",")}
+
+\item{skip}{Number of lines to skip before reading data. Note that if
+\code{col_names} is explicitly provided and there are column names witin the CSV
+file then \code{skip} should be set to 1 to ensure that the column names are
+bypassed.}
 
 \item{col_names}{Character vector with column names (or \code{NULL} to
 automatically detect the column names from the first row of the input
@@ -57,11 +62,6 @@ character represents one column: c = character, i = integer, d = double
 missing from a record (e.g. \code{list(0, 0, 0L}). If \code{NULL} then defaults will
 be automatically provided based on \code{col_types} (\code{0} for numeric columns and
 \code{""} for character columns).}
-
-\item{skip}{Number of lines to skip before reading data. Note that if
-\code{col_names} is explicitly provided and there are column names witin the CSV
-file then \code{skip} should be set to 1 to ensure that the column names are
-bypassed.}
 
 \item{parallel_records}{(Optional) An integer, representing the number of
 records to decode in parallel. If not specified, records will be

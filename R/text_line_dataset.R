@@ -44,11 +44,9 @@ text_line_dataset <- function(filenames, compression_type = NULL) {
 #'   and tab separated text files respectively.
 #'
 #' @export
-delim_dataset <- function(filenames, compression_type = NULL, delim,
+delim_dataset <- function(filenames, compression_type = NULL, delim, skip = 0,
                           col_names = NULL, col_types = NULL, col_defaults = NULL,
-                          skip = 0, parallel_records = NULL) {
-
-
+                          parallel_records = NULL) {
 
 
   dataset <- text_line_dataset(filenames, compression_type = compression_type) %>%
@@ -157,7 +155,7 @@ dataset_decode_delim <- function(dataset, delim = ",",
                                  parallel_records = NULL) {
 
   # resolve options
-  opts <- resolve_dataset_options(dataset, delim, col_names, col_types, col_defaults)
+  opts <- resolve_dataset_options(dataset, delim, col_names, col_types, col_defaults, 0)
 
   # read csv
   dataset <- dataset %>%
@@ -180,7 +178,7 @@ dataset_decode_delim <- function(dataset, delim = ",",
 }
 
 
-resolve_dataset_options <- function(dataset, delim, col_names, col_types, col_defaults) {
+resolve_dataset_options <- function(dataset, delim, col_names, col_types, col_defaults, skip) {
 
   # if they are all already provied then just reflect them back (along with no skip)
   if (!is.null(col_names) && !is.null(col_types) && !is.null(col_defaults)) {
@@ -188,7 +186,7 @@ resolve_dataset_options <- function(dataset, delim, col_names, col_types, col_de
       col_names = col_names,
       col_types = col_types,
       col_defaults = col_defaults,
-      skip = 0
+      skip = skip
     ))
   }
 
@@ -212,10 +210,9 @@ resolve_dataset_options <- function(dataset, delim, col_names, col_types, col_de
   }
 
   # resolve/validate col_names (add extra skip if we have col_names in the file)
-  skip <- 0
   if (is.null(col_names)) {
     col_names <- names(preview)
-    skip <- 1
+    skip <- skip + 1
   } else if (is.character(col_names)) {
     validate_columns(col_names, 'col_names')
   } else {
