@@ -7,6 +7,8 @@
 dataset_flat_map(dataset, map_func)
 }
 \arguments{
+\item{dataset}{A dataset}
+
 \item{map_func}{A function mapping a nested structure of tensors (having
 shapes and types defined by \code{\link[=output_shapes]{output_shapes()}} and \code{\link[=output_types]{output_types()}} to a
 dataset.}
