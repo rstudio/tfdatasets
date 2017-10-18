@@ -2,12 +2,23 @@
 
 
 as_integer_tensor <- function(x, dtype = tf$int64) {
-  if (is.null(x))
+  # recurse over lists
+  if (is.list(x) || (is.numeric(x) && length(x) > 1))
+    lapply(x, function(elem) as_integer_tensor(elem, dtype))
+  else if (is.null(x))
     x
   else if (inherits(x, "tensorflow.python.framework.ops.Tensor"))
     tf$cast(x, dtype = dtype)
   else
     tf$constant(as.integer(x), dtype = dtype)
+}
+
+as_tensor_shape <- function(x) {
+  # reflect TensorShape back
+  if (inherits(x, "tensorflow.python.framework.tensor_shape.TensorShape"))
+    x
+  else
+    as_integer_tensor(x)
 }
 
 with_session <- function(f, session = NULL) {

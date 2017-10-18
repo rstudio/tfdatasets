@@ -9,10 +9,10 @@ dataset_shard(dataset, num_shards, index)
 \arguments{
 \item{dataset}{A dataset}
 
-\item{index}{A integer, representing the worker index.}
-
-\item{num_shards:}{A integer representing the number of shards operating in
+\item{num_shards}{A integer representing the number of shards operating in
 parallel.}
+
+\item{index}{A integer, representing the worker index.}
 }
 \value{
 A dataset

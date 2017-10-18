@@ -25,7 +25,9 @@ Other dataset methods: \code{\link{dataset_batch}},
   \code{\link{dataset_decode_delim}},
   \code{\link{dataset_filter}},
   \code{\link{dataset_interleave}},
-  \code{\link{dataset_map}}, \code{\link{dataset_repeat}},
+  \code{\link{dataset_map}},
+  \code{\link{dataset_padded_batch}},
+  \code{\link{dataset_repeat}},
   \code{\link{dataset_shuffle}},
   \code{\link{dataset_skip}}, \code{\link{dataset_take}}
 }

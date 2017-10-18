@@ -273,7 +273,7 @@ dataset_interleave <- function(dataset, map_func, cycle_length, block_length = 1
 #' allows each worker to read a unique subset.
 #'
 #' @param dataset A dataset
-#' @param num_shards: A integer representing the number of shards operating in
+#' @param num_shards A integer representing the number of shards operating in
 #'   parallel.
 #' @param index A integer, representing the worker index.
 #'
@@ -288,6 +288,42 @@ dataset_shard <- function(dataset, num_shards, index) {
     index = as_integer_tensor(index)
   )
 }
+
+
+#' Combines consecutive elements of this dataset into padded batches
+#'
+#' This method combines multiple consecutive elements of this dataset, which
+#' might have different shapes, into a single element. The tensors in the
+#' resulting element have an additional outer dimension, and are padded to the
+#' respective shape in `padded_shapes`.
+#'
+#' @param dataset A dataset
+#' @param batch_size An integer, representing the number of consecutive elements
+#'   of this dataset to combine in a single batch.
+#' @param padded_shapes A nested structure of tf$TensorShape or integer vector
+#'   tensor-like objects representing the shape to which the respective
+#'   component of each input element should be padded prior to batching. Any
+#'   unknown dimensions (e.g. `tf$Dimension(NULL)` in a `tf$TensorShape` or -1
+#'   in a tensor-like object) will be padded to the maximum size of that
+#'   dimension in each batch.
+#' @param padding_values (Optional) A nested structure of scalar-shaped
+#'   tf$Tensor, representing the padding values to use for the respective
+#'   components. Defaults are 0 for numeric types and the empty string for
+#'   string types.
+#'
+#' @return A dataset
+#'
+#' @family dataset methods
+#'
+#' @export
+dataset_padded_batch <- function(dataset, batch_size, padded_shapes, padding_values = NULL) {
+  dataset$padded_batch(
+    batch_size = as_integer_tensor(batch_size),
+    padded_shapes = as_tensor_shape(padded_shapes),
+    padding_values = as_integer_tensor(padding_values)
+  )
+}
+
 
 
 #' Prepare a dataset for analysis
