@@ -155,49 +155,21 @@ dataset_decode_delim <- function(dataset, delim = ",",
                                  col_names = NULL, col_types = NULL, col_defaults = NULL,
                                  parallel_records = NULL) {
 
-  # read the first 1000 rows to faciliate deduction of column names / types as well
-  # as checking that any specified col_names, col_types, or col_defaults
-  # have the correct length
-  preview <- dataset %>%
-    dataset_take(1000) %>%
-    dataset_batch(1000)
-  preview <- with_session(function(session) {
-    batch <- next_batch(preview)
-    session$run(batch)
-  })
-
-  # no-op for empty preview
-  if (length(preview) == 0)
-    return(dataset)
-
-  # convert bytes to string if necessary
-  if (is.list(preview) && inherits(preview[[1]], "python.builtin.bytes")) {
-    preview <- unlist(lapply(preview, function(line) line$decode()))
-  }
-
-  # read the csv using read.csv to do column/type deduction
-  preview_con <- textConnection(preview)
-  on.exit(close(preview_con), add = TRUE)
-  preview_csv <- read.csv(
-    file = preview_con,
-    header = is.null(col_names) || is.character(col_names),
-    sep = delim,
-    comment.char = "",
-    stringsAsFactors = FALSE
-  )
+  # preview the dataset
+  preview <- preview_dataset(dataset, delim, col_names)
 
   # validate columns helper
   validate_columns <- function(object, name) {
-    if (length(object) != ncol(preview_csv))
+    if (length(object) != ncol(preview))
       stop(sprintf(
-        "Incorrect number of %s provided (dataset has %d columns)", name, ncol(preview_csv)
+        "Incorrect number of %s provided (dataset has %d columns)", name, ncol(preview)
       ), call. = FALSE)
   }
 
   # resolve/validate col_names (add extra skip if we have col_names in the file)
   skip <- 0
   if (is.null(col_names)) {
-    col_names <- names(preview_csv)
+    col_names <- names(preview)
     skip <- 1
   } else if (is.character(col_names)) {
     validate_columns(col_names, 'col_names')
@@ -237,7 +209,7 @@ dataset_decode_delim <- function(dataset, delim = ",",
   } else if (is.null(col_types)) {
 
     # derive types from data
-    col_types <- sapply(preview_csv, simplify = TRUE, typeof)
+    col_types <- sapply(preview, simplify = TRUE, typeof)
 
     # map into just integer, double, and character
     col_types <- sapply(col_types, simplify = TRUE, function(type) {
@@ -292,6 +264,40 @@ dataset_decode_delim <- function(dataset, delim = ",",
   as_tf_dataset(dataset)
 }
 
+
+preview_dataset <- function(dataset, delim, col_names) {
+
+  # read the first 1000 rows to faciliate deduction of column names / types as well
+  # as checking that any specified col_names, col_types, or col_defaults
+  # have the correct length
+  preview <- dataset %>%
+    dataset_take(1000) %>%
+    dataset_batch(1000)
+  preview <- with_session(function(session) {
+    batch <- next_batch(preview)
+    session$run(batch)
+  })
+
+  # no-op for empty preview
+  if (length(preview) == 0)
+    return(dataset)
+
+  # convert bytes to string if necessary
+  if (is.list(preview) && inherits(preview[[1]], "python.builtin.bytes")) {
+    preview <- unlist(lapply(preview, function(line) line$decode()))
+  }
+
+  # read the csv using read.csv to do column/type deduction
+  preview_con <- textConnection(preview)
+  on.exit(close(preview_con), add = TRUE)
+  read.csv(
+    file = preview_con,
+    header = is.null(col_names) || is.character(col_names),
+    sep = delim,
+    comment.char = "",
+    stringsAsFactors = FALSE
+  )
+}
 
 
 
