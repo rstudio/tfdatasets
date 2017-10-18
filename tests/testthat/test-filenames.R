@@ -2,14 +2,13 @@ context("filenames")
 
 source("utils.R")
 
-test_succeeds("filenames can be specified via globbing", {
-  text_line_dataset("data/mtcars*.csv")
-})
+test_succeeds("filenames can be listed", {
 
-test_succeeds("multiple filename glob patterns are handled", {
-  text_line_dataset(c("data/mtcars.csv", "data/mtcars-*.csv"))
+  dataset <- file_list_dataset("data/mtcars*.csv") %>%
+    dataset_interleave(cycle_length = 2, function(file) {
+      text_line_dataset(file)
+    })
 })
-
 
 
 

@@ -6,17 +6,14 @@
 #' @inheritParams text_line_dataset
 #'
 #' @export
-tfrecord_dataset <- function(filenames, compression_type = "auto") {
+tfrecord_dataset <- function(filenames, compression_type = NULL) {
 
   # validate during dataset construction
   validate_tf_version()
 
-  # resolve filenames
-  filenames <- resolve_filenames(filenames)
-
-  # determine compression type
-  if (identical(compression_type, "auto"))
-    compression_type <- auto_compression_type(filenames)
+  # resolve NULL compression
+  if (is.null(compression_type))
+    compression_type <- ""
 
   as_tf_dataset(
     tf$data$TFRecordDataset(filenames, compression_type = compression_type)

@@ -4,18 +4,13 @@
 \alias{text_line_dataset}
 \title{A dataset comprising lines from one or more text files.}
 \usage{
-text_line_dataset(filenames, compression_type = "auto")
+text_line_dataset(filenames, compression_type = NULL)
 }
 \arguments{
-\item{filenames}{Characater vector containing one or more filenames or
-filename glob patterns (e.g. "train.csv", "\emph{.csv", "}-train.csv", etc.)}
+\item{filenames}{String(s) specifying one or more filenames}
 
-\item{compression_type}{A string, one of: \code{"auto"} (determine based on file
-extension), \code{""} (no compression), \code{"ZLIB"}, or \code{"GZIP"}. For
-\code{"auto"}, GZIP will be automatically selected if any of
-the \code{filenames} have a .gz extension and ZLIB will be automatically
-selected if any of the \code{filenames} have a .zlib extension (otherwise
-no compression will be used).}
+\item{compression_type}{A string, one of: \code{NULL} (no compression), \code{"ZLIB"}, or
+\code{"GZIP"}.}
 }
 \value{
 A dataset

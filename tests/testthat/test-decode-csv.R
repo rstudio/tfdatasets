@@ -49,6 +49,10 @@ test_succeeds("decode_csv can impute col_types from col_defaults", {
   csv_dataset("data/mtcars.csv", col_defaults = list(0,0,0,0,0,0,0,0,0,0,0))
 })
 
+test_succeeds("decode_csv does not attempt a preview if col info is provided", {
+  csv_dataset("data/foo.csv", col_names = c("a", "b", "c"), col_defaults = list(0,0,0))
+})
+
 
 
 

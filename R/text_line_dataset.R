@@ -2,33 +2,28 @@
 
 #' A dataset comprising lines from one or more text files.
 #'
-#' @param filenames Characater vector containing one or more filenames or
-#'   filename glob patterns (e.g. "train.csv", "*.csv", "*-train.csv", etc.)
-#' @param compression_type A string, one of: `"auto"` (determine based on file
-#'   extension), `""` (no compression), `"ZLIB"`, or `"GZIP"`. For
-#'   `"auto"`, GZIP will be automatically selected if any of
-#'   the `filenames` have a .gz extension and ZLIB will be automatically
-#'   selected if any of the `filenames` have a .zlib extension (otherwise
-#'   no compression will be used).
+#' @param filenames String(s) specifying one or more filenames
+#' @param compression_type A string, one of: `NULL` (no compression), `"ZLIB"`, or
+#'   `"GZIP"`.
 #'
 #' @return A dataset
 #'
 #' @family text datasets
 #'
 #' @export
-text_line_dataset <- function(filenames, compression_type = "auto") {
+text_line_dataset <- function(filenames, compression_type = NULL) {
 
   # validate during dataset contruction
   validate_tf_version()
 
-  # resolve filename wildcards
-  filenames <- resolve_filenames(filenames)
+  # resolve NULL to ""
+  if (is.null(compression_type))
+    compression_type <- ""
 
-  # determine compression type
-  if (identical(compression_type, "auto"))
-    compression_type <- auto_compression_type(filenames)
-
-  tf$data$TextLineDataset(filenames, compression_type = compression_type)
+  tf$data$TextLineDataset(
+    filenames = filenames,
+    compression_type = compression_type
+  )
 }
 
 
@@ -50,8 +45,8 @@ text_line_dataset <- function(filenames, compression_type = "auto") {
 #'
 #' @export
 delim_dataset <- function(filenames, compression_type = NULL, delim,
-                        col_names = NULL, col_types = NULL, col_defaults = NULL,
-                        skip = 0, parallel_records = NULL) {
+                          col_names = NULL, col_types = NULL, col_defaults = NULL,
+                          skip = 0, parallel_records = NULL) {
   dataset <- text_line_dataset(filenames, compression_type = compression_type) %>%
     dataset_skip(skip) %>%
     dataset_decode_delim(
@@ -155,15 +150,23 @@ dataset_decode_delim <- function(dataset, delim = ",",
                                  col_names = NULL, col_types = NULL, col_defaults = NULL,
                                  parallel_records = NULL) {
 
-  # preview the dataset
-  preview <- preview_dataset(dataset, delim, col_names)
+  # if we are going to need to impute column names/types/defaults then preview
+  # the dataset. Note that this will involve evaluating tensors so will make
+  # this function not a "pure" graph function (important if you want to include
+  # it in dataset_map or dataset_interleave function)
+  if (is.null(col_names) || (is.null(col_types) && is.null(col_defaults)))
+    preview <- preview_dataset(dataset, delim, col_names)
+  else
+    preview <- NULL
 
-  # validate columns helper
+  # validate columns helper (no-op if there is no preview)
   validate_columns <- function(object, name) {
-    if (length(object) != ncol(preview))
-      stop(sprintf(
-        "Incorrect number of %s provided (dataset has %d columns)", name, ncol(preview)
-      ), call. = FALSE)
+    if (!is.null(preview)) {
+      if (length(object) != ncol(preview))
+        stop(sprintf(
+          "Incorrect number of %s provided (dataset has %d columns)", name, ncol(preview)
+        ), call. = FALSE)
+    }
   }
 
   # resolve/validate col_names (add extra skip if we have col_names in the file)
@@ -208,7 +211,7 @@ dataset_decode_delim <- function(dataset, delim = ",",
 
   } else if (is.null(col_types)) {
 
-    # derive types from col_defaults if provided otherwise from the preview
+    # derive types from col_defaults if provided, otherwise from the preview
     if (!is.null(col_defaults))
       col_types <- sapply(col_defaults, simplify = TRUE, typeof)
     else
