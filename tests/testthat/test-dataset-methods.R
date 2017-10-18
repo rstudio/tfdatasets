@@ -82,16 +82,18 @@ test_succeeds("dataset_interleave yields a dataset" , {
     })
 })
 
-# test_succeeds("dataset_interleave can process text files in parallel" , {
-#   # process 4 files concurrently and interleave blocks of 16 records from each file
-#   dataset <- file_list_dataset("data/mtcars*.csv") %>%
-#     dataset_interleave(cycle_length = 3, block_length = 16, function(file) {
-#       browser()
-#       # the problem is that we can't do the preview against a placeholder
-#       # tensor! so dataset_decode_delim doesn't compose! :-
-#       csv_dataset(file)
-#     })
-# })
+test_succeeds("dataset_shard yields a dataset" , {
+
+  dataset <- csv_dataset("data/mtcars.csv") %>%
+    dataset_shard(num_shards = 4, index = 1) %>%
+    dataset_batch(8)
+
+  sess <- tf$Session()
+  on.exit(sess$close(), add = TRUE)
+  batch <- next_batch(dataset)
+  expect_length(sess$run(batch)$mpg, 8)
+
+})
 
 test_succeeds("zip_datasets returns a dataset", {
   zip_datasets(list(tensors_dataset(tf$constant(1:100)), tensors_dataset(tf$constant(101:200))))

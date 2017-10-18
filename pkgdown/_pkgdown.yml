@@ -32,6 +32,7 @@ reference:
        - dataset_prepare
        - dataset_skip
        - dataset_filter
+       - dataset_shard
        - dataset_shuffle
        - dataset_prefetch
        - dataset_batch

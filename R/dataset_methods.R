@@ -256,6 +256,8 @@ dataset_skip <- function(dataset, count) {
 #'
 #' }
 #'
+#' @family dataset methods
+#'
 #' @export
 dataset_interleave <- function(dataset, map_func, cycle_length, block_length = 1) {
   dataset$interleave(
@@ -265,6 +267,27 @@ dataset_interleave <- function(dataset, map_func, cycle_length, block_length = 1
   )
 }
 
+#' Creates a dataset that includes only 1 / num_shards of this dataset.
+#'
+#' This dataset operator is very useful when running distributed training, as it
+#' allows each worker to read a unique subset.
+#'
+#' @param dataset A dataset
+#' @param num_shards: A integer representing the number of shards operating in
+#'   parallel.
+#' @param index A integer, representing the worker index.
+#'
+#' @return A dataset
+#'
+#' @family Dataset methods
+#'
+#' @export
+dataset_shard <- function(dataset, num_shards, index) {
+  dataset$shard(
+    num_shards = as_integer_tensor(num_shards),
+    index = as_integer_tensor(index)
+  )
+}
 
 
 #' Prepare a dataset for analysis
