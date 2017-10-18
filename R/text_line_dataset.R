@@ -64,7 +64,8 @@ delim_dataset <- function(filenames, compression_type = NULL, delim,
 #' @export
 csv_dataset <- function(filenames, compression_type = NULL,
                         col_names = NULL, col_types = NULL, col_defaults = NULL,
-                        skip = 0, parallel_records = NULL) {
+                        skip = 0,
+                        parallel_records = NULL) {
   delim_dataset(
     filenames = filenames,
     compression_type = compression_type,
@@ -150,6 +151,32 @@ dataset_decode_delim <- function(dataset, delim = ",",
                                  col_names = NULL, col_types = NULL, col_defaults = NULL,
                                  parallel_records = NULL) {
 
+  # resolve options
+  opts <- resolve_dataset_options(dataset, delim, col_names, col_types, col_defaults)
+
+  # read csv
+  dataset <- dataset %>%
+    dataset_skip(opts$skip) %>%
+    dataset_map(
+      map_func = function(line) {
+        decoded <- tf$decode_csv(
+          records = line,
+          record_defaults = opts$col_defaults,
+          field_delim = delim
+        )
+        names(decoded) <- opts$col_names
+        decoded
+      },
+      num_parallel_calls = parallel_records
+    )
+
+  # return dataset
+  as_tf_dataset(dataset)
+}
+
+
+resolve_dataset_options <- function(dataset, delim, col_names, col_types, col_defaults) {
+
   # if we are going to need to impute column names/types/defaults then preview
   # the dataset. Note that this will involve evaluating tensors so will make
   # this function not a "pure" graph function (important if you want to include
@@ -193,10 +220,10 @@ dataset_decode_delim <- function(dataset, delim = ",",
     # resolve abbreviations
     col_types <- sapply(tolower(col_types), simplify = TRUE, function(type) {
       switch(type,
-        i = "integer",
-        d = "double",
-        c = "character",
-        type
+             i = "integer",
+             d = "double",
+             c = "character",
+             type
       )
     })
 
@@ -232,10 +259,10 @@ dataset_decode_delim <- function(dataset, delim = ",",
   if (is.null(col_defaults)) {
     col_defaults <- lapply(unname(col_types), function(type) {
       switch(type,
-        integer = list(0L),
-        double = list(0),
-        character = list(""),
-        list("") # default
+             integer = list(0L),
+             double = list(0),
+             character = list(""),
+             list("") # default
       )
     })
   } else if (is.list(col_defaults)) {
@@ -250,24 +277,13 @@ dataset_decode_delim <- function(dataset, delim = ",",
     stop("col_defaults must be NULL (automatic) or a list of default values")
   }
 
-  # read csv
-  dataset <- dataset %>%
-    dataset_skip(skip) %>%
-    dataset_map(
-      map_func = function(line) {
-        decoded <- tf$decode_csv(
-          records = line,
-          record_defaults = col_defaults,
-          field_delim = delim
-        )
-        names(decoded) <- col_names
-        decoded
-      },
-      num_parallel_calls = parallel_records
-    )
-
-  # return dataset
-  as_tf_dataset(dataset)
+  # return
+  list(
+    col_names = col_names,
+    col_types = col_types,
+    col_defaults = col_defaults,
+    skip = skip
+  )
 }
 
 
