@@ -7,7 +7,9 @@
 tfrecord_dataset(filenames, compression_type = NULL)
 }
 \arguments{
-\item{filenames}{String(s) specifying one or more filenames}
+\item{filenames}{String(s) specifying one or more filenames or filename
+patterns (e.g. "*.csv"). Alternatively, dataset with a collection of
+file names (e.g. like the one returned by \code{\link[=file_list_dataset]{file_list_dataset()}}).}
 
 \item{compression_type}{A string, one of: \code{NULL} (no compression), \code{"ZLIB"}, or
 \code{"GZIP"}.}

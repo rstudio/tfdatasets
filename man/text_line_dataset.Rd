@@ -4,13 +4,21 @@
 \alias{text_line_dataset}
 \title{A dataset comprising lines from one or more text files.}
 \usage{
-text_line_dataset(filenames, compression_type = NULL)
+text_line_dataset(filenames, compression_type = NULL, parallel_files = NULL,
+  parallel_files_block_length = 1)
 }
 \arguments{
-\item{filenames}{String(s) specifying one or more filenames}
+\item{filenames}{String(s) specifying one or more filenames or filename
+patterns (e.g. "*.csv"). Alternatively, dataset with a collection of
+file names (e.g. like the one returned by \code{\link[=file_list_dataset]{file_list_dataset()}}).}
 
 \item{compression_type}{A string, one of: \code{NULL} (no compression), \code{"ZLIB"}, or
 \code{"GZIP"}.}
+
+\item{parallel_files}{The number of input files to read in parallel.}
+
+\item{parallel_files_block_length}{Records from files read in parallel will
+be interleaved in blocks of length \code{parallel_files_block_length}.}
 }
 \value{
 A dataset

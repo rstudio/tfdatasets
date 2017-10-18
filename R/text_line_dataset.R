@@ -2,28 +2,47 @@
 
 #' A dataset comprising lines from one or more text files.
 #'
-#' @param filenames String(s) specifying one or more filenames
+#' @param filenames String(s) specifying one or more filenames or filename
+#'   patterns (e.g. "*.csv"). Alternatively, dataset with a collection of
+#'   file names (e.g. like the one returned by [file_list_dataset()]).
+#'
 #' @param compression_type A string, one of: `NULL` (no compression), `"ZLIB"`, or
 #'   `"GZIP"`.
+#'
+#' @param parallel_files The number of input files to read in parallel.
+#'
+#' @param parallel_files_block_length Records from files read in parallel will
+#'   be interleaved in blocks of length `parallel_files_block_length`.
 #'
 #' @return A dataset
 #'
 #' @family text datasets
 #'
 #' @export
-text_line_dataset <- function(filenames, compression_type = NULL) {
+text_line_dataset <- function(filenames, compression_type = NULL,
+                              parallel_files = NULL,
+                              parallel_files_block_length = 1) {
 
   # validate during dataset contruction
   validate_tf_version()
+
+  # filenames as dataset
+  filenames <- filenames_dataset(filenames)
 
   # resolve NULL to ""
   if (is.null(compression_type))
     compression_type <- ""
 
-  tf$data$TextLineDataset(
-    filenames = filenames,
-    compression_type = compression_type
-  )
+  # define read function
+  read_func <- function(file) {
+    tf$data$TextLineDataset(
+      filenames = file,
+      compression_type = compression_type
+    )
+  }
+
+  # read the dataset
+  read_dataset(filenames, read_func, parallel_files, parallel_files_block_length)
 }
 
 
@@ -40,59 +59,89 @@ text_line_dataset <- function(filenames, compression_type = NULL) {
 #' @note The [delim_dataset()] function is a convenience wrapper for the
 #'   [text_line_dataset()] and [dataset_decode_delim()] functions.
 #'
-#'   The [csv_dataset()] and [tsv_dataset()] are wrappers that parse comma
-#'   and tab separated text files respectively.
+#'   The [csv_dataset()] and [tsv_dataset()] are wrappers that parse comma and
+#'   tab separated text files respectively.
 #'
 #' @export
 delim_dataset <- function(filenames, compression_type = NULL, delim, skip = 0,
                           col_names = NULL, col_types = NULL, col_defaults = NULL,
+                          parallel_files = NULL,
+                          parallel_files_block_length = 1,
                           parallel_records = NULL) {
 
+  # turn the filenames into a dataset
+  filenames <- filenames_dataset(filenames)
 
-  dataset <- text_line_dataset(filenames, compression_type = compression_type) %>%
-    dataset_skip(skip) %>%
-    dataset_decode_delim(
-      delim = delim,
-      col_names = col_names,
-      col_types = col_types,
-      col_defaults = col_defaults,
-      parallel_records = parallel_records
-    )
+  # if dataset options aren't specified then we need to discover them
+  if (requires_preview(col_names, col_types, col_defaults)) {
+    # get the first filename
+    file <- with_session(function(sess) {
+      sess$run(next_batch(filenames))
+    })
+    file_dataset <- tf$data$TextLineDataset(file, compression_type = compression_type)
+    opts <- resolve_dataset_options(file_dataset, delim, col_names, col_types, col_defaults, skip)
+    skip <- opts$skip
+    col_names <- opts$col_names
+    col_types <- opts$col_types
+    col_defaults <- opts$col_defaults
+  }
 
-  as_tf_dataset(dataset)
+  # define read function
+  read_func <- function(file) {
+    tf$data$TextLineDataset(file, compression_type = compression_type) %>%
+      dataset_skip(skip) %>%
+      dataset_decode_delim(
+        delim = delim,
+        col_names = col_names,
+        col_types = col_types,
+        col_defaults = col_defaults,
+        parallel_records = parallel_records
+      )
+  }
+
+  # read the dataset
+  read_dataset(filenames, read_func, parallel_files, parallel_files_block_length)
 }
+
 
 #' @rdname delim_dataset
 #' @export
-csv_dataset <- function(filenames, compression_type = NULL,
+csv_dataset <- function(filenames, compression_type = NULL, skip = 0,
                         col_names = NULL, col_types = NULL, col_defaults = NULL,
-                        skip = 0,
+                        parallel_files = NULL,
+                        parallel_files_block_length = 1,
                         parallel_records = NULL) {
   delim_dataset(
     filenames = filenames,
     compression_type = compression_type,
     delim = ",",
+    skip = skip,
     col_names = col_names,
     col_defaults = col_defaults,
     col_types = col_types,
-    skip = skip,
+    parallel_files = parallel_files,
+    parallel_files_block_length = parallel_files_block_length,
     parallel_records = parallel_records
   )
 }
 
 #' @rdname delim_dataset
 #' @export
-tsv_dataset <- function(filenames, compression_type = NULL,
+tsv_dataset <- function(filenames, compression_type = NULL, skip = 0,
                         col_names = NULL, col_types = NULL, col_defaults = NULL,
-                        skip = 0, parallel_records = NULL) {
+                        parallel_files = NULL,
+                        parallel_files_block_length = 1,
+                        parallel_records = NULL) {
   delim_dataset(
     filenames = filenames,
     compression_type = compression_type,
     delim = "\t",
+    skip = skip,
     col_names = col_names,
     col_types = col_types,
     col_defaults = col_defaults,
-    skip = skip,
+    parallel_files = parallel_files,
+    parallel_files_block_length = parallel_files_block_length,
     parallel_records = parallel_records
   )
 }
@@ -194,7 +243,7 @@ resolve_dataset_options <- function(dataset, delim, col_names, col_types, col_de
   # the dataset. Note that this will involve evaluating tensors so will make
   # this function not a "pure" graph function (important if you want to include
   # it in dataset_map or dataset_interleave function)
-  if (is.null(col_names) || (is.null(col_types) && is.null(col_defaults)))
+  if (requires_preview(col_names, col_types, col_defaults))
     preview <- preview_dataset(dataset, delim, col_names)
   else
     preview <- NULL
@@ -331,6 +380,27 @@ preview_dataset <- function(dataset, delim, col_names) {
     comment.char = "",
     stringsAsFactors = FALSE
   )
+}
+
+read_dataset <- function(filenames, read_func, parallel_files, parallel_files_block_length) {
+
+  # if we are reading files in parallel then use interleave, otherwise flat_map
+  if (!is.null(parallel_files)) {
+    dataset <- filenames %>%
+      dataset_interleave(cycle_length = parallel_files,
+                         block_length = parallel_files_block_length,
+                         read_func)
+  } else {
+    dataset <- filenames %>%
+      dataset_flat_map(read_func)
+  }
+
+  # return dataset
+  as_tf_dataset(dataset)
+}
+
+requires_preview <- function(col_names, col_types, col_defaults) {
+  is.null(col_names) || (is.null(col_types) && is.null(col_defaults))
 }
 
 

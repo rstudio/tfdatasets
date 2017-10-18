@@ -52,4 +52,46 @@ column_names <- function(dataset) {
   names(dataset$output_shapes)
 }
 
+filenames_dataset <- function(filenames) {
+
+  # reflect if it's already a dataset
+  if (is_dataset(filenames)) {
+    filenames
+  } else {
+    # first turn into tensor(s)
+    if (inherits(filenames, "tensorflow.python.framework.ops.Tensor"))
+      filenames <- tensors_dataset(filenames)
+    else if (length(filenames) == 1)
+      filenames <- tensors_dataset(tf$constant(filenames, dtype = tf$string))
+    else
+      filenames <- tensor_slices_dataset(as.array(filenames))
+
+    # return expanded list of files
+    filenames %>%
+      dataset_flat_map(function(filename) {
+        file_list_dataset(filename)
+      })
+  }
+}
+
+resolve_filenames <- function(filenames) {
+
+  # vectorize
+  if (length(filenames) > 1) {
+    all_filenames <- character()
+    for (filename in filenames)
+      all_filenames <- c(all_filenames, resolve_filenames(filename))
+    return(all_filenames)
+  }
+
+  # list files and return all results
+  filenames <- file_list_dataset(filenames) %>%
+    dataset_take(-1)
+  batch <- next_batch(filenames)
+  with_session(function(sess) {
+    sess$run(batch)
+  })
+}
+
+
 

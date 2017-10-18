@@ -382,7 +382,7 @@ dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features =
                             parallel_records = NULL) {
 
   # validate dataset
-  if (!inherits(dataset, "tensorflow.python.data.ops.dataset_ops.Dataset"))
+  if (!is_dataset(dataset))
     stop("Provided dataset is not a TensorFlow Dataset")
 
   # get tidyselect_data for overscope
@@ -491,7 +491,7 @@ dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features =
 as_tf_dataset <- function(dataset) {
 
   # validate dataset
-  if (!inherits(dataset, "tensorflow.python.data.ops.dataset_ops.Dataset"))
+  if (!is_dataset(dataset))
     stop("Provided dataset is not a TensorFlow Dataset")
 
   # add class
@@ -501,4 +501,8 @@ as_tf_dataset <- function(dataset) {
   dataset
 }
 
+
+is_dataset <- function(x) {
+  inherits(x, "tensorflow.python.data.ops.dataset_ops.Dataset")
+}
 

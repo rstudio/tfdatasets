@@ -8,18 +8,23 @@
 \usage{
 delim_dataset(filenames, compression_type = NULL, delim, skip = 0,
   col_names = NULL, col_types = NULL, col_defaults = NULL,
+  parallel_files = NULL, parallel_files_block_length = 1,
   parallel_records = NULL)
 
-csv_dataset(filenames, compression_type = NULL, col_names = NULL,
-  col_types = NULL, col_defaults = NULL, skip = 0,
+csv_dataset(filenames, compression_type = NULL, skip = 0,
+  col_names = NULL, col_types = NULL, col_defaults = NULL,
+  parallel_files = NULL, parallel_files_block_length = 1,
   parallel_records = NULL)
 
-tsv_dataset(filenames, compression_type = NULL, col_names = NULL,
-  col_types = NULL, col_defaults = NULL, skip = 0,
+tsv_dataset(filenames, compression_type = NULL, skip = 0,
+  col_names = NULL, col_types = NULL, col_defaults = NULL,
+  parallel_files = NULL, parallel_files_block_length = 1,
   parallel_records = NULL)
 }
 \arguments{
-\item{filenames}{String(s) specifying one or more filenames}
+\item{filenames}{String(s) specifying one or more filenames or filename
+patterns (e.g. "*.csv"). Alternatively, dataset with a collection of
+file names (e.g. like the one returned by \code{\link[=file_list_dataset]{file_list_dataset()}}).}
 
 \item{compression_type}{A string, one of: \code{NULL} (no compression), \code{"ZLIB"}, or
 \code{"GZIP"}.}
@@ -63,6 +68,11 @@ missing from a record (e.g. \code{list(0, 0, 0L}). If \code{NULL} then defaults 
 be automatically provided based on \code{col_types} (\code{0} for numeric columns and
 \code{""} for character columns).}
 
+\item{parallel_files}{The number of input files to read in parallel.}
+
+\item{parallel_files_block_length}{Records from files read in parallel will
+be interleaved in blocks of length \code{parallel_files_block_length}.}
+
 \item{parallel_records}{(Optional) An integer, representing the number of
 records to decode in parallel. If not specified, records will be
 processed sequentially.}
@@ -74,6 +84,6 @@ Create a dataset from a text file with delimited values
 The \code{\link[=delim_dataset]{delim_dataset()}} function is a convenience wrapper for the
 \code{\link[=text_line_dataset]{text_line_dataset()}} and \code{\link[=dataset_decode_delim]{dataset_decode_delim()}} functions.
 
-The \code{\link[=csv_dataset]{csv_dataset()}} and \code{\link[=tsv_dataset]{tsv_dataset()}} are wrappers that parse comma
-and tab separated text files respectively.
+The \code{\link[=csv_dataset]{csv_dataset()}} and \code{\link[=tsv_dataset]{tsv_dataset()}} are wrappers that parse comma and
+tab separated text files respectively.
 }
