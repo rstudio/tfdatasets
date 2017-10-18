@@ -140,6 +140,22 @@ dataset_map <- function(dataset, map_func, num_parallel_calls = NULL) {
   ))
 }
 
+
+#' Maps map_func across this dataset and flattens the result.
+#'
+#' @param map_func A function mapping a nested structure of tensors (having
+#'   shapes and types defined by [output_shapes()] and [output_types()] to a
+#'    dataset.
+#'
+#' @return A dataset
+#'
+#' @export
+dataset_flat_map <- function(dataset, map_func) {
+  as_tf_dataset(
+    dataset$flat_map(map_func)
+  )
+}
+
 #' Creates a Dataset that prefetches elements from this dataset.
 #'
 #'

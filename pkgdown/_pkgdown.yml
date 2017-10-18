@@ -39,6 +39,7 @@ reference:
        - dataset_repeat
        - dataset_cache
        - dataset_take
+       - dataset_flat_map
        - dataset_padded_batch
        - dataset_decode_delim
        - dataset_concatenate
