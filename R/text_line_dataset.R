@@ -103,32 +103,18 @@ tsv_dataset <- function(filenames, compression_type = NULL,
 #'
 #' @param dataset Dataset containing delimited text lines (e.g. a CSV)
 #'
-#' @param col_names Character vector with column names (or `NULL` to
-#'   automatically detect the column names from the first row of the input
-#'   file).
+#' @param col_names Character vector with column names.
 #'
-#'   If `col_names` is a character vector, the values will be used as the names
-#'   of the columns, and the first row of the input will be read into the first
-#'   row of the datset. Note that if the underlying text file also includes
-#'   column names in it's first row, this row should be skipped explicitly with
-#'   [dataset_skip()].
-#'
-#'   If `NULL`, the first row of the input will be used as the column names, and
-#'   will not be included in dataset.
-#'
-#' @param col_types Column types. If `NULL` and `col_defaults` is specified
-#'   then types will be imputed from the defaults. Otherwise, all column types
-#'   will be imputed from the first 1000 rows on the input. This is convenient
-#'   (and fast), but not robust. If the imputation fails, you'll need to supply
-#'   the correct types yourself.
-#'
-#'   Types can be explicitliy specified in a character vector as "integer",
-#'   "double", and "character" (e.g. `col_types = c("double", "double",
-#'   "integer"`).
+#' @param col_types Column types. Types can be explicitliy specified in a
+#'   character vector as "integer", "double", and "character" (e.g. `col_types =
+#'   c("double", "double", "integer"`).
 #'
 #'   Alternatively, you can use a compact string representation where each
 #'   character represents one column: c = character, i = integer, d = double
 #'   (e.g. `col_types = `ddi`).
+#'
+#'   If `col_types` is not specified, then `col_defaults` must be specified and
+#'   column types will be inferred from the defaults.
 #'
 #' @param col_defaults List of default values which are used when data is
 #'   missing from a record (e.g. `list(0, 0, 0L`). If `NULL` then defaults will
@@ -139,8 +125,8 @@ tsv_dataset <- function(filenames, compression_type = NULL,
 #'   ",")
 #'
 #' @param parallel_records (Optional) An integer, representing the number of
-#'   records to decode in parallel. If not specified, records will be
-#'   processed sequentially.
+#'   records to decode in parallel. If not specified, records will be processed
+#'   sequentially.
 #'
 #' @importFrom utils read.csv
 #'
@@ -151,7 +137,7 @@ tsv_dataset <- function(filenames, compression_type = NULL,
 #'
 #' @export
 dataset_decode_delim <- function(dataset, delim = ",",
-                                 col_names = NULL, col_types = NULL, col_defaults = NULL,
+                                 col_names, col_types = NULL, col_defaults = NULL,
                                  parallel_records = NULL) {
 
   # resolve options
@@ -177,8 +163,85 @@ dataset_decode_delim <- function(dataset, delim = ",",
   as_tf_dataset(dataset)
 }
 
+resolve_column_options <- function(col_types, col_defaults) {
 
-resolve_dataset_options <- function(dataset, delim, col_names, col_types, col_defaults, skip) {
+  if (is.null(col_types) && is.null(col_defaults))
+    stop("You must specify either col_types or col_defaults", call. = FALSE)
+
+  if (!is.null(col_types)) {
+
+    # convert to lower
+    col_types <- tolower(as.character(col_types))
+
+    # unpack abbreviations in a single string
+    if (length(col_types) == 1 && grepl("^[idc]+$", col_types))
+      col_types <- strsplit(col_types, "")[[1]]
+
+    # resolve abbreviations
+    col_types <- sapply(tolower(col_types), simplify = TRUE, function(type) {
+      switch(type,
+             i = "integer",
+             d = "double",
+             c = "character",
+             type
+      )
+    })
+
+    # validate the type specifiers
+    if (!all(col_types %in% c("integer", "double", "character")))
+      stop('Invalid column type specification. Valid types are "integer", "double", ',
+           'and "character"\n  (or abbreviations "i", "d", and "c").')
+
+    # validate we have the correct number of columns
+    validate_columns(col_types, 'col_types')
+
+
+  } else {  # is.null(col_types) so col_defaults must be specified
+
+    # derive types from col_defaults
+    col_types <- sapply(col_defaults, simplify = TRUE, typeof)
+
+    # map into just integer, double, and character
+    col_types <- sapply(col_types, simplify = TRUE, function(type) {
+      switch(type,
+             integer = "integer",
+             double = "double",
+             character = "character",
+             "character" # default
+      )
+    })
+  }
+
+  # resolve/validate record defaults
+  if (is.null(col_defaults)) {
+
+    col_defaults <- lapply(unname(col_types), function(type) {
+      switch(type,
+             integer = list(0L),
+             double = list(0),
+             character = list(""),
+             list("") # default
+      )
+    })
+
+  } else {
+
+    col_defaults <- lapply(col_defaults, function(x) {
+      if (!is.list(x))
+        list(x)
+      else
+        x
+    })
+  }
+
+  list(
+    col_types = col_types,
+    col_defaults = col_defaults
+  )
+}
+
+
+resolve_dataset_options <- function(col_names, col_types, col_defaults, skip) {
 
   # if they are all already provied then just reflect them back (along with no skip)
   if (!is.null(col_names) && !is.null(col_types) && !is.null(col_defaults)) {
