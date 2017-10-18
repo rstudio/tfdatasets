@@ -5,7 +5,7 @@
 \title{Prepare a dataset for analysis}
 \usage{
 dataset_prepare(dataset, x, y = NULL, named = TRUE,
-  named_features = FALSE, num_parallel_calls = NULL)
+  named_features = FALSE, parallel_records = NULL)
 }
 \arguments{
 \item{dataset}{A dataset}
@@ -23,9 +23,9 @@ stack features into a single array. Note that in the case of \code{FALSE} (the
 default) all features will be stacked into a single 2D tensor so need to
 have the same underlying data type.}
 
-\item{num_parallel_calls}{(Optional) An integer, representing the
-number of elements to process in parallel If not specified, elements will
-be processed sequentially.}
+\item{parallel_records}{(Optional) An integer, representing the number of
+records to decode in parallel. If not specified, records will be
+processed sequentially.}
 }
 \value{
 A dataset. The dataset will have a structure of either:

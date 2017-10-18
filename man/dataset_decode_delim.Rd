@@ -6,7 +6,7 @@
 columns}
 \usage{
 dataset_decode_delim(dataset, delim = ",", col_names = NULL,
-  col_types = NULL, col_defaults = NULL, num_parallel_calls = NULL)
+  col_types = NULL, col_defaults = NULL, parallel_records = NULL)
 }
 \arguments{
 \item{dataset}{Dataset containing delimited text lines (e.g. a CSV)}
@@ -44,8 +44,8 @@ missing from a record (e.g. \code{list(0, 0, 0L}). If \code{NULL} then defaults 
 be automatically provided based on \code{col_types} (\code{0} for numeric columns and
 \code{""} for character columns).}
 
-\item{num_parallel_calls}{(Optional) An integer, representing the number of
-elements to process in parallel If not specified, elements will be
+\item{parallel_records}{(Optional) An integer, representing the number of
+records to decode in parallel. If not specified, records will be
 processed sequentially.}
 }
 \description{

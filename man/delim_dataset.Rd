@@ -8,15 +8,15 @@
 \usage{
 delim_dataset(filenames, compression_type = NULL, delim, col_names = NULL,
   col_types = NULL, col_defaults = NULL, skip = 0,
-  num_parallel_calls = NULL)
+  parallel_records = NULL)
 
 csv_dataset(filenames, compression_type = NULL, col_names = NULL,
   col_types = NULL, col_defaults = NULL, skip = 0,
-  num_parallel_calls = NULL)
+  parallel_records = NULL)
 
 tsv_dataset(filenames, compression_type = NULL, col_names = NULL,
   col_types = NULL, col_defaults = NULL, skip = 0,
-  num_parallel_calls = NULL)
+  parallel_records = NULL)
 }
 \arguments{
 \item{filenames}{Characater vector containing one or more filenames or
@@ -67,8 +67,8 @@ be automatically provided based on \code{col_types} (\code{0} for numeric column
 file then \code{skip} should be set to 1 to ensure that the column names are
 bypassed.}
 
-\item{num_parallel_calls}{(Optional) An integer, representing the number of
-elements to process in parallel If not specified, elements will be
+\item{parallel_records}{(Optional) An integer, representing the number of
+records to decode in parallel. If not specified, records will be
 processed sequentially.}
 }
 \description{

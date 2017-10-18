@@ -51,7 +51,7 @@ text_line_dataset <- function(filenames, compression_type = "auto") {
 #' @export
 delim_dataset <- function(filenames, compression_type = NULL, delim,
                         col_names = NULL, col_types = NULL, col_defaults = NULL,
-                        skip = 0, num_parallel_calls = NULL) {
+                        skip = 0, parallel_records = NULL) {
   dataset <- text_line_dataset(filenames, compression_type = compression_type) %>%
     dataset_skip(skip) %>%
     dataset_decode_delim(
@@ -59,7 +59,7 @@ delim_dataset <- function(filenames, compression_type = NULL, delim,
       col_names = col_names,
       col_types = col_types,
       col_defaults = col_defaults,
-      num_parallel_calls = num_parallel_calls
+      parallel_records = parallel_records
     )
 
   as_tf_dataset(dataset)
@@ -69,7 +69,7 @@ delim_dataset <- function(filenames, compression_type = NULL, delim,
 #' @export
 csv_dataset <- function(filenames, compression_type = NULL,
                         col_names = NULL, col_types = NULL, col_defaults = NULL,
-                        skip = 0, num_parallel_calls = NULL) {
+                        skip = 0, parallel_records = NULL) {
   delim_dataset(
     filenames = filenames,
     compression_type = compression_type,
@@ -78,7 +78,7 @@ csv_dataset <- function(filenames, compression_type = NULL,
     col_defaults = col_defaults,
     col_types = col_types,
     skip = skip,
-    num_parallel_calls = num_parallel_calls
+    parallel_records = parallel_records
   )
 }
 
@@ -86,7 +86,7 @@ csv_dataset <- function(filenames, compression_type = NULL,
 #' @export
 tsv_dataset <- function(filenames, compression_type = NULL,
                         col_names = NULL, col_types = NULL, col_defaults = NULL,
-                        skip = 0, num_parallel_calls = NULL) {
+                        skip = 0, parallel_records = NULL) {
   delim_dataset(
     filenames = filenames,
     compression_type = compression_type,
@@ -95,7 +95,7 @@ tsv_dataset <- function(filenames, compression_type = NULL,
     col_types = col_types,
     col_defaults = col_defaults,
     skip = skip,
-    num_parallel_calls = num_parallel_calls
+    parallel_records = parallel_records
   )
 }
 
@@ -139,8 +139,8 @@ tsv_dataset <- function(filenames, compression_type = NULL,
 #' @param delim Character delimiter to separate fields in a record (defaults to
 #'   ",")
 #'
-#' @param num_parallel_calls (Optional) An integer, representing the number of
-#'   elements to process in parallel If not specified, elements will be
+#' @param parallel_records (Optional) An integer, representing the number of
+#'   records to decode in parallel. If not specified, records will be
 #'   processed sequentially.
 #'
 #' @importFrom utils read.csv
@@ -153,7 +153,7 @@ tsv_dataset <- function(filenames, compression_type = NULL,
 #' @export
 dataset_decode_delim <- function(dataset, delim = ",",
                                  col_names = NULL, col_types = NULL, col_defaults = NULL,
-                                 num_parallel_calls = NULL) {
+                                 parallel_records = NULL) {
 
   # read the first 1000 rows to faciliate deduction of column names / types as well
   # as checking that any specified col_names, col_types, or col_defaults
@@ -285,7 +285,7 @@ dataset_decode_delim <- function(dataset, delim = ",",
         names(decoded) <- col_names
         decoded
       },
-      num_parallel_calls = num_parallel_calls
+      num_parallel_calls = parallel_records
     )
 
   # return dataset

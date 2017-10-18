@@ -333,7 +333,7 @@ dataset_padded_batch <- function(dataset, batch_size, padded_shapes, padding_val
 #' Transform a dataset with named columns into a list with features (`x`) and
 #' response (`y`) elements.
 #'
-#' @inheritParams dataset_map
+#' @inheritParams dataset_decode_delim
 #'
 #' @param dataset A dataset
 #'
@@ -363,7 +363,7 @@ dataset_padded_batch <- function(dataset, batch_size, padded_shapes, padding_val
 #'
 #' @export
 dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features = FALSE,
-                            num_parallel_calls = NULL) {
+                            parallel_records = NULL) {
 
   # validate dataset
   if (!inherits(dataset, "tensorflow.python.data.ops.dataset_ops.Dataset"))
@@ -417,7 +417,7 @@ dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features =
 
   dataset <- dataset %>%
 
-    dataset_map(num_parallel_calls = num_parallel_calls, function(record) {
+    dataset_map(num_parallel_calls = parallel_records, function(record) {
 
       # select features
       record_features <- record[feature_cols]
