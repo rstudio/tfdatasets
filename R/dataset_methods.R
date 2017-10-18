@@ -13,9 +13,9 @@
 #'
 #' @export
 dataset_repeat <- function(dataset, count = NULL) {
-  dataset$`repeat`(
+  as_tf_dataset(dataset$`repeat`(
     count = as_integer_tensor(count)
-  )
+  ))
 }
 
 
@@ -34,10 +34,10 @@ dataset_repeat <- function(dataset, count = NULL) {
 #'
 #' @export
 dataset_shuffle <- function(dataset, buffer_size, seed = NULL) {
-  dataset$shuffle(
+  as_tf_dataset(dataset$shuffle(
     buffer_size = as_integer_tensor(buffer_size),
     seed = as_integer_tensor(seed)
-  )
+  ))
 }
 
 #' Combines consecutive elements of this dataset into batches.
@@ -52,9 +52,9 @@ dataset_shuffle <- function(dataset, buffer_size, seed = NULL) {
 #'
 #' @export
 dataset_batch <- function(dataset, batch_size) {
-  dataset$batch(
+  as_tf_dataset(dataset$batch(
     batch_size = as_integer_tensor(batch_size)
-  )
+  ))
 }
 
 
@@ -76,7 +76,9 @@ dataset_cache <- function(dataset, filename = NULL) {
     filename <- ""
   if (!is.character(filename))
     stop("filename must be a character vector")
-  dataset$cache(tf$constant(filename, dtype = tf$string))
+  as_tf_dataset(
+    dataset$cache(tf$constant(filename, dtype = tf$string))
+  )
 }
 
 
@@ -94,7 +96,7 @@ dataset_cache <- function(dataset, filename = NULL) {
 #'
 #' @export
 dataset_concatenate <- function(dataset, other) {
-  dataset$concatenate(other)
+  as_tf_dataset(dataset$concatenate(other))
 }
 
 
@@ -112,7 +114,7 @@ dataset_concatenate <- function(dataset, other) {
 #'
 #' @export
 dataset_take <- function(dataset, count) {
-  dataset$take(count = as_integer_tensor(count))
+  as_tf_dataset(dataset$take(count = as_integer_tensor(count)))
 }
 
 
@@ -132,10 +134,10 @@ dataset_take <- function(dataset, count) {
 #'
 #' @export
 dataset_map <- function(dataset, map_func, num_parallel_calls = NULL) {
-  dataset$map(
+  as_tf_dataset(dataset$map(
     map_func = map_func,
     num_parallel_calls = as_integer_tensor(num_parallel_calls, tf$int32)
-  )
+  ))
 }
 
 #' Creates a Dataset that prefetches elements from this dataset.
@@ -151,7 +153,7 @@ dataset_map <- function(dataset, map_func, num_parallel_calls = NULL) {
 #'
 #' @export
 dataset_prefetch <- function(dataset, buffer_size) {
-  dataset$prefetch(as_integer_tensor(buffer_size))
+  as_tf_dataset(dataset$prefetch(as_integer_tensor(buffer_size)))
 }
 
 
@@ -190,7 +192,7 @@ dataset_prefetch <- function(dataset, buffer_size) {
 #'
 #' @export
 dataset_filter <- function(dataset, predicate) {
-  dataset$filter(predicate)
+  as_tf_dataset(dataset$filter(predicate))
 }
 
 
@@ -208,7 +210,7 @@ dataset_filter <- function(dataset, predicate) {
 #'
 #' @export
 dataset_skip <- function(dataset, count) {
-  dataset$skip(count = as_integer_tensor(count))
+  as_tf_dataset(dataset$skip(count = as_integer_tensor(count)))
 }
 
 
@@ -260,11 +262,11 @@ dataset_skip <- function(dataset, count) {
 #'
 #' @export
 dataset_interleave <- function(dataset, map_func, cycle_length, block_length = 1) {
-  dataset$interleave(
+  as_tf_dataset(dataset$interleave(
     map_func = map_func,
     cycle_length = as_integer_tensor(cycle_length),
     block_length = as_integer_tensor(block_length)
-  )
+  ))
 }
 
 #' Creates a dataset that includes only 1 / num_shards of this dataset.
@@ -283,10 +285,10 @@ dataset_interleave <- function(dataset, map_func, cycle_length, block_length = 1
 #'
 #' @export
 dataset_shard <- function(dataset, num_shards, index) {
-  dataset$shard(
+  as_tf_dataset(dataset$shard(
     num_shards = as_integer_tensor(num_shards),
     index = as_integer_tensor(index)
-  )
+  ))
 }
 
 
@@ -317,11 +319,11 @@ dataset_shard <- function(dataset, num_shards, index) {
 #'
 #' @export
 dataset_padded_batch <- function(dataset, batch_size, padded_shapes, padding_values = NULL) {
-  dataset$padded_batch(
+  as_tf_dataset(dataset$padded_batch(
     batch_size = as_integer_tensor(batch_size),
     padded_shapes = as_tensor_shape(padded_shapes),
     padding_values = as_integer_tensor(padding_values)
-  )
+  ))
 }
 
 
@@ -357,7 +359,7 @@ dataset_padded_batch <- function(dataset, batch_size, padded_shapes, padding_val
 #'
 #' Note that the `y` element will be omitted when `y` is `NULL`.
 #'
-#' @seealso [input_fn()][input_fn.tensorflow.python.data.ops.dataset_ops.Dataset()] for use with \pkg{tfestimators}.
+#' @seealso [input_fn()][input_fn.tf_dataset()] for use with \pkg{tfestimators}.
 #'
 #' @export
 dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features = FALSE,
@@ -451,7 +453,36 @@ dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features =
       # return the record
       record
     })
+
+  # return dataset
+  as_tf_dataset(dataset)
 }
 
+
+#' Add the tf_dataset class to a dataset
+#'
+#' Calling this function on a dataset adds the "tf_dataset" class to the dataset
+#' object. All datasets returned by functions in the \pkg{tfdatasets} package
+#' call this function on the dataset before returning it.
+#'
+#' @param dataset A dataset
+#'
+#' @return A dataset with class "tf_dataset"
+#'
+#' @keywords internal
+#'
+#' @export
+as_tf_dataset <- function(dataset) {
+
+  # validate dataset
+  if (!inherits(dataset, "tensorflow.python.data.ops.dataset_ops.Dataset"))
+    stop("Provided dataset is not a TensorFlow Dataset")
+
+  # add class
+  class(dataset) <- c("tf_dataset", class(dataset))
+
+  # return
+  dataset
+}
 
 

@@ -19,5 +19,7 @@ range_dataset <- function(from = 0, to = 0, by = 1) {
   by <- as_integer_tensor(by)
 
   # create dataset
-  tf$data$Dataset$range(from, to, by)
+  as_tf_dataset(
+    tf$data$Dataset$range(from, to, by)
+  )
 }

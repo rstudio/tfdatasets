@@ -42,5 +42,5 @@ Transform a dataset with named columns into a list with features (\code{x}) and
 response (\code{y}) elements.
 }
 \seealso{
-\link[=input_fn.tensorflow.python.data.ops.dataset_ops.Dataset]{input_fn()} for use with \pkg{tfestimators}.
+\link[=input_fn.tf_dataset]{input_fn()} for use with \pkg{tfestimators}.
 }

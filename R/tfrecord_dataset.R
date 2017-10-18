@@ -18,6 +18,8 @@ tfrecord_dataset <- function(filenames, compression_type = "auto") {
   if (identical(compression_type, "auto"))
     compression_type <- auto_compression_type(filenames)
 
-  tf$data$TFRecordDataset(filenames, compression_type = compression_type)
+  as_tf_dataset(
+    tf$data$TFRecordDataset(filenames, compression_type = compression_type)
+  )
 
 }

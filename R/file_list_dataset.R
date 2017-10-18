@@ -26,6 +26,8 @@ file_list_dataset <- function(file_pattern) {
   validate_tf_version()
 
   # create dataset
-  tf$data$Dataset$list_files(file_pattern)
+  as_tf_dataset(
+    tf$data$Dataset$list_files(file_pattern)
+  )
 }
 

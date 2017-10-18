@@ -13,6 +13,8 @@
 #' @export
 zip_datasets <- function(...) {
   validate_tf_version()
-  tf$data$Dataset$zip(tuple(...))
+  as_tf_dataset(
+    tf$data$Dataset$zip(tuple(...))
+  )
 }
 

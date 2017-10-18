@@ -73,6 +73,6 @@ with_dataset({
 
 }
 \seealso{
-Other reading datasets: \code{\link{input_fn.tensorflow.python.data.ops.dataset_ops.Dataset}},
+Other reading datasets: \code{\link{input_fn.tf_dataset}},
   \code{\link{with_dataset}}
 }

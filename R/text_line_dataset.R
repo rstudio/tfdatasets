@@ -52,7 +52,7 @@ text_line_dataset <- function(filenames, compression_type = "auto") {
 delim_dataset <- function(filenames, compression_type = NULL, delim,
                         col_names = NULL, col_types = NULL, col_defaults = NULL,
                         skip = 0, num_parallel_calls = NULL) {
-  text_line_dataset(filenames, compression_type = compression_type) %>%
+  dataset <- text_line_dataset(filenames, compression_type = compression_type) %>%
     dataset_skip(skip) %>%
     dataset_decode_delim(
       delim = delim,
@@ -61,6 +61,8 @@ delim_dataset <- function(filenames, compression_type = NULL, delim,
       col_defaults = col_defaults,
       num_parallel_calls = num_parallel_calls
     )
+
+  as_tf_dataset(dataset)
 }
 
 #' @rdname delim_dataset
@@ -271,7 +273,7 @@ dataset_decode_delim <- function(dataset, delim = ",",
   }
 
   # read csv
-  dataset %>%
+  dataset <- dataset %>%
     dataset_skip(skip) %>%
     dataset_map(
       map_func = function(line) {
@@ -285,6 +287,9 @@ dataset_decode_delim <- function(dataset, delim = ",",
       },
       num_parallel_calls = num_parallel_calls
     )
+
+  # return dataset
+  as_tf_dataset(dataset)
 }
 
 

@@ -18,7 +18,7 @@
 #' @rdname input_fn
 #' @aliases input_fn
 #' @export
-input_fn.tensorflow.python.data.ops.dataset_ops.Dataset <- function(dataset, features, response = NULL) {
+input_fn.tf_dataset <- function(dataset, features, response = NULL) {
 
   # validate/retreive column names
   col_names <- column_names(dataset)
