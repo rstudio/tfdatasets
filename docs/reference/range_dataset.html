@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Repeats a dataset count times. — dataset_repeat • tfdatasets</title>
+<title>Creates a dataset of a step-separated range of values. — range_dataset • tfdatasets</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -77,47 +77,31 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Repeats a dataset count times.</h1>
+    <h1>Creates a dataset of a step-separated range of values.</h1>
     </div>
 
     
-    <p>Repeats a dataset count times.</p>
+    <p>Creates a dataset of a step-separated range of values.</p>
     
 
-    <pre class="usage"><span class='fu'>dataset_repeat</span>(<span class='no'>dataset</span>, <span class='kw'>count</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>range_dataset</span>(<span class='kw'>from</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>to</span> <span class='kw'>=</span> <span class='fl'>0</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>1</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>dataset</th>
-      <td><p>A dataset</p></td>
+      <th>from</th>
+      <td><p>Range start</p></td>
     </tr>
     <tr>
-      <th>count</th>
-      <td><p>(Optional.) An integer value representing the number of times
-the elements of this dataset should be repeated. The default behavior (if
-<code>count</code> is <code>NULL</code> or <code>-1</code>) is for the elements to be repeated indefinitely.</p></td>
+      <th>to</th>
+      <td><p>Range end (exclusive)</p></td>
+    </tr>
+    <tr>
+      <th>by</th>
+      <td><p>Increment of the sequence</p></td>
     </tr>
     </table>
-    
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
-
-    <p>A dataset</p>
-    
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <p>Other dataset methods: <code><a href='dataset_batch.html'>dataset_batch</a></code>,
-  <code><a href='dataset_cache.html'>dataset_cache</a></code>,
-  <code><a href='dataset_concatenate.html'>dataset_concatenate</a></code>,
-  <code><a href='dataset_decode_delim.html'>dataset_decode_delim</a></code>,
-  <code><a href='dataset_filter.html'>dataset_filter</a></code>,
-  <code><a href='dataset_interleave.html'>dataset_interleave</a></code>,
-  <code><a href='dataset_map.html'>dataset_map</a></code>,
-  <code><a href='dataset_padded_batch.html'>dataset_padded_batch</a></code>,
-  <code><a href='dataset_prefetch.html'>dataset_prefetch</a></code>,
-  <code><a href='dataset_shuffle.html'>dataset_shuffle</a></code>,
-  <code><a href='dataset_skip.html'>dataset_skip</a></code>, <code><a href='dataset_take.html'>dataset_take</a></code></p>
     
 
   </div>
@@ -125,11 +109,7 @@ the elements of this dataset should be repeated. The default behavior (if
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-      
-      <li><a href="#value">Value</a></li>
-
-      <li><a href="#see-also">See also</a></li>
-          </ul>
+                </ul>
 
   </div>
 </div>

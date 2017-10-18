@@ -125,8 +125,15 @@ dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_
     record<span class="op">$</span>Species &lt;-<span class="st"> </span>tf<span class="op">$</span><span class="kw">one_hot</span>(record<span class="op">$</span>Species, 3L)
     record
   })</code></pre></div>
+<p>You can control the maximum number of processed elements that will be buffered when processing in parallel using the <code><a href="reference/dataset_prefetch.html">dataset_prefetch()</a></code> transformation. For example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span>dataset <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_map.html">dataset_map</a></span>(<span class="dt">num_parallel_calls =</span> <span class="dv">4</span>, <span class="cf">function</span>(record) {
+    record<span class="op">$</span>Species &lt;-<span class="st"> </span>tf<span class="op">$</span><span class="kw">one_hot</span>(record<span class="op">$</span>Species, 3L)
+    record
+  }) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw">datset_prefetch</span>(<span class="dv">100</span>)</code></pre></div>
 <p>Note that the <code><a href="reference/delim_dataset.html">csv_dataset()</a></code> function described above is just a wrapper around a <code><a href="reference/text_line_dataset.html">text_line_dataset()</a></code> and the <code><a href="reference/dataset_decode_delim.html">dataset_decode_delim()</a></code> function, which maps text strings into named columns. It can therefore also perform CSV parsing in parallel with <code>num_parallel_calls</code>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"iris.csv"</span>, <span class="dt">num_parallel_calls =</span> <span class="dv">4</span>)</code></pre></div>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"iris.csv"</span>, <span class="dt">num_parallel_calls =</span> <span class="dv">4</span>) </code></pre></div>
 </div>
 </div>
 <div id="filtering" class="section level3">

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Repeats a dataset count times. — dataset_repeat • tfdatasets</title>
+<title>Maps map_func across this dataset, and interleaves the results — dataset_interleave • tfdatasets</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -77,14 +77,14 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Repeats a dataset count times.</h1>
+    <h1>Maps map_func across this dataset, and interleaves the results</h1>
     </div>
 
     
-    <p>Repeats a dataset count times.</p>
+    <p>Maps map_func across this dataset, and interleaves the results</p>
     
 
-    <pre class="usage"><span class='fu'>dataset_repeat</span>(<span class='no'>dataset</span>, <span class='kw'>count</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>dataset_interleave</span>(<span class='no'>dataset</span>, <span class='no'>map_func</span>, <span class='no'>cycle_length</span>, <span class='kw'>block_length</span> <span class='kw'>=</span> <span class='fl'>1</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -94,16 +94,32 @@
       <td><p>A dataset</p></td>
     </tr>
     <tr>
-      <th>count</th>
-      <td><p>(Optional.) An integer value representing the number of times
-the elements of this dataset should be repeated. The default behavior (if
-<code>count</code> is <code>NULL</code> or <code>-1</code>) is for the elements to be repeated indefinitely.</p></td>
+      <th>map_func</th>
+      <td><p>A function mapping a nested structure of tensors (having
+shapes and types defined by <code><a href='output_types.html'>output_shapes()</a></code> and <code><a href='output_types.html'>output_types()</a></code> to a
+dataset.</p></td>
+    </tr>
+    <tr>
+      <th>cycle_length</th>
+      <td><p>The number of elements from this dataset that will be
+processed concurrently.</p></td>
+    </tr>
+    <tr>
+      <th>block_length</th>
+      <td><p>The number of consecutive elements to produce from each
+input element before cycling to another input element.</p></td>
     </tr>
     </table>
     
-    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>A dataset</p>
+    <p>The <code>cycle_length</code> and <code>block_length</code> arguments control the order in which
+elements are produced. <code>cycle_length</code> controls the number of input elements
+that are processed concurrently. In general, this transformation will apply
+<code>map_func</code> to <code>cycle_length</code> input elements, open iterators on the returned
+dataset objects, and cycle through them producing <code>block_length</code> consecutive
+elements from each iterator, and consuming the next input element each time
+it reaches the end of an iterator.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -111,25 +127,49 @@ the elements of this dataset should be repeated. The default behavior (if
   <code><a href='dataset_cache.html'>dataset_cache</a></code>,
   <code><a href='dataset_concatenate.html'>dataset_concatenate</a></code>,
   <code><a href='dataset_decode_delim.html'>dataset_decode_delim</a></code>,
-  <code><a href='dataset_filter.html'>dataset_filter</a></code>,
-  <code><a href='dataset_interleave.html'>dataset_interleave</a></code>,
-  <code><a href='dataset_map.html'>dataset_map</a></code>,
+  <code><a href='dataset_filter.html'>dataset_filter</a></code>, <code><a href='dataset_map.html'>dataset_map</a></code>,
   <code><a href='dataset_padded_batch.html'>dataset_padded_batch</a></code>,
   <code><a href='dataset_prefetch.html'>dataset_prefetch</a></code>,
+  <code><a href='dataset_repeat.html'>dataset_repeat</a></code>,
   <code><a href='dataset_shuffle.html'>dataset_shuffle</a></code>,
   <code><a href='dataset_skip.html'>dataset_skip</a></code>, <code><a href='dataset_take.html'>dataset_take</a></code></p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='no'>dataset</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='tensor_slices_dataset.html'>tensor_slices_dataset</a></span>(<span class='fu'>c</span>(<span class='fl'>1</span>,<span class='fl'>2</span>,<span class='fl'>3</span>,<span class='fl'>4</span>,<span class='fl'>5</span>)) <span class='kw'>%&gt;%</span>
+ <span class='fu'>dataset_interleave</span>(<span class='kw'>cycle_length</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>block_length</span> <span class='kw'>=</span> <span class='fl'>4</span>, <span class='kw'>function</span>(<span class='no'>x</span>) {
+   <span class='fu'><a href='tensors_dataset.html'>tensors_dataset</a></span>(<span class='no'>x</span>) <span class='kw'>%&gt;%</span>
+     <span class='fu'><a href='dataset_repeat.html'>dataset_repeat</a></span>(<span class='fl'>6</span>)
+ })
+
+<span class='co'># resulting dataset (newlines indicate "block" boundaries):</span>
+<span class='fu'>c</span>(<span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>1</span>,
+  <span class='fl'>2</span>, <span class='fl'>2</span>, <span class='fl'>2</span>, <span class='fl'>2</span>,
+  <span class='fl'>1</span>, <span class='fl'>1</span>,
+  <span class='fl'>2</span>, <span class='fl'>2</span>,
+  <span class='fl'>3</span>, <span class='fl'>3</span>, <span class='fl'>3</span>, <span class='fl'>3</span>,
+  <span class='fl'>4</span>, <span class='fl'>4</span>, <span class='fl'>4</span>, <span class='fl'>4</span>,
+  <span class='fl'>3</span>, <span class='fl'>3</span>,
+  <span class='fl'>4</span>, <span class='fl'>4</span>,
+  <span class='fl'>5</span>, <span class='fl'>5</span>, <span class='fl'>5</span>, <span class='fl'>5</span>,
+  <span class='fl'>5</span>, <span class='fl'>5</span>,
+)
+
+<span class='co'># }</span><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#value">Value</a></li>
+      <li><a href="#details">Details</a></li>
 
       <li><a href="#see-also">See also</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

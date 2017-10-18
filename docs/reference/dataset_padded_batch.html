@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Repeats a dataset count times. — dataset_repeat • tfdatasets</title>
+<title>Combines consecutive elements of this dataset into padded batches — dataset_padded_batch • tfdatasets</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -77,14 +77,18 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Repeats a dataset count times.</h1>
+    <h1>Combines consecutive elements of this dataset into padded batches</h1>
     </div>
 
     
-    <p>Repeats a dataset count times.</p>
+    <p>This method combines multiple consecutive elements of this dataset, which
+might have different shapes, into a single element. The tensors in the
+resulting element have an additional outer dimension, and are padded to the
+respective shape in <code>padded_shapes</code>.</p>
     
 
-    <pre class="usage"><span class='fu'>dataset_repeat</span>(<span class='no'>dataset</span>, <span class='kw'>count</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>dataset_padded_batch</span>(<span class='no'>dataset</span>, <span class='no'>batch_size</span>, <span class='no'>padded_shapes</span>,
+  <span class='kw'>padding_values</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -94,10 +98,25 @@
       <td><p>A dataset</p></td>
     </tr>
     <tr>
-      <th>count</th>
-      <td><p>(Optional.) An integer value representing the number of times
-the elements of this dataset should be repeated. The default behavior (if
-<code>count</code> is <code>NULL</code> or <code>-1</code>) is for the elements to be repeated indefinitely.</p></td>
+      <th>batch_size</th>
+      <td><p>An integer, representing the number of consecutive elements
+of this dataset to combine in a single batch.</p></td>
+    </tr>
+    <tr>
+      <th>padded_shapes</th>
+      <td><p>A nested structure of tf$TensorShape or integer vector
+tensor-like objects representing the shape to which the respective
+component of each input element should be padded prior to batching. Any
+unknown dimensions (e.g. <code>tf$Dimension(NULL)</code> in a <code>tf$TensorShape</code> or -1
+in a tensor-like object) will be padded to the maximum size of that
+dimension in each batch.</p></td>
+    </tr>
+    <tr>
+      <th>padding_values</th>
+      <td><p>(Optional) A nested structure of scalar-shaped
+tf$Tensor, representing the padding values to use for the respective
+components. Defaults are 0 for numeric types and the empty string for
+string types.</p></td>
     </tr>
     </table>
     
@@ -114,8 +133,8 @@ the elements of this dataset should be repeated. The default behavior (if
   <code><a href='dataset_filter.html'>dataset_filter</a></code>,
   <code><a href='dataset_interleave.html'>dataset_interleave</a></code>,
   <code><a href='dataset_map.html'>dataset_map</a></code>,
-  <code><a href='dataset_padded_batch.html'>dataset_padded_batch</a></code>,
   <code><a href='dataset_prefetch.html'>dataset_prefetch</a></code>,
+  <code><a href='dataset_repeat.html'>dataset_repeat</a></code>,
   <code><a href='dataset_shuffle.html'>dataset_shuffle</a></code>,
   <code><a href='dataset_skip.html'>dataset_skip</a></code>, <code><a href='dataset_take.html'>dataset_take</a></code></p>
     
