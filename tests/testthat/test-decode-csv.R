@@ -45,6 +45,9 @@ test_succeeds("decode_csv handles explicit record defaults", {
   csv_dataset("data/mtcars.csv", col_types = "ddddddddddd", col_defaults = list(0,0,0,0,0,0,0,0,0,0,0))
 })
 
+test_succeeds("decode_csv can impute col_types from col_defaults", {
+  csv_dataset("data/mtcars.csv", col_defaults = list(0,0,0,0,0,0,0,0,0,0,0))
+})
 
 
 

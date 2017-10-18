@@ -208,16 +208,19 @@ dataset_decode_delim <- function(dataset, delim = ",",
 
   } else if (is.null(col_types)) {
 
-    # derive types from data
-    col_types <- sapply(preview, simplify = TRUE, typeof)
+    # derive types from col_defaults if provided otherwise from the preview
+    if (!is.null(col_defaults))
+      col_types <- sapply(col_defaults, simplify = TRUE, typeof)
+    else
+      col_types <- sapply(preview, simplify = TRUE, typeof)
 
     # map into just integer, double, and character
     col_types <- sapply(col_types, simplify = TRUE, function(type) {
       switch(type,
-        integer = "integer",
-        double = "double",
-        character = "character",
-        "character" # default
+             integer = "integer",
+             double = "double",
+             character = "character",
+             "character" # default
       )
     })
   }
