@@ -47,6 +47,10 @@ text_line_dataset <- function(filenames, compression_type = NULL) {
 delim_dataset <- function(filenames, compression_type = NULL, delim,
                           col_names = NULL, col_types = NULL, col_defaults = NULL,
                           skip = 0, parallel_records = NULL) {
+
+
+
+
   dataset <- text_line_dataset(filenames, compression_type = compression_type) %>%
     dataset_skip(skip) %>%
     dataset_decode_delim(
@@ -114,10 +118,11 @@ tsv_dataset <- function(filenames, compression_type = NULL,
 #'   If `NULL`, the first row of the input will be used as the column names, and
 #'   will not be included in dataset.
 #'
-#' @param col_types Column types. If NULL, all column types will be imputed from
-#'   the first 1000 rows on the input. This is convenient (and fast), but not
-#'   robust. If the imputation fails, you'll need to supply the correct types
-#'   yourself.
+#' @param col_types Column types. If `NULL` and `col_defaults` is specified
+#'   then types will be imputed from the defaults. Otherwise, all column types
+#'   will be imputed from the first 1000 rows on the input. This is convenient
+#'   (and fast), but not robust. If the imputation fails, you'll need to supply
+#'   the correct types yourself.
 #'
 #'   Types can be explicitliy specified in a character vector as "integer",
 #'   "double", and "character" (e.g. `col_types = c("double", "double",
@@ -176,6 +181,16 @@ dataset_decode_delim <- function(dataset, delim = ",",
 
 
 resolve_dataset_options <- function(dataset, delim, col_names, col_types, col_defaults) {
+
+  # if they are all already provied then just reflect them back (along with no skip)
+  if (!is.null(col_names) && !is.null(col_types) && !is.null(col_defaults)) {
+    return(list(
+      col_names = col_names,
+      col_types = col_types,
+      col_defaults = col_defaults,
+      skip = 0
+    ))
+  }
 
   # if we are going to need to impute column names/types/defaults then preview
   # the dataset. Note that this will involve evaluating tensors so will make

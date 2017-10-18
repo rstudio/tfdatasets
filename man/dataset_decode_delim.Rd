@@ -27,10 +27,11 @@ column names in it's first row, this row should be skipped explicitly with
 If \code{NULL}, the first row of the input will be used as the column names, and
 will not be included in dataset.}
 
-\item{col_types}{Column types. If NULL, all column types will be imputed from
-the first 1000 rows on the input. This is convenient (and fast), but not
-robust. If the imputation fails, you'll need to supply the correct types
-yourself.
+\item{col_types}{Column types. If \code{NULL} and \code{col_defaults} is specified
+then types will be imputed from the defaults. Otherwise, all column types
+will be imputed from the first 1000 rows on the input. This is convenient
+(and fast), but not robust. If the imputation fails, you'll need to supply
+the correct types yourself.
 
 Types can be explicitliy specified in a character vector as "integer",
 "double", and "character" (e.g. \code{col_types = c("double", "double", "integer"}).
