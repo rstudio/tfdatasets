@@ -69,6 +69,25 @@ delim_dataset <- function(filenames, compression_type = NULL, delim, skip = 0,
                           parallel_files_block_length = 1,
                           parallel_records = NULL) {
 
+  # if it's a dataset or if it is a glob pattern then we are dealing with a dataset
+
+  # if parallel options are provided then we need to turn it into a dataset
+
+  # if we are dealing with a dataset then we have a separate way of resolving the
+  # first file name
+
+  # if we are dealing with a dataset then we use flat_map, otherwise we don't
+
+  # make 'filenames' much less flexible (passthrough, no auto-glob)
+
+
+  # NOTE: take(-1) to enumerate all the filenames doesn't currently work as expected
+  #  needs to be fixed no matter what
+
+  # I can't do sess$run at all if I want to keep the function pure. Probably need
+  # to always convert into a dataset (as we do now) then enumerate with flat_map
+  # (but where is the perf issue!)
+
   # turn the filenames into a dataset
   filenames <- filenames_dataset(filenames)
 
