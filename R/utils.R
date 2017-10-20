@@ -7,7 +7,7 @@ as_integer_tensor <- function(x, dtype = tf$int64) {
     lapply(x, function(elem) as_integer_tensor(elem, dtype))
   else if (is.null(x))
     x
-  else if (inherits(x, "tensorflow.python.framework.ops.Tensor"))
+  else if (is_tensor(x))
     tf$cast(x, dtype = dtype)
   else
     tf$constant(as.integer(x), dtype = dtype)
@@ -51,5 +51,14 @@ column_names <- function(dataset) {
     stop("Unable to resolve features for dataset that does not have named outputs", call. = FALSE)
   names(dataset$output_shapes)
 }
+
+is_dataset <- function(x) {
+  inherits(x, "tensorflow.python.data.ops.dataset_ops.Dataset")
+}
+
+is_tensor <- function(x) {
+  inherits(x, "tensorflow.python.framework.ops.Tensor")
+}
+
 
 
