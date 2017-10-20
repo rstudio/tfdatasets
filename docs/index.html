@@ -91,7 +91,11 @@
 <div id="creating-a-dataset" class="section level2">
 <h2 class="hasAnchor">
 <a href="#creating-a-dataset" class="anchor"></a>Creating a Dataset</h2>
-<p>To create a dataset, use one of the <a href="reference/index.html#section-creating-datasets">dataset creation</a> functions. For example, to create a dataset from a text file, first create a specification for how records will be parsed from the file, then call <code><a href="reference/text_line_dataset.html">text_line_dataset()</a></code> with the file to be read and the specification:</p>
+<p>To create a dataset, use one of the <a href="reference/index.html#section-creating-datasets">dataset creation</a> functions. Dataset can be created from delimted text files, <a href="https://www.tensorflow.org/api_guides/python/python_io#tfrecords_format_details">TFRecords files</a>, as well as from in-memory data.</p>
+<div id="text-files" class="section level3">
+<h3 class="hasAnchor">
+<a href="#text-files" class="anchor"></a>Text Files</h3>
+<p>For example, to create a dataset from a text file, first create a specification for how records will be decoded from the file, then call <code><a href="reference/text_line_dataset.html">text_line_dataset()</a></code> with the file to be read and the specification:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tfdatasets)
 
 <span class="co"># create specification for parsing records from an example file</span>
@@ -112,6 +116,17 @@ dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_l
 <p>Note that we’ve also specified <code>skip = 1</code> to indicate that the first row of the CSV that contains column names should be skipped.</p>
 <p>Supported column types are integer, double, and character. You can also provide <code>types</code> in a more compact form using single-letter abbreviations (e.g. <code>types = "dddi"</code>). For example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mtcars_spec &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_record_spec.html">csv_record_spec</a></span>(<span class="st">"mtcars.csv"</span>, <span class="dt">types =</span> <span class="st">"dididddiiii"</span>)</code></pre></div>
+<div id="parallel-decoding" class="section level4">
+<h4 class="hasAnchor">
+<a href="#parallel-decoding" class="anchor"></a>Parallel Decoding</h4>
+<p>Decoding lines of text into a record can be computationally expensive. You can parallelize these computations using the <code>parallel_records</code> parameter. For example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_line_dataset.html">text_line_dataset</a></span>(<span class="st">"iris.csv"</span>, <span class="dt">record_spec =</span> iris_spec, <span class="dt">parallel_records =</span> <span class="dv">4</span>)</code></pre></div>
+<p>You can also parallelize the reading of data from storage by requesting that a buffer of records be prefected. You do this with the [dataset_prefetch()] function. For example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_line_dataset.html">text_line_dataset</a></span>(<span class="st">"iris.csv"</span>, <span class="dt">record_spec =</span> iris_spec, <span class="dt">parallel_records =</span> <span class="dv">4</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_prefetch.html">dataset_prefetch</a></span>(<span class="dv">1000</span>)</code></pre></div>
+<p>If you have multiple input files, you can also parallelize reading of these files both across multiple machines (sharding) and/or on multiple threads per-machine (parallel reads with interleaving). See the section on <a href="#reading-multiple-files">Reading Multiple Files</a> below for additional details.</p>
+</div>
+</div>
 </div>
 <div id="transformations" class="section level2">
 <h2 class="hasAnchor">
@@ -187,6 +202,7 @@ iris_dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/t
 <a href="#complete-example" class="anchor"></a>Complete Example</h3>
 <p>Here’s a complete example of using the various dataset transformation functions together. We’ll read the <code>mtcars</code> dataset from a CSV, filter it on some threshold values, map it into <code>x</code> and <code>y</code> components for modeling, and specify desired shuffling and batch iteration behavior:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_line_dataset.html">text_line_dataset</a></span>(<span class="st">"mtcars.csv"</span>, <span class="dt">record_spec =</span> mtcars_spec) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_prefetch.html">dataset_prefetch</a></span>(<span class="dv">1000</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_filter.html">dataset_filter</a></span>(<span class="cf">function</span>(record) {
     record<span class="op">$</span>mpg <span class="op">&gt;=</span><span class="st"> </span><span class="dv">20</span> <span class="op">&amp;</span><span class="st"> </span>record<span class="op">$</span>cyl <span class="op">&gt;=</span><span class="st"> </span>6L
   }) <span class="op">%&gt;%</span><span class="st"> </span>
@@ -330,6 +346,33 @@ model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a
 )</code></pre></div>
 <p>Note that we don’t pass <code>x_train</code> or <code>y_train</code> to <code><a href="http://www.rdocumentation.org/packages/keras/topics/fit">fit()</a></code>, rather the feature data (<code>batch$x</code>) is provided as the <code>tensor</code> argument to <code><a href="http://www.rdocumentation.org/packages/keras/topics/layer_input">layer_input()</a></code> and the response data (<code>batch$y</code>) is provided as the <code>target_tensors</code> argument to <code><a href="http://www.rdocumentation.org/packages/keras/topics/compile">compile()</a></code>. The training data is directly wired into the TensorFlow graph built for the model.</p>
 <p>Note also that rather than calling the Keras <code><a href="http://www.rdocumentation.org/packages/keras/topics/to_categorical">to_categorical()</a></code> function to one-hot encode the “Species” field, we do this instead in a <code><a href="reference/dataset_map.html">dataset_map()</a></code> operation that calls the <code>tf$one_hot()</code> function.</p>
+</div>
+<div id="reading-multiple-files" class="section level2">
+<h2 class="hasAnchor">
+<a href="#reading-multiple-files" class="anchor"></a>Reading Multiple Files</h2>
+<p>If you have multiple input files you can process them in parallel both across machines (sharding) and/or on multiple threads per-machine (parallel reads with interleaving). The [read_files()] function provides a high-level interface to parallel file reading.</p>
+<p>The [read_files()] function takes a set of files and a read function along with various options to orchestrate parallel reading. For example, the following function reads all CSV files in a directory using the [text_line_dataset()] function:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/read_files.html">read_files</a></span>(<span class="st">"data/*.csv"</span>, text_line_dataset, <span class="dt">record_spec =</span> mtcars_spec,
+                      <span class="dt">parallel_files =</span> <span class="dv">4</span>, <span class="dt">parallel_interleave =</span> <span class="dv">16</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">1000</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>(<span class="dv">3</span>)</code></pre></div>
+<p>The <code>parallel_files</code> argument requests that 4 files be processed in parallel and the <code>parallel_interleave</code> argument requests that blocks of 16 consecutive records from each file be interleaved in the resulting dataset.</p>
+<p>If you are training on multiple machines and the training supervisor passes a shard index to your training script, you can also parallelizing reading by sharding the file list. For example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># command line flags for training script (shard info is passed by training </span>
+<span class="co"># supervisor that executes the script)</span>
+FLGAS &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/reexports">flags</a></span>(
+  <span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/reexports">flag_integer</a></span>(<span class="st">"num_shards"</span>, <span class="dv">1</span>),
+  <span class="kw">flag_integeR</span>(<span class="st">"shard_index"</span>, <span class="dv">1</span>)
+)
+
+<span class="co"># forward shard info to read_files</span>
+dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/read_files.html">read_files</a></span>(<span class="st">"data/*.csv"</span>, text_line_dataset, <span class="dt">record_spec =</span> mtcars_spec,
+                      <span class="dt">num_shards =</span> FLAGS<span class="op">$</span>num_shards, <span class="dt">shard_index =</span> FLAGS<span class="op">$</span>shard_index,
+                      <span class="dt">parallel_files =</span> <span class="dv">4</span>, <span class="dt">parallel_interleave =</span> <span class="dv">16</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">1000</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>(<span class="dv">3</span>)</code></pre></div>
 </div>
 </div>
 </div>

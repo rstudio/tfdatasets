@@ -48,7 +48,11 @@ install_tensorflow(version = "nightly")
 
 ## Creating a Dataset
 
-To create a dataset, use one of the [dataset creation](reference/index.html#section-creating-datasets) functions. For example, to create a dataset from a text file, first create a specification for how records will be parsed from the file, then call `text_line_dataset()` with the file to be read and the specification:
+To create a dataset, use one of the [dataset creation](reference/index.html#section-creating-datasets) functions. Dataset can be created from delimted text files, [TFRecords files](https://www.tensorflow.org/api_guides/python/python_io#tfrecords_format_details), as well as from in-memory data.
+
+### Text Files
+
+For example, to create a dataset from a text file, first create a specification for how records will be decoded from the file, then call `text_line_dataset()` with the file to be read and the specification:
 
 
 ```{r}
@@ -82,6 +86,25 @@ Supported column types are integer, double, and character. You can also provide 
 ```{r}
 mtcars_spec <- csv_record_spec("mtcars.csv", types = "dididddiiii")
 ```
+
+#### Parallel Decoding
+
+Decoding lines of text into a record can be computationally expensive. You can parallelize these computations using the `parallel_records` parameter. For example:
+
+```{r}
+dataset <- text_line_dataset("iris.csv", record_spec = iris_spec, parallel_records = 4)
+```
+
+You can also parallelize the reading of data from storage by requesting that a buffer of records be prefected. You do this with the [dataset_prefetch()] function. For example:
+
+```{r}
+dataset <- text_line_dataset("iris.csv", record_spec = iris_spec, parallel_records = 4) %>% 
+  dataset_prefetch(1000)
+```
+
+If you have multiple input files, you can also parallelize reading of these files both across multiple machines (sharding) and/or on multiple threads per-machine (parallel reads with interleaving). See the section on [Reading Multiple Files] below for additional details.
+
+
 
 ## Transformations
 
@@ -182,6 +205,7 @@ Here's a complete example of using the various dataset transformation functions 
 
 ```{r}
 dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
+  dataset_prefetch(1000) %>% 
   dataset_filter(function(record) {
     record$mpg >= 20 & record$cyl >= 6L
   }) %>% 
@@ -364,3 +388,45 @@ model %>% fit(
 Note that we don't pass `x_train` or `y_train` to `fit()`, rather the feature data (`batch$x`) is provided as the `tensor` argument to `layer_input()` and the response data (`batch$y`) is provided as the `target_tensors` argument to `compile()`. The training data is directly wired into the TensorFlow graph built for the model.
 
 Note also that rather than calling the Keras `to_categorical()` function to one-hot encode the "Species" field, we do this instead in a `dataset_map()` operation that calls the `tf$one_hot()` function. 
+
+## Reading Multiple Files
+
+If you have multiple input files you can process them in parallel both across machines (sharding) and/or on multiple threads per-machine (parallel reads with interleaving). The [read_files()] function provides a high-level interface to parallel file reading. 
+
+The [read_files()] function takes a set of files and a read function along with various options to orchestrate parallel reading. For example, the following function reads all CSV files in a directory using the [text_line_dataset()] function:
+
+```{r}
+dataset <- read_files("data/*.csv", text_line_dataset, record_spec = mtcars_spec,
+                      parallel_files = 4, parallel_interleave = 16) %>% 
+  dataset_shuffle(1000) %>% 
+  dataset_batch(128) %>% 
+  dataset_repeat(3)
+```
+
+The `parallel_files` argument requests that 4 files be processed in parallel and the `parallel_interleave` argument requests that blocks of 16 consecutive records from each file be interleaved in the resulting dataset.
+
+If you are training on multiple machines and the training supervisor passes a shard index to your training script, you can also parallelizing reading by sharding the file list. For example:
+
+```{r}
+# command line flags for training script (shard info is passed by training 
+# supervisor that executes the script)
+FLGAS <- flags(
+  flag_integer("num_shards", 1),
+  flag_integeR("shard_index", 1)
+)
+
+# forward shard info to read_files
+dataset <- read_files("data/*.csv", text_line_dataset, record_spec = mtcars_spec,
+                      num_shards = FLAGS$num_shards, shard_index = FLAGS$shard_index,
+                      parallel_files = 4, parallel_interleave = 16) %>% 
+  dataset_shuffle(1000) %>% 
+  dataset_batch(128) %>% 
+  dataset_repeat(3)
+```
+
+
+
+
+
+
+
