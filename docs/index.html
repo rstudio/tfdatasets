@@ -354,14 +354,19 @@ model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a
 <p>The [read_files()] function takes a set of files and a read function along with various options to orchestrate parallel reading. For example, the following function reads all CSV files in a directory using the [text_line_dataset()] function:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/read_files.html">read_files</a></span>(<span class="st">"data/*.csv"</span>, text_line_dataset, <span class="dt">record_spec =</span> mtcars_spec,
                       <span class="dt">parallel_files =</span> <span class="dv">4</span>, <span class="dt">parallel_interleave =</span> <span class="dv">16</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_prefetch.html">dataset_prefetch</a></span>(<span class="dv">5000</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">1000</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>(<span class="dv">3</span>)</code></pre></div>
 <p>The <code>parallel_files</code> argument requests that 4 files be processed in parallel and the <code>parallel_interleave</code> argument requests that blocks of 16 consecutive records from each file be interleaved in the resulting dataset.</p>
+<p>Note that because we are processing files in parallel we <em>do not</em> pass the <code>parallel_records</code> argument to [text_line_dataset()], since we are already parallelizing at the file level.</p>
+<div id="multiple-machines" class="section level3">
+<h3 class="hasAnchor">
+<a href="#multiple-machines" class="anchor"></a>Multiple Machines</h3>
 <p>If you are training on multiple machines and the training supervisor passes a shard index to your training script, you can also parallelizing reading by sharding the file list. For example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># command line flags for training script (shard info is passed by training </span>
 <span class="co"># supervisor that executes the script)</span>
-FLGAS &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/reexports">flags</a></span>(
+FLAGS &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/reexports">flags</a></span>(
   <span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/reexports">flag_integer</a></span>(<span class="st">"num_shards"</span>, <span class="dv">1</span>),
   <span class="kw">flag_integeR</span>(<span class="st">"shard_index"</span>, <span class="dv">1</span>)
 )
@@ -370,9 +375,11 @@ FLGAS &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocume
 dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/read_files.html">read_files</a></span>(<span class="st">"data/*.csv"</span>, text_line_dataset, <span class="dt">record_spec =</span> mtcars_spec,
                       <span class="dt">num_shards =</span> FLAGS<span class="op">$</span>num_shards, <span class="dt">shard_index =</span> FLAGS<span class="op">$</span>shard_index,
                       <span class="dt">parallel_files =</span> <span class="dv">4</span>, <span class="dt">parallel_interleave =</span> <span class="dv">16</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_prefetch.html">dataset_prefetch</a></span>(<span class="dv">5000</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">1000</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>(<span class="dv">3</span>)</code></pre></div>
+</div>
 </div>
 </div>
 </div>

@@ -398,6 +398,7 @@ The [read_files()] function takes a set of files and a read function along with 
 ```{r}
 dataset <- read_files("data/*.csv", text_line_dataset, record_spec = mtcars_spec,
                       parallel_files = 4, parallel_interleave = 16) %>% 
+  dataset_prefetch(5000) %>% 
   dataset_shuffle(1000) %>% 
   dataset_batch(128) %>% 
   dataset_repeat(3)
@@ -405,12 +406,16 @@ dataset <- read_files("data/*.csv", text_line_dataset, record_spec = mtcars_spec
 
 The `parallel_files` argument requests that 4 files be processed in parallel and the `parallel_interleave` argument requests that blocks of 16 consecutive records from each file be interleaved in the resulting dataset.
 
+Note that because we are processing files in parallel we *do not* pass the `parallel_records` argument to [text_line_dataset()], since we are already parallelizing at the file level.
+
+### Multiple Machines
+
 If you are training on multiple machines and the training supervisor passes a shard index to your training script, you can also parallelizing reading by sharding the file list. For example:
 
 ```{r}
 # command line flags for training script (shard info is passed by training 
 # supervisor that executes the script)
-FLGAS <- flags(
+FLAGS <- flags(
   flag_integer("num_shards", 1),
   flag_integeR("shard_index", 1)
 )
@@ -419,6 +424,7 @@ FLGAS <- flags(
 dataset <- read_files("data/*.csv", text_line_dataset, record_spec = mtcars_spec,
                       num_shards = FLAGS$num_shards, shard_index = FLAGS$shard_index,
                       parallel_files = 4, parallel_interleave = 16) %>% 
+  dataset_prefetch(5000) %>% 
   dataset_shuffle(1000) %>% 
   dataset_batch(128) %>% 
   dataset_repeat(3)
