@@ -4,8 +4,8 @@
 \alias{read_files}
 \title{Read a dataset from a set of files}
 \usage{
-read_files(files, reader, ..., num_shards = 1, shard_index = 1,
-  parallel_files = 1, parallel_interleave = 1)
+read_files(files, reader, ..., parallel_files = 1, parallel_interleave = 1,
+  num_shards = NULL, shard_index = NULL)
 }
 \arguments{
 \item{files}{List of filenames or glob pattern for files (e.g. "*.csv")}
@@ -15,15 +15,16 @@ read_files(files, reader, ..., num_shards = 1, shard_index = 1,
 
 \item{...}{Additional arguments to pass to \code{reader} function}
 
-\item{num_shards}{An integer representing the number of shards operating in
-parallel.}
-
-\item{shard_index}{An integer, representing the worker index.}
-
 \item{parallel_files}{An integer, number of files to process in parallel}
 
 \item{parallel_interleave}{An integer, number of consecutive records to
 produce from each file before cycling to another file.}
+
+\item{num_shards}{An integer representing the number of shards operating in
+parallel.}
+
+\item{shard_index}{An integer, representing the worker index. Shared indexes
+are 0 based so for e.g. 8 shards valid indexes would be 0-7.}
 }
 \value{
 A dataset

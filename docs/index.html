@@ -103,7 +103,7 @@ iris_spec &lt;-<span class="st"> </span><span class="kw"><a href="reference/deli
 
 <span class="co"># read the datset</span>
 dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_line_dataset.html">text_line_dataset</a></span>(<span class="st">"iris.csv"</span>, <span class="dt">record_spec =</span> iris_spec)</code></pre></div>
-<p>In the example above, the [csv_record_spec()] function is passed an example file which is used to automatically detect column names and types (done by reading up to the first 1,000 lines of the file). You can also provide explicit column names and/or data types using the <code>names</code> and <code>types</code> parameters (note that in this case we don’t pass an example file):</p>
+<p>In the example above, the <code><a href="reference/delim_record_spec.html">csv_record_spec()</a></code> function is passed an example file which is used to automatically detect column names and types (done by reading up to the first 1,000 lines of the file). You can also provide explicit column names and/or data types using the <code>names</code> and <code>types</code> parameters (note that in this case we don’t pass an example file):</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># provide colum names and types explicitly</span>
 iris_spec &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_record_spec.html">csv_record_spec</a></span>(
   <span class="dt">names =</span> <span class="kw">c</span>(<span class="st">"SepalLength"</span>, <span class="st">"SepalWidth"</span>, <span class="st">"PetalLength"</span>, <span class="st">"PetalWidth"</span>, <span class="st">"Species"</span>),
@@ -121,7 +121,7 @@ dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_l
 <a href="#parallel-decoding" class="anchor"></a>Parallel Decoding</h4>
 <p>Decoding lines of text into a record can be computationally expensive. You can parallelize these computations using the <code>parallel_records</code> parameter. For example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_line_dataset.html">text_line_dataset</a></span>(<span class="st">"iris.csv"</span>, <span class="dt">record_spec =</span> iris_spec, <span class="dt">parallel_records =</span> <span class="dv">4</span>)</code></pre></div>
-<p>You can also parallelize the reading of data from storage by requesting that a buffer of records be prefected. You do this with the [dataset_prefetch()] function. For example:</p>
+<p>You can also parallelize the reading of data from storage by requesting that a buffer of records be prefected. You do this with the <code><a href="reference/dataset_prefetch.html">dataset_prefetch()</a></code> function. For example:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_line_dataset.html">text_line_dataset</a></span>(<span class="st">"iris.csv"</span>, <span class="dt">record_spec =</span> iris_spec, <span class="dt">parallel_records =</span> <span class="dv">4</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_prefetch.html">dataset_prefetch</a></span>(<span class="dv">1000</span>)</code></pre></div>
 <p>If you have multiple input files, you can also parallelize reading of these files both across multiple machines (sharding) and/or on multiple threads per-machine (parallel reads with interleaving). See the section on <a href="#reading-multiple-files">Reading Multiple Files</a> below for additional details.</p>
@@ -350,8 +350,8 @@ model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a
 <div id="reading-multiple-files" class="section level2">
 <h2 class="hasAnchor">
 <a href="#reading-multiple-files" class="anchor"></a>Reading Multiple Files</h2>
-<p>If you have multiple input files you can process them in parallel both across machines (sharding) and/or on multiple threads per-machine (parallel reads with interleaving). The [read_files()] function provides a high-level interface to parallel file reading.</p>
-<p>The [read_files()] function takes a set of files and a read function along with various options to orchestrate parallel reading. For example, the following function reads all CSV files in a directory using the [text_line_dataset()] function:</p>
+<p>If you have multiple input files you can process them in parallel both across machines (sharding) and/or on multiple threads per-machine (parallel reads with interleaving). The <code><a href="reference/read_files.html">read_files()</a></code> function provides a high-level interface to parallel file reading.</p>
+<p>The <code><a href="reference/read_files.html">read_files()</a></code> function takes a set of files and a read function along with various options to orchestrate parallel reading. For example, the following function reads all CSV files in a directory using the <code><a href="reference/text_line_dataset.html">text_line_dataset()</a></code> function:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/read_files.html">read_files</a></span>(<span class="st">"data/*.csv"</span>, text_line_dataset, <span class="dt">record_spec =</span> mtcars_spec,
                       <span class="dt">parallel_files =</span> <span class="dv">4</span>, <span class="dt">parallel_interleave =</span> <span class="dv">16</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_prefetch.html">dataset_prefetch</a></span>(<span class="dv">5000</span>) <span class="op">%&gt;%</span><span class="st"> </span>
@@ -359,7 +359,7 @@ model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a
 <span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>(<span class="dv">3</span>)</code></pre></div>
 <p>The <code>parallel_files</code> argument requests that 4 files be processed in parallel and the <code>parallel_interleave</code> argument requests that blocks of 16 consecutive records from each file be interleaved in the resulting dataset.</p>
-<p>Note that because we are processing files in parallel we <em>do not</em> pass the <code>parallel_records</code> argument to [text_line_dataset()], since we are already parallelizing at the file level.</p>
+<p>Note that because we are processing files in parallel we <em>do not</em> pass the <code>parallel_records</code> argument to <code><a href="reference/text_line_dataset.html">text_line_dataset()</a></code>, since we are already parallelizing at the file level.</p>
 <div id="multiple-machines" class="section level3">
 <h3 class="hasAnchor">
 <a href="#multiple-machines" class="anchor"></a>Multiple Machines</h3>
@@ -373,8 +373,8 @@ FLAGS &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocume
 
 <span class="co"># forward shard info to read_files</span>
 dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/read_files.html">read_files</a></span>(<span class="st">"data/*.csv"</span>, text_line_dataset, <span class="dt">record_spec =</span> mtcars_spec,
-                      <span class="dt">num_shards =</span> FLAGS<span class="op">$</span>num_shards, <span class="dt">shard_index =</span> FLAGS<span class="op">$</span>shard_index,
-                      <span class="dt">parallel_files =</span> <span class="dv">4</span>, <span class="dt">parallel_interleave =</span> <span class="dv">16</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+                      <span class="dt">parallel_files =</span> <span class="dv">4</span>, <span class="dt">parallel_interleave =</span> <span class="dv">16</span>,
+                      <span class="dt">num_shards =</span> FLAGS<span class="op">$</span>num_shards, <span class="dt">shard_index =</span> FLAGS<span class="op">$</span>shard_index) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_prefetch.html">dataset_prefetch</a></span>(<span class="dv">5000</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">1000</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>

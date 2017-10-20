@@ -84,8 +84,8 @@
     <p>Read files into a dataset, optionally processing them in parallel.</p>
     
 
-    <pre class="usage"><span class='fu'>read_files</span>(<span class='no'>files</span>, <span class='no'>reader</span>, <span class='no'>...</span>, <span class='kw'>num_shards</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>shard_index</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>parallel_files</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>parallel_interleave</span> <span class='kw'>=</span> <span class='fl'>1</span>)</pre>
+    <pre class="usage"><span class='fu'>read_files</span>(<span class='no'>files</span>, <span class='no'>reader</span>, <span class='no'>...</span>, <span class='kw'>parallel_files</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>parallel_interleave</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+  <span class='kw'>num_shards</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>shard_index</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -104,15 +104,6 @@
       <td><p>Additional arguments to pass to <code>reader</code> function</p></td>
     </tr>
     <tr>
-      <th>num_shards</th>
-      <td><p>An integer representing the number of shards operating in
-parallel.</p></td>
-    </tr>
-    <tr>
-      <th>shard_index</th>
-      <td><p>An integer, representing the worker index.</p></td>
-    </tr>
-    <tr>
       <th>parallel_files</th>
       <td><p>An integer, number of files to process in parallel</p></td>
     </tr>
@@ -120,6 +111,16 @@ parallel.</p></td>
       <th>parallel_interleave</th>
       <td><p>An integer, number of consecutive records to
 produce from each file before cycling to another file.</p></td>
+    </tr>
+    <tr>
+      <th>num_shards</th>
+      <td><p>An integer representing the number of shards operating in
+parallel.</p></td>
+    </tr>
+    <tr>
+      <th>shard_index</th>
+      <td><p>An integer, representing the worker index. Shared indexes
+are 0 based so for e.g. 8 shards valid indexes would be 0-7.</p></td>
     </tr>
     </table>
     

@@ -65,7 +65,7 @@ iris_spec <- csv_record_spec("iris.csv")
 dataset <- text_line_dataset("iris.csv", record_spec = iris_spec)
 ```
 
-In the example above, the [csv_record_spec()] function is passed an example file which is used to  automatically detect column names and types (done by reading up to the first 1,000 lines of the file). You can also provide explicit column names and/or data types using the `names` and `types` parameters (note that in this case we don't pass an example file):
+In the example above, the `csv_record_spec()` function is passed an example file which is used to  automatically detect column names and types (done by reading up to the first 1,000 lines of the file). You can also provide explicit column names and/or data types using the `names` and `types` parameters (note that in this case we don't pass an example file):
 
 ```{r}
 # provide colum names and types explicitly
@@ -95,7 +95,7 @@ Decoding lines of text into a record can be computationally expensive. You can p
 dataset <- text_line_dataset("iris.csv", record_spec = iris_spec, parallel_records = 4)
 ```
 
-You can also parallelize the reading of data from storage by requesting that a buffer of records be prefected. You do this with the [dataset_prefetch()] function. For example:
+You can also parallelize the reading of data from storage by requesting that a buffer of records be prefected. You do this with the `dataset_prefetch()` function. For example:
 
 ```{r}
 dataset <- text_line_dataset("iris.csv", record_spec = iris_spec, parallel_records = 4) %>% 
@@ -391,9 +391,9 @@ Note also that rather than calling the Keras `to_categorical()` function to one-
 
 ## Reading Multiple Files
 
-If you have multiple input files you can process them in parallel both across machines (sharding) and/or on multiple threads per-machine (parallel reads with interleaving). The [read_files()] function provides a high-level interface to parallel file reading. 
+If you have multiple input files you can process them in parallel both across machines (sharding) and/or on multiple threads per-machine (parallel reads with interleaving). The `read_files()` function provides a high-level interface to parallel file reading. 
 
-The [read_files()] function takes a set of files and a read function along with various options to orchestrate parallel reading. For example, the following function reads all CSV files in a directory using the [text_line_dataset()] function:
+The `read_files()` function takes a set of files and a read function along with various options to orchestrate parallel reading. For example, the following function reads all CSV files in a directory using the `text_line_dataset()` function:
 
 ```{r}
 dataset <- read_files("data/*.csv", text_line_dataset, record_spec = mtcars_spec,
@@ -406,7 +406,7 @@ dataset <- read_files("data/*.csv", text_line_dataset, record_spec = mtcars_spec
 
 The `parallel_files` argument requests that 4 files be processed in parallel and the `parallel_interleave` argument requests that blocks of 16 consecutive records from each file be interleaved in the resulting dataset.
 
-Note that because we are processing files in parallel we *do not* pass the `parallel_records` argument to [text_line_dataset()], since we are already parallelizing at the file level.
+Note that because we are processing files in parallel we *do not* pass the `parallel_records` argument to `text_line_dataset()`, since we are already parallelizing at the file level.
 
 ### Multiple Machines
 
@@ -422,8 +422,8 @@ FLAGS <- flags(
 
 # forward shard info to read_files
 dataset <- read_files("data/*.csv", text_line_dataset, record_spec = mtcars_spec,
-                      num_shards = FLAGS$num_shards, shard_index = FLAGS$shard_index,
-                      parallel_files = 4, parallel_interleave = 16) %>% 
+                      parallel_files = 4, parallel_interleave = 16,
+                      num_shards = FLAGS$num_shards, shard_index = FLAGS$shard_index) %>% 
   dataset_prefetch(5000) %>% 
   dataset_shuffle(1000) %>% 
   dataset_batch(128) %>% 
