@@ -51,6 +51,25 @@ dataset <- file_list_dataset("*.csv") %>%
 
 
 
+read_files <- function(files, shards = 1, shard_index = 1,
+                       parallel = 1, parallel_interleave = 1,
+                       reader, ...) {
+
+  file_list_dataset(files) %>%
+    dataset_shard(num_shards = shards, index = shard_index) %>%
+    dataset_interleave(cycle_length = parallel, block_length = parallel_interleave,
+      function(file) {
+        reader(file, ...)
+      })
+}
+
+dataset <- read_files("*.csv", csv_dataset, record_spec)
+
+dataset <- read_files("*.csv", parallel = 4, csv_dataset, record_spec)
+
+dataset <- read_files("*.csv", shards = 10, shard_index = 1, parallel = 4,
+                      csv_dataset, record_spec)
+
 
 
 
