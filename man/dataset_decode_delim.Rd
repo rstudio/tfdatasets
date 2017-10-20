@@ -5,45 +5,12 @@
 \title{Transform a dataset with delimted text lines into a dataset with named
 columns}
 \usage{
-dataset_decode_delim(dataset, delim = ",", col_names = NULL,
-  col_types = NULL, col_defaults = NULL, parallel_records = NULL)
+dataset_decode_delim(dataset, record_spec, parallel_records = NULL)
 }
 \arguments{
 \item{dataset}{Dataset containing delimited text lines (e.g. a CSV)}
 
-\item{delim}{Character delimiter to separate fields in a record (defaults to
-",")}
-
-\item{col_names}{Character vector with column names (or \code{NULL} to
-automatically detect the column names from the first row of the input
-file).
-
-If \code{col_names} is a character vector, the values will be used as the names
-of the columns, and the first row of the input will be read into the first
-row of the datset. Note that if the underlying text file also includes
-column names in it's first row, this row should be skipped explicitly with
-\code{\link[=dataset_skip]{dataset_skip()}}.
-
-If \code{NULL}, the first row of the input will be used as the column names, and
-will not be included in dataset.}
-
-\item{col_types}{Column types. If \code{NULL} and \code{col_defaults} is specified
-then types will be imputed from the defaults. Otherwise, all column types
-will be imputed from the first 1000 rows on the input. This is convenient
-(and fast), but not robust. If the imputation fails, you'll need to supply
-the correct types yourself.
-
-Types can be explicitliy specified in a character vector as "integer",
-"double", and "character" (e.g. \code{col_types = c("double", "double", "integer"}).
-
-Alternatively, you can use a compact string representation where each
-character represents one column: c = character, i = integer, d = double
-(e.g. \code{col_types =}ddi`).}
-
-\item{col_defaults}{List of default values which are used when data is
-missing from a record (e.g. \code{list(0, 0, 0L}). If \code{NULL} then defaults will
-be automatically provided based on \code{col_types} (\code{0} for numeric columns and
-\code{""} for character columns).}
+\item{record_spec}{Specification of column names and types (see \code{\link[=record_spec]{record_spec()}}).}
 
 \item{parallel_records}{(Optional) An integer, representing the number of
 records to decode in parallel. If not specified, records will be
@@ -52,10 +19,6 @@ processed sequentially.}
 \description{
 Transform a dataset with delimted text lines into a dataset with named
 columns
-}
-\note{
-The \code{\link[=csv_dataset]{csv_dataset()}} function is a convenience wrapper for the
-\code{\link[=text_line_dataset]{text_line_dataset()}} and \code{\link[=dataset_decode_delim]{dataset_decode_delim()}} functions.
 }
 \seealso{
 Other dataset methods: \code{\link{dataset_batch}},

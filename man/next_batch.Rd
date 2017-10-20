@@ -45,7 +45,7 @@ See the examples below for a demonstration of each of these methods of iteration
 # iteration with 'infinite' dataset and explicit step counter
 
 library(tfdatasets)
-dataset <- csv_dataset("training.csv") \%>\%
+dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) \%>\%
   dataset_prepare(x = c(mpg, disp), y = cyl) \%>\%
   dataset_shuffle(5000) \%>\%
   dataset_batch(128) \%>\%
@@ -59,7 +59,7 @@ for (i in 1:steps) {
 # iteration that detects and ignores end of iteration error
 
 library(tfdatasets)
-dataset <- csv_dataset("training.csv") \%>\%
+dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) \%>\%
   dataset_prepare(x = c(mpg, disp), y = cyl) \%>\%
   dataset_batch(128) \%>\%
   dataset_repeat(10)

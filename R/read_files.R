@@ -7,7 +7,7 @@
 #'
 #' @param files List of filenames or glob pattern for files (e.g. "*.csv")
 #' @param reader Function that maps a file into a dataset (e.g.
-#'   [csv_dataset()]).
+#'   [text_line_dataset()] or [tfrecord_dataset()]).
 #' @param ... Additional arguments to pass to `reader` function
 #' @param num_shards An integer representing the number of shards operating in
 #'   parallel.
@@ -54,10 +54,13 @@ read_files <- function(files, reader, ...,
   }
 
   # read with appropriate parallel options
-  files_dataset %>%
+  dataset <- files_dataset %>%
     dataset_shard(num_shards = num_shards, index = shard_index) %>%
     dataset_interleave(cycle_length = parallel_files, block_length = parallel_interleave,
                        function(file) { reader(file, ...) })
+
+  # return
+  as_tf_dataset(dataset)
 }
 
 

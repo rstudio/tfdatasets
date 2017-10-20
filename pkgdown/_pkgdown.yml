@@ -17,9 +17,8 @@ navbar:
 reference:
   - title: "Creating Datasets"
     contents:
-       - delim_dataset
-       - tfrecord_dataset
        - text_line_dataset
+       - tfrecord_dataset
        - tensors_dataset
        - tensor_slices_dataset
        - sparse_tensor_slices_dataset

@@ -21,7 +21,7 @@ below for an illustration).
 \examples{
 \dontrun{
 library(tfdatasets)
-dataset <- csv_dataset("training.csv") \%>\%
+dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) \%>\%
   dataset_prepare(x = c(mpg, disp), y = cyl) \%>\%
   dataset_batch(128) \%>\%
   dataset_repeat(10)

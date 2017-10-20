@@ -11,7 +11,7 @@ read_files(files, reader, ..., num_shards = 1, shard_index = 1,
 \item{files}{List of filenames or glob pattern for files (e.g. "*.csv")}
 
 \item{reader}{Function that maps a file into a dataset (e.g.
-\code{\link[=csv_dataset]{csv_dataset()}}).}
+\code{\link[=text_line_dataset]{text_line_dataset()}} or \code{\link[=tfrecord_dataset]{tfrecord_dataset()}}).}
 
 \item{...}{Additional arguments to pass to \code{reader} function}
 

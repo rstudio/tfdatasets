@@ -36,7 +36,8 @@ record_spec <- function(names, types = NULL, defaults = NULL) {
     names = names,
     types = types$types,
     defaults = types$defaults,
-    skip = 0
+    delim = NULL,
+    skip = NULL
   )
 }
 
@@ -96,6 +97,7 @@ delim_record_spec <- function(example_file, delim = ",", skip = 0,
       names = names,
       types = types,
       defaults = defaults,
+      delim = delim,
       skip = skip
     ))
   }
@@ -108,7 +110,7 @@ delim_record_spec <- function(example_file, delim = ",", skip = 0,
            "names and types (or defaults)")
     }
     # do the preview
-    preview <- read.csv(
+    preview <- utils::read.csv(
       file = example_file,
       header = is.null(names) || is.character(names),
       sep = delim,
@@ -155,6 +157,7 @@ delim_record_spec <- function(example_file, delim = ",", skip = 0,
     names = names,
     types = types$types,
     defaults = types$defaults,
+    delim = delim,
     skip = skip
   )
 }
@@ -247,11 +250,12 @@ resolve_record_types <- function(types, defaults) {
 }
 
 
-tf_dataset_record_spec <- function(names, types, defaults, skip) {
+tf_dataset_record_spec <- function(names, types, defaults, delim, skip) {
   structure(class = "tf_dataset_record_spec", list(
     names = names,
     types = types,
     defaults = defaults,
+    delim = delim,
     skip = skip
   ))
 }

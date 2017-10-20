@@ -48,24 +48,37 @@ install_tensorflow(version = "nightly")
 
 ## Creating a Dataset
 
-To create a dataset, use one of the [dataset creation](reference/index.html#section-creating-datasets) functions. For example, to create a dataset from a CSV file:
+To create a dataset, use one of the [dataset creation](reference/index.html#section-creating-datasets) functions. For example, to create a dataset from a text file, first create a specification for how records will be parsed from the file, then call `text_line_dataset()` with the file to be read and the specification:
 
 
 ```{r}
 library(tfdatasets)
-dataset <- csv_dataset("iris.csv")
+
+# create specification for parsing records from an example file
+iris_spec <- csv_record_spec("iris.csv")
+
+# read the datset
+dataset <- text_line_dataset("iris.csv", record_spec = iris_spec)
 ```
 
-Dataset columns and data types are detected automatically by reading up to the first 1,000 lines of the CSV file. You can provide explicit column names and/or data types using the `col_names` and `col_types` parameters:
+In the example above, the [csv_record_spec()] function is passed an example file which is used to  automatically detect column names and types (done by reading up to the first 1,000 lines of the file). You can also provide explicit column names and/or data types using the `names` and `types` parameters (note that in this case we don't pass an example file):
 
 ```{r}
-dataset <- csv_dataset("iris.csv",
-  col_names = c("SepalLength", "SepalWidth", "PetalLength", "PetalWidth", "Species"),
-  col_types = c("double", "double", "double", "double", "integer"), skip = 1
+# provide colum names and types explicitly
+iris_spec <- csv_record_spec(
+  names = c("SepalLength", "SepalWidth", "PetalLength", "PetalWidth", "Species"),
+  types = c("double", "double", "double", "double", "integer"), skip = 1
 )
+
+# read the datset
+dataset <- text_line_dataset("iris.csv", record_spec = iris_spec)
 ```
 
-Supported column types are integer, double, and character. You can also provide `col_types` in a more compact form using single-letter abbreviations (e.g. `col_types = "dddi"`).
+Supported column types are integer, double, and character. You can also provide `types` in a more compact form using single-letter abbreviations (e.g. `types = "dddi"`). For example:
+
+```{r}
+mtcars_spec <- csv_record_spec("mtcars.csv", types = "dididddiiii")
+```
 
 Note that we've also specified `skip = 1` to indicate that the first row of the CSV that contains column names should be skipped.
 
@@ -135,17 +148,17 @@ Note that the functions used inside the predicate must be tensor operations (e.g
 A common transformation is taking a column oriented dataset (e.g. one created by `csv_dataset()` or `tfrecord_dataset()`) and transforming it into a two-element list with features ("x") and response ("y"). You can use the `dataset_prepare()` function to do this type of transformation. For example:
 
 ```{r}
-mtcars_dataset <- csv_dataset("mtcars.csv") %>% 
+mtcars_dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>% 
   dataset_prepare(x = c(mpg, disp), y = cyl)
 
-iris_dataset <- csv_dataset("iris.csv") %>% 
+iris_dataset <- text_line_dataset("iris.csv", record_spec = iris_spec) %>% 
   dataset_prepare(x = -Species, y = Species)
 ```
 
 The `dataset_prepare()` function also accepts standard R formula syntax for defining features and response:
 
 ```{r}
-mtcars_dataset <- csv_dataset("mtcars.csv") %>% 
+mtcars_dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>% 
   dataset_prepare(cyl ~ mpg + disp)
 ```
 
@@ -167,7 +180,7 @@ dataset <- dataset %>%
 Here's a complete example of using the various dataset transformation functions together. We'll read the `mtcars` dataset from a CSV, filter it on some threshold values, map it into `x` and `y` components for modeling, and specify desired shuffling and batch iteration behavior:
 
 ```{r}
-dataset <- csv_dataset("mtcars.csv") %>%
+dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
   dataset_filter(function(record) {
     record$mpg >= 20 & record$cyl >= 6L
   }) %>% 
@@ -182,7 +195,7 @@ dataset <- csv_dataset("mtcars.csv") %>%
 You read batches of data from a dataset by using tensors that yield the next batch. You can obtain this tensor from a dataset via the `next_batch()` function. For example:
 
 ```{r}
-dataset <- csv_dataset("mtcars.csv") %>% 
+dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>% 
   dataset_prepare(cyl ~ mpg + disp) %>% 
   dataset_shuffle(20) %>% 
   dataset_batch(5)
@@ -224,7 +237,7 @@ One approach is to create a dataset that yields batches infinitely (traversing t
 
 ```{r}
 library(tfdatasets)
-dataset <- csv_dataset("training.csv") %>% 
+dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>% 
   dataset_prepare(x = c(mpg, disp), y = cyl) %>% 
   dataset_shuffle(5000) %>% 
   dataset_batch(128) %>% 
@@ -244,7 +257,7 @@ Another approach is to detect when all batches have been yielded from the datase
 
 ```{r}
 library(tfdatasets)
-dataset <- csv_dataset("mtcars.csv") %>% 
+dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>% 
   dataset_prepare(x = c(mpg, disp), y = cyl) %>% 
   dataset_batch(128) %>% 
   dataset_repeat(10)
@@ -273,7 +286,7 @@ model %>% train(
 If you are using **tfdatasets** with the **tfestimators** package, you can create an estimators input function directly from a dataset as follows:
 
 ```{r}
-dataset <- csv_dataset("mtcars.csv") %>% 
+dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>% 
   dataset_batch(128) %>% 
   dataset_repeat(3)
 
@@ -313,7 +326,7 @@ library(keras)
 library(tfdatasets)
   
 # create dataset that yields batches infinitely
-dataset <- csv_dataset("iris.csv") %>%
+dataset <- text_line_dataset("iris.csv", record_spec = iris_spec) %>%
   dataset_map(function(record) {
     record$Species <- tf$one_hot(record$Species, depth = 3L)
     record

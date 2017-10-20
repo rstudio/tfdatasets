@@ -4,13 +4,21 @@
 \alias{text_line_dataset}
 \title{A dataset comprising lines from one or more text files.}
 \usage{
-text_line_dataset(filenames, compression_type = NULL)
+text_line_dataset(filenames, compression_type = NULL, record_spec = NULL,
+  parallel_records = NULL)
 }
 \arguments{
 \item{filenames}{String(s) specifying one or more filenames}
 
 \item{compression_type}{A string, one of: \code{NULL} (no compression), \code{"ZLIB"}, or
 \code{"GZIP"}.}
+
+\item{record_spec}{(Optional) Specification used to decode delimimted text lines
+into records (see \code{\link[=delim_record_spec]{delim_record_spec()}}).}
+
+\item{parallel_records}{(Optional) An integer, representing the number of
+records to decode in parallel. If not specified, records will be
+processed sequentially.}
 }
 \value{
 A dataset

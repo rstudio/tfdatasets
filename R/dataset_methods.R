@@ -196,12 +196,12 @@ dataset_prefetch <- function(dataset, buffer_size) {
 #'
 #' @examples \dontrun{
 #'
-#' dataset <- csv_dataset("mtcars.csv") %>%
+#' dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
 #'   dataset_filter(function(record) {
 #'     record$mpg >= 20
 #' })
 #'
-#' dataset <- csv_dataset("mtcars.csv") %>%
+#' dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
 #'   dataset_filter(function(record) {
 #'     record$mpg >= 20 & record$cyl >= 6L
 #'   })

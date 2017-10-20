@@ -17,6 +17,10 @@ test_succeeds <- function(desc, expr, required_version = NULL) {
   })
 }
 
+csv_dataset <- function(file, ...) {
+  csv_spec <- csv_record_spec(file, ...)
+  text_line_dataset(file, record_spec = csv_spec)
+}
 
 
 

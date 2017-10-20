@@ -37,7 +37,7 @@
 #' # iteration with 'infinite' dataset and explicit step counter
 #'
 #' library(tfdatasets)
-#' dataset <- csv_dataset("training.csv") %>%
+#' dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
 #'   dataset_prepare(x = c(mpg, disp), y = cyl) %>%
 #'   dataset_shuffle(5000) %>%
 #'   dataset_batch(128) %>%
@@ -51,7 +51,7 @@
 #' # iteration that detects and ignores end of iteration error
 #'
 #' library(tfdatasets)
-#' dataset <- csv_dataset("training.csv") %>%
+#' dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
 #'   dataset_prepare(x = c(mpg, disp), y = cyl) %>%
 #'   dataset_batch(128) %>%
 #'   dataset_repeat(10)
@@ -93,7 +93,7 @@ next_batch <- function(dataset) {
 #'
 #' @examples \dontrun{
 #' library(tfdatasets)
-#' dataset <- csv_dataset("training.csv") %>%
+#' dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
 #'   dataset_prepare(x = c(mpg, disp), y = cyl) %>%
 #'   dataset_batch(128) %>%
 #'   dataset_repeat(10)

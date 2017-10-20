@@ -8,7 +8,7 @@
 #'
 #' @details Creating an input_fn from a dataset requires that the dataset
 #'   consist of a set of named output tensors (e.g. like the dataset
-#'   produced by the [csv_dataset()] function).
+#'   produced by the [tfrecord_dataset()] or [text_line_dataset()] function).
 #'
 #' @return An input_fn suitable for use with tfestimators [train][tfestimators::train.tf_estimator],
 #'   [evaluate][tfestimators::evaluate.tf_estimator], and [predict][tfestimators::predict.tf_estimator] methods
