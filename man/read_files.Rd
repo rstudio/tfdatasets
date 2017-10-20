@@ -25,6 +25,9 @@ parallel.}
 \item{parallel_interleave}{An integer, number of consecutive records to
 produce from each file before cycling to another file.}
 }
+\value{
+A dataset
+}
 \description{
-Read a dataset from a set of files
+Read files into a dataset, optionally processing them in parallel.
 }

@@ -3,6 +3,8 @@
 
 #' Read a dataset from a set of files
 #'
+#' Read files into a dataset, optionally processing them in parallel.
+#'
 #' @param files List of filenames or glob pattern for files (e.g. "*.csv")
 #' @param reader Function that maps a file into a dataset (e.g.
 #'   [csv_dataset()]).
