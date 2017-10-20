@@ -87,8 +87,7 @@ columns</h1>
 columns</p>
     
 
-    <pre class="usage"><span class='fu'>dataset_decode_delim</span>(<span class='no'>dataset</span>, <span class='kw'>delim</span> <span class='kw'>=</span> <span class='st'>","</span>, <span class='kw'>col_names</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>col_types</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>col_defaults</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>num_parallel_calls</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>dataset_decode_delim</span>(<span class='no'>dataset</span>, <span class='no'>record_spec</span>, <span class='kw'>parallel_records</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -98,54 +97,16 @@ columns</p>
       <td><p>Dataset containing delimited text lines (e.g. a CSV)</p></td>
     </tr>
     <tr>
-      <th>delim</th>
-      <td><p>Character delimiter to separate fields in a record (defaults to
-",")</p></td>
+      <th>record_spec</th>
+      <td><p>Specification of column names and types (see <code><a href='record_spec.html'>record_spec()</a></code>).</p></td>
     </tr>
     <tr>
-      <th>col_names</th>
-      <td><p>Character vector with column names (or <code>NULL</code> to
-automatically detect the column names from the first row of the input
-file).</p>
-<p>If <code>col_names</code> is a character vector, the values will be used as the names
-of the columns, and the first row of the input will be read into the first
-row of the datset. Note that if the underlying text file also includes
-column names in it's first row, this row should be skipped explicitly with
-<code><a href='dataset_skip.html'>dataset_skip()</a></code>.</p>
-<p>If <code>NULL</code>, the first row of the input will be used as the column names, and
-will not be included in dataset.</p></td>
-    </tr>
-    <tr>
-      <th>col_types</th>
-      <td><p>Column types. If NULL, all column types will be imputed from
-the first 1000 rows on the input. This is convenient (and fast), but not
-robust. If the imputation fails, you'll need to supply the correct types
-yourself.</p>
-<p>Types can be explicitliy specified in a character vector as "integer",
-"double", and "character" (e.g. <code>col_types = c("double", "double", "integer"</code>).</p>
-<p>Alternatively, you can use a compact string representation where each
-character represents one column: c = character, i = integer, d = double
-(e.g. <code>col_types =</code>ddi`).</p></td>
-    </tr>
-    <tr>
-      <th>col_defaults</th>
-      <td><p>List of default values which are used when data is
-missing from a record (e.g. <code>list(0, 0, 0L</code>). If <code>NULL</code> then defaults will
-be automatically provided based on <code>col_types</code> (<code>0</code> for numeric columns and
-<code>""</code> for character columns).</p></td>
-    </tr>
-    <tr>
-      <th>num_parallel_calls</th>
+      <th>parallel_records</th>
       <td><p>(Optional) An integer, representing the number of
-elements to process in parallel If not specified, elements will be
+records to decode in parallel. If not specified, records will be
 processed sequentially.</p></td>
     </tr>
     </table>
-    
-    <h2 class="hasAnchor" id="note"><a class="anchor" href="#note"></a>Note</h2>
-
-    <p>The <code><a href='delim_dataset.html'>csv_dataset()</a></code> function is a convenience wrapper for the
-<code><a href='text_line_dataset.html'>text_line_dataset()</a></code> and <code>dataset_decode_delim()</code> functions.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -168,8 +129,6 @@ processed sequentially.</p></td>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#note">Note</a></li>
-
       <li><a href="#see-also">See also</a></li>
           </ul>
 

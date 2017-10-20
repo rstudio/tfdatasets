@@ -84,24 +84,31 @@
     <p>A dataset comprising lines from one or more text files.</p>
     
 
-    <pre class="usage"><span class='fu'>text_line_dataset</span>(<span class='no'>filenames</span>, <span class='kw'>compression_type</span> <span class='kw'>=</span> <span class='st'>"auto"</span>)</pre>
+    <pre class="usage"><span class='fu'>text_line_dataset</span>(<span class='no'>filenames</span>, <span class='kw'>compression_type</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>record_spec</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>parallel_records</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>filenames</th>
-      <td><p>Characater vector containing one or more filenames or
-filename glob patterns (e.g. "train.csv", "<em>.csv", "</em>-train.csv", etc.)</p></td>
+      <td><p>String(s) specifying one or more filenames</p></td>
     </tr>
     <tr>
       <th>compression_type</th>
-      <td><p>A string, one of: <code>"auto"</code> (determine based on file
-extension), <code>""</code> (no compression), <code>"ZLIB"</code>, or <code>"GZIP"</code>. For
-<code>"auto"</code>, GZIP will be automatically selected if any of
-the <code>filenames</code> have a .gz extension and ZLIB will be automatically
-selected if any of the <code>filenames</code> have a .zlib extension (otherwise
-no compression will be used).</p></td>
+      <td><p>A string, one of: <code>NULL</code> (no compression), <code>"ZLIB"</code>, or
+<code>"GZIP"</code>.</p></td>
+    </tr>
+    <tr>
+      <th>record_spec</th>
+      <td><p>(Optional) Specification used to decode delimimted text lines
+into records (see <code><a href='delim_record_spec.html'>delim_record_spec()</a></code>).</p></td>
+    </tr>
+    <tr>
+      <th>parallel_records</th>
+      <td><p>(Optional) An integer, representing the number of
+records to decode in parallel. If not specified, records will be
+processed sequentially.</p></td>
     </tr>
     </table>
     

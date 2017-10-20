@@ -104,14 +104,14 @@ below for an illustration).</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <p>Other reading datasets: <code><a href='input_fn.html'>input_fn.tensorflow.python.data.ops.dataset_ops.Dataset</a></code>,
+    <p>Other reading datasets: <code><a href='input_fn.html'>input_fn.tf_dataset</a></code>,
   <code><a href='next_batch.html'>next_batch</a></code></p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><span class='co'># NOT RUN {</span>
 <span class='fu'>library</span>(<span class='no'>tfdatasets</span>)
-<span class='no'>dataset</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='delim_dataset.html'>csv_dataset</a></span>(<span class='st'>"training.csv"</span>) <span class='kw'>%&gt;%</span>
+<span class='no'>dataset</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='text_line_dataset.html'>text_line_dataset</a></span>(<span class='st'>"mtcars.csv"</span>, <span class='kw'>record_spec</span> <span class='kw'>=</span> <span class='no'>mtcars_spec</span>) <span class='kw'>%&gt;%</span>
   <span class='fu'><a href='dataset_prepare.html'>dataset_prepare</a></span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'>c</span>(<span class='no'>mpg</span>, <span class='no'>disp</span>), <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>cyl</span>) <span class='kw'>%&gt;%</span>
   <span class='fu'><a href='dataset_batch.html'>dataset_batch</a></span>(<span class='fl'>128</span>) <span class='kw'>%&gt;%</span>
   <span class='fu'><a href='dataset_repeat.html'>dataset_repeat</a></span>(<span class='fl'>10</span>)

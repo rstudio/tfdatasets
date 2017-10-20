@@ -91,16 +91,27 @@
 <div id="creating-a-dataset" class="section level2">
 <h2 class="hasAnchor">
 <a href="#creating-a-dataset" class="anchor"></a>Creating a Dataset</h2>
-<p>To create a dataset, use one of the <a href="reference/index.html#section-creating-datasets">dataset creation</a> functions. For example, to create a dataset from a CSV file:</p>
+<p>To create a dataset, use one of the <a href="reference/index.html#section-creating-datasets">dataset creation</a> functions. For example, to create a dataset from a text file, first create a specification for how records will be parsed from the file, then call <code><a href="reference/text_line_dataset.html">text_line_dataset()</a></code> with the file to be read and the specification:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tfdatasets)
-dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"iris.csv"</span>)</code></pre></div>
-<p>Dataset columns and data types are detected automatically by reading up to the first 1,000 lines of the CSV file. You can provide explicit column names and/or data types using the <code>col_names</code> and <code>col_types</code> parameters:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"iris.csv"</span>,
-  <span class="dt">col_names =</span> <span class="kw">c</span>(<span class="st">"SepalLength"</span>, <span class="st">"SepalWidth"</span>, <span class="st">"PetalLength"</span>, <span class="st">"PetalWidth"</span>, <span class="st">"Species"</span>),
-  <span class="dt">col_types =</span> <span class="kw">c</span>(<span class="st">"double"</span>, <span class="st">"double"</span>, <span class="st">"double"</span>, <span class="st">"double"</span>, <span class="st">"integer"</span>), <span class="dt">skip =</span> <span class="dv">1</span>
-)</code></pre></div>
-<p>Supported column types are integer, double, and character. You can also provide <code>col_types</code> in a more compact form using single-letter abbreviations (e.g. <code>col_types = "dddi"</code>).</p>
+
+<span class="co"># create specification for parsing records from an example file</span>
+iris_spec &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_record_spec.html">csv_record_spec</a></span>(<span class="st">"iris.csv"</span>)
+
+<span class="co"># read the datset</span>
+dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_line_dataset.html">text_line_dataset</a></span>(<span class="st">"iris.csv"</span>, <span class="dt">record_spec =</span> iris_spec)</code></pre></div>
+<p>In the example above, the [csv_record_spec()] function is passed an example file which is used to automatically detect column names and types (done by reading up to the first 1,000 lines of the file). You can also provide explicit column names and/or data types using the <code>names</code> and <code>types</code> parameters (note that in this case we don’t pass an example file):</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># provide colum names and types explicitly</span>
+iris_spec &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_record_spec.html">csv_record_spec</a></span>(
+  <span class="dt">names =</span> <span class="kw">c</span>(<span class="st">"SepalLength"</span>, <span class="st">"SepalWidth"</span>, <span class="st">"PetalLength"</span>, <span class="st">"PetalWidth"</span>, <span class="st">"Species"</span>),
+  <span class="dt">types =</span> <span class="kw">c</span>(<span class="st">"double"</span>, <span class="st">"double"</span>, <span class="st">"double"</span>, <span class="st">"double"</span>, <span class="st">"integer"</span>), 
+  <span class="dt">skip =</span> <span class="dv">1</span>
+)
+
+<span class="co"># read the datset</span>
+dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_line_dataset.html">text_line_dataset</a></span>(<span class="st">"iris.csv"</span>, <span class="dt">record_spec =</span> iris_spec)</code></pre></div>
 <p>Note that we’ve also specified <code>skip = 1</code> to indicate that the first row of the CSV that contains column names should be skipped.</p>
+<p>Supported column types are integer, double, and character. You can also provide <code>types</code> in a more compact form using single-letter abbreviations (e.g. <code>types = "dddi"</code>). For example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mtcars_spec &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_record_spec.html">csv_record_spec</a></span>(<span class="st">"mtcars.csv"</span>, <span class="dt">types =</span> <span class="st">"dididddiiii"</span>)</code></pre></div>
 </div>
 <div id="transformations" class="section level2">
 <h2 class="hasAnchor">
@@ -115,7 +126,7 @@ dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_
     record
   })</code></pre></div>
 <p>Note that while <code><a href="reference/dataset_map.html">dataset_map()</a></code> is defined using an R function, there are some special constraints on this function which allow it to execute <em>not within R</em> but rather within the TensorFlow graph.</p>
-<p>For a dataset created with the <code><a href="reference/delim_dataset.html">csv_dataset()</a></code> function, the passed record will be named list of tensors (one for each column of the dataset). The return value should be another set of tensors which were created from TensorFlow functions (e.g. <code>tf$one_hot</code> as illustrated above). This function will be converted to a TensorFlow graph operation that performs the transformation within native code.</p>
+<p>For a dataset created with the <code>csv_dataset()</code> function, the passed record will be named list of tensors (one for each column of the dataset). The return value should be another set of tensors which were created from TensorFlow functions (e.g. <code>tf$one_hot</code> as illustrated above). This function will be converted to a TensorFlow graph operation that performs the transformation within native code.</p>
 <div id="parallel-mapping" class="section level4">
 <h4 class="hasAnchor">
 <a href="#parallel-mapping" class="anchor"></a>Parallel Mapping</h4>
@@ -132,20 +143,18 @@ dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_
     record
   }) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">datset_prefetch</span>(<span class="dv">100</span>)</code></pre></div>
-<p>Note that the <code><a href="reference/delim_dataset.html">csv_dataset()</a></code> function described above is just a wrapper around a <code><a href="reference/text_line_dataset.html">text_line_dataset()</a></code> and the <code><a href="reference/dataset_decode_delim.html">dataset_decode_delim()</a></code> function, which maps text strings into named columns. It can therefore also perform CSV parsing in parallel with <code>num_parallel_calls</code>:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"iris.csv"</span>, <span class="dt">num_parallel_calls =</span> <span class="dv">4</span>) </code></pre></div>
 </div>
 </div>
 <div id="filtering" class="section level3">
 <h3 class="hasAnchor">
 <a href="#filtering" class="anchor"></a>Filtering</h3>
 <p>You can filter the elements of a dataset using the <code><a href="reference/dataset_filter.html">dataset_filter()</a></code> function, which takes a <code>predicate</code> function that returns a boolean tensor for records that should be included. For example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw">csv_dataset</span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_filter.html">dataset_filter</a></span>(<span class="cf">function</span>(record) {
     record<span class="op">$</span>mpg <span class="op">&gt;=</span><span class="st"> </span><span class="dv">20</span>
 })
 
-dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span>
+dataset &lt;-<span class="st"> </span><span class="kw">csv_dataset</span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_filter.html">dataset_filter</a></span>(<span class="cf">function</span>(record) {
     record<span class="op">$</span>mpg <span class="op">&gt;=</span><span class="st"> </span><span class="dv">20</span> <span class="op">&amp;</span><span class="st"> </span>record<span class="op">$</span>cyl <span class="op">&gt;=</span><span class="st"> </span>6L
   })</code></pre></div>
@@ -154,14 +163,14 @@ dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_
 <div id="features-and-response" class="section level3">
 <h3 class="hasAnchor">
 <a href="#features-and-response" class="anchor"></a>Features and Response</h3>
-<p>A common transformation is taking a column oriented dataset (e.g. one created by <code><a href="reference/delim_dataset.html">csv_dataset()</a></code> or <code><a href="reference/tfrecord_dataset.html">tfrecord_dataset()</a></code>) and transforming it into a two-element list with features (“x”) and response (“y”). You can use the <code><a href="reference/dataset_prepare.html">dataset_prepare()</a></code> function to do this type of transformation. For example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mtcars_dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<p>A common transformation is taking a column oriented dataset (e.g. one created by <code>csv_dataset()</code> or <code><a href="reference/tfrecord_dataset.html">tfrecord_dataset()</a></code>) and transforming it into a two-element list with features (“x”) and response (“y”). You can use the <code><a href="reference/dataset_prepare.html">dataset_prepare()</a></code> function to do this type of transformation. For example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mtcars_dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_line_dataset.html">text_line_dataset</a></span>(<span class="st">"mtcars.csv"</span>, <span class="dt">record_spec =</span> mtcars_spec) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(<span class="dt">x =</span> <span class="kw">c</span>(mpg, disp), <span class="dt">y =</span> cyl)
 
-iris_dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"iris.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+iris_dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_line_dataset.html">text_line_dataset</a></span>(<span class="st">"iris.csv"</span>, <span class="dt">record_spec =</span> iris_spec) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(<span class="dt">x =</span> <span class="op">-</span>Species, <span class="dt">y =</span> Species)</code></pre></div>
 <p>The <code><a href="reference/dataset_prepare.html">dataset_prepare()</a></code> function also accepts standard R formula syntax for defining features and response:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mtcars_dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">mtcars_dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_line_dataset.html">text_line_dataset</a></span>(<span class="st">"mtcars.csv"</span>, <span class="dt">record_spec =</span> mtcars_spec) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(cyl <span class="op">~</span><span class="st"> </span>mpg <span class="op">+</span><span class="st"> </span>disp)</code></pre></div>
 </div>
 <div id="shuffling-and-batching" class="section level3">
@@ -177,7 +186,7 @@ iris_dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/d
 <h3 class="hasAnchor">
 <a href="#complete-example" class="anchor"></a>Complete Example</h3>
 <p>Here’s a complete example of using the various dataset transformation functions together. We’ll read the <code>mtcars</code> dataset from a CSV, filter it on some threshold values, map it into <code>x</code> and <code>y</code> components for modeling, and specify desired shuffling and batch iteration behavior:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_line_dataset.html">text_line_dataset</a></span>(<span class="st">"mtcars.csv"</span>, <span class="dt">record_spec =</span> mtcars_spec) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_filter.html">dataset_filter</a></span>(<span class="cf">function</span>(record) {
     record<span class="op">$</span>mpg <span class="op">&gt;=</span><span class="st"> </span><span class="dv">20</span> <span class="op">&amp;</span><span class="st"> </span>record<span class="op">$</span>cyl <span class="op">&gt;=</span><span class="st"> </span>6L
   }) <span class="op">%&gt;%</span><span class="st"> </span>
@@ -191,7 +200,7 @@ iris_dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/d
 <h2 class="hasAnchor">
 <a href="#reading-datasets" class="anchor"></a>Reading Datasets</h2>
 <p>You read batches of data from a dataset by using tensors that yield the next batch. You can obtain this tensor from a dataset via the <code><a href="reference/next_batch.html">next_batch()</a></code> function. For example:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_line_dataset.html">text_line_dataset</a></span>(<span class="st">"mtcars.csv"</span>, <span class="dt">record_spec =</span> mtcars_spec) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(cyl <span class="op">~</span><span class="st"> </span>mpg <span class="op">+</span><span class="st"> </span>disp) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">20</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">5</span>)
@@ -222,7 +231,7 @@ $y
 <p>If you are iterating over an entire dataset by evaluating the <code><a href="reference/next_batch.html">next_batch()</a></code> tensor you will need to determine at what point to stop iteration. There are a couple of possible approaches to controlling/detecting when iteration should end.</p>
 <p>One approach is to create a dataset that yields batches infinitely (traversing the dataset multiple times with different batches randomly drawn). In this case you’d use another mechanism like a global step counter or detecting a learning plateau:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tfdatasets)
-dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"training.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_line_dataset.html">text_line_dataset</a></span>(<span class="st">"mtcars.csv"</span>, <span class="dt">record_spec =</span> mtcars_spec) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(<span class="dt">x =</span> <span class="kw">c</span>(mpg, disp), <span class="dt">y =</span> cyl) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">5000</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>
@@ -237,7 +246,7 @@ steps &lt;-<span class="st"> </span><span class="dv">200</span>
 <p>The call to <code><a href="reference/dataset_repeat.html">dataset_repeat()</a></code> with no <code>count</code> parameter requests that the dataset be traversed infinitely.</p>
 <p>Another approach is to detect when all batches have been yielded from the dataset. When the tensor reaches the end of iteration a runtime error will occur. You can catch and ignore the error when it occurs by wrapping your iteration code in the <code><a href="reference/with_dataset.html">with_dataset()</a></code> function:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tfdatasets)
-dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_line_dataset.html">text_line_dataset</a></span>(<span class="st">"mtcars.csv"</span>, <span class="dt">record_spec =</span> mtcars_spec) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(<span class="dt">x =</span> <span class="kw">c</span>(mpg, disp), <span class="dt">y =</span> cyl) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>(<span class="dv">10</span>)
@@ -259,7 +268,7 @@ batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/next_bat
            <span class="dt">batch_size =</span> <span class="dv">128</span>, <span class="dt">epochs =</span> <span class="dv">3</span>)
 )</code></pre></div>
 <p>If you are using <strong>tfdatasets</strong> with the <strong>tfestimators</strong> package, you can create an estimators input function directly from a dataset as follows:</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"mtcars.csv"</span>) <span class="op">%&gt;%</span><span class="st"> </span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_line_dataset.html">text_line_dataset</a></span>(<span class="st">"mtcars.csv"</span>, <span class="dt">record_spec =</span> mtcars_spec) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>(<span class="dv">3</span>)
 
@@ -287,7 +296,7 @@ model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">tr
 <span class="kw">library</span>(tfdatasets)
   
 <span class="co"># create dataset that yields batches infinitely</span>
-dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_dataset.html">csv_dataset</a></span>(<span class="st">"iris.csv"</span>) <span class="op">%&gt;%</span>
+dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_line_dataset.html">text_line_dataset</a></span>(<span class="st">"iris.csv"</span>, <span class="dt">record_spec =</span> iris_spec) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_map.html">dataset_map</a></span>(<span class="cf">function</span>(record) {
     record<span class="op">$</span>Species &lt;-<span class="st"> </span>tf<span class="op">$</span><span class="kw">one_hot</span>(record<span class="op">$</span>Species, <span class="dt">depth =</span> 3L)
     record

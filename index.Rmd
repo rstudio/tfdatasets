@@ -67,20 +67,21 @@ In the example above, the [csv_record_spec()] function is passed an example file
 # provide colum names and types explicitly
 iris_spec <- csv_record_spec(
   names = c("SepalLength", "SepalWidth", "PetalLength", "PetalWidth", "Species"),
-  types = c("double", "double", "double", "double", "integer"), skip = 1
+  types = c("double", "double", "double", "double", "integer"), 
+  skip = 1
 )
 
 # read the datset
 dataset <- text_line_dataset("iris.csv", record_spec = iris_spec)
 ```
 
+Note that we've also specified `skip = 1` to indicate that the first row of the CSV that contains column names should be skipped.
+
 Supported column types are integer, double, and character. You can also provide `types` in a more compact form using single-letter abbreviations (e.g. `types = "dddi"`). For example:
 
 ```{r}
 mtcars_spec <- csv_record_spec("mtcars.csv", types = "dididddiiii")
 ```
-
-Note that we've also specified `skip = 1` to indicate that the first row of the CSV that contains column names should be skipped.
 
 ## Transformations
 

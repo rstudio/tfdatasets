@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Prepare a dataset for analysis — dataset_prepare • tfdatasets</title>
+<title>Specification for reading a record — record_spec • tfdatasets</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -77,66 +77,44 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Prepare a dataset for analysis</h1>
+    <h1>Specification for reading a record</h1>
     </div>
 
     
-    <p>Transform a dataset with named columns into a list with features (<code>x</code>) and
-response (<code>y</code>) elements.</p>
+    <p>Specification for reading a record</p>
     
 
-    <pre class="usage"><span class='fu'>dataset_prepare</span>(<span class='no'>dataset</span>, <span class='no'>x</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>named</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>named_features</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>parallel_records</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>record_spec</span>(<span class='no'>names</span>, <span class='kw'>types</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>defaults</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>dataset</th>
-      <td><p>A dataset</p></td>
+      <th>names</th>
+      <td><p>Character vector with column names.</p></td>
     </tr>
     <tr>
-      <th>x</th>
-      <td><p>Features to include. When <code>named_features</code> is <code>FALSE</code> all features
-will be stacked into a single tensor so must have an identical data type.</p></td>
+      <th>types</th>
+      <td><p>Character vector with olumn types. If <code>NULL</code> and <code>defaults</code> is
+specified then types will be imputed from the defaults.</p>
+<p>Types can be explicitliy specified in a character vector as "integer",
+"double", and "character" (e.g. <code>types = c("double", "double", "integer"</code>).</p>
+<p>Alternatively, you can use a compact string representation where each
+character represents one column: c = character, i = integer, d = double
+(e.g. <code>types =</code>ddi`).</p></td>
     </tr>
     <tr>
-      <th>y</th>
-      <td><p>(Optional). Response variable.</p></td>
-    </tr>
-    <tr>
-      <th>named</th>
-      <td><p><code>TRUE</code> to name the dataset elements "x" and "y", <code>FALSE</code> to
-not name the dataset elements.</p></td>
-    </tr>
-    <tr>
-      <th>named_features</th>
-      <td><p><code>TRUE</code> to yield features as a named list; <code>FALSE</code> to
-stack features into a single array. Note that in the case of <code>FALSE</code> (the
-default) all features will be stacked into a single 2D tensor so need to
-have the same underlying data type.</p></td>
-    </tr>
-    <tr>
-      <th>parallel_records</th>
-      <td><p>(Optional) An integer, representing the number of
-records to decode in parallel. If not specified, records will be
-processed sequentially.</p></td>
+      <th>defaults</th>
+      <td><p>List of default values which are used when data is missing
+from a record (e.g. <code>list(0, 0, 0L</code>). If <code>NULL</code> then defaults will be
+automatically provided based on <code>types</code> (<code>0</code> for numeric columns and <code>""</code>
+for character columns).</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A dataset. The dataset will have a structure of either:</p><ul>
-<li><p>When <code>named_features</code> is <code>TRUE</code>: <code>list(x = list(feature_name = feature_values, ...), y = response_values)</code></p></li>
-<li><p>When <code>named_features</code> is <code>FALSE</code>: <code>list(x = features_array, y = response_values)</code>,
-where <code>features_array</code> is a Rank 2 array of <code>(batch_size, num_features)</code>.</p></li>
-</ul>
-
-<p>Note that the <code>y</code> element will be omitted when <code>y</code> is <code>NULL</code>.</p>
-    
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <p><a href='input_fn.html'>input_fn()</a> for use with <span class="pkg">tfestimators</span>.</p>
+    <p>Record specification to be passed to a dataset read function.</p>
     
 
   </div>
@@ -146,8 +124,6 @@ where <code>features_array</code> is a Rank 2 array of <code>(batch_size, num_fe
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-
-      <li><a href="#see-also">See also</a></li>
           </ul>
 
   </div>

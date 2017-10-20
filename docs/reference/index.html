@@ -101,21 +101,15 @@
         <tr>
           <!--  -->
           <td>
-            <p><code><a href="delim_dataset.html">delim_dataset</a></code> <code><a href="delim_dataset.html">csv_dataset</a></code> <code><a href="delim_dataset.html">tsv_dataset</a></code> </p>
+            <p><code><a href="text_line_dataset.html">text_line_dataset</a></code> </p>
           </td>
-          <td><p>Create a dataset from a text file with delimited values</p></td>
+          <td><p>A dataset comprising lines from one or more text files.</p></td>
         </tr><tr>
           <!--  -->
           <td>
             <p><code><a href="tfrecord_dataset.html">tfrecord_dataset</a></code> </p>
           </td>
           <td><p>A dataset comprising records from one or more TFRecord files.</p></td>
-        </tr><tr>
-          <!--  -->
-          <td>
-            <p><code><a href="text_line_dataset.html">text_line_dataset</a></code> </p>
-          </td>
-          <td><p>A dataset comprising lines from one or more text files.</p></td>
         </tr><tr>
           <!--  -->
           <td>
@@ -146,6 +140,24 @@
             <p><code><a href="file_list_dataset.html">file_list_dataset</a></code> </p>
           </td>
           <td><p>A dataset of all files matching a pattern</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="read_files.html">read_files</a></code> </p>
+          </td>
+          <td><p>Read a dataset from a set of files</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="record_spec.html">record_spec</a></code> </p>
+          </td>
+          <td><p>Specification for reading a record</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="delim_record_spec.html">delim_record_spec</a></code> <code><a href="delim_record_spec.html">csv_record_spec</a></code> <code><a href="delim_record_spec.html">tsv_record_spec</a></code> </p>
+          </td>
+          <td><p>Specification for reading a record from a text file with delimited values</p></td>
         </tr>
       </tbody><tbody>
         <tr>
@@ -223,6 +235,12 @@
         </tr><tr>
           <!--  -->
           <td>
+            <p><code><a href="dataset_flat_map.html">dataset_flat_map</a></code> </p>
+          </td>
+          <td><p>Maps map_func across this dataset and flattens the result.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
             <p><code><a href="dataset_padded_batch.html">dataset_padded_batch</a></code> </p>
           </td>
           <td><p>Combines consecutive elements of this dataset into padded batches</p></td>
@@ -268,7 +286,7 @@ columns</p></td>
         </tr><tr>
           <!--  -->
           <td>
-            <p><code><a href="input_fn.html">input_fn.tensorflow.python.data.ops.dataset_ops.Dataset</a></code> </p>
+            <p><code><a href="input_fn.html">input_fn.tf_dataset</a></code> </p>
           </td>
           <td><p>Construct a tfestimators input function from a dataset</p></td>
         </tr>
