@@ -100,13 +100,38 @@
     </tr>
     </table>
     
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
+    <p>If the dataset encodes a set of TFExample instances,
+then they can be decoded into named records using the
+<code><a href='dataset_map.html'>dataset_map()</a></code> function (see example below).</p>
+    
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
+<span class='co'># Creates a dataset that reads all of the examples from two files, and extracts</span>
+<span class='co'># the image and label features.</span>
+<span class='no'>filenames</span> <span class='kw'>&lt;-</span> <span class='fu'>c</span>(<span class='st'>"/var/data/file1.tfrecord"</span>, <span class='st'>"/var/data/file2.tfrecord"</span>)
+<span class='no'>dataset</span> <span class='kw'>&lt;-</span> <span class='fu'>tfrecord_dataset</span>(<span class='no'>filenames</span>) <span class='kw'>%&gt;%</span>
+  <span class='fu'><a href='dataset_map.html'>dataset_map</a></span>(<span class='kw'>function</span>(<span class='no'>example_proto</span>) {
+    <span class='no'>features</span> <span class='kw'>&lt;-</span> <span class='fu'>list</span>(
+      <span class='kw'>image</span> <span class='kw'>=</span> <span class='no'>tf</span>$<span class='fu'>FixedLenFeature</span>(<span class='fu'><a href='http://www.rdocumentation.org/packages/tensorflow/topics/shape'>shape</a></span>(), <span class='no'>tf</span>$<span class='no'>string</span>, <span class='kw'>default_value</span> <span class='kw'>=</span> <span class='st'>""</span>),
+      <span class='kw'>label</span> <span class='kw'>=</span> <span class='no'>tf</span>$<span class='fu'>FixedLenFeature</span>(<span class='fu'><a href='http://www.rdocumentation.org/packages/tensorflow/topics/shape'>shape</a></span>(), <span class='no'>tf</span>$<span class='no'>int32</span>, <span class='kw'>default_value</span> <span class='kw'>=</span> <span class='fl'>0L</span>)
+    )
+    <span class='no'>tf</span>$<span class='fu'>parse_single_example</span>(<span class='no'>example_proto</span>, <span class='no'>features</span>)
+  })
+<span class='co'># }</span><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
-                </ul>
+      
+      <li><a href="#details">Details</a></li>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

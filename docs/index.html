@@ -127,6 +127,23 @@ dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_l
 <p>If you have multiple input files, you can also parallelize reading of these files both across multiple machines (sharding) and/or on multiple threads per-machine (parallel reads with interleaving). See the section on <a href="#reading-multiple-files">Reading Multiple Files</a> below for additional details.</p>
 </div>
 </div>
+<div id="tfrecords-files" class="section level3">
+<h3 class="hasAnchor">
+<a href="#tfrecords-files" class="anchor"></a>TFRecords Files</h3>
+<p>You can read datasets from <a href="https://www.tensorflow.org/api_guides/python/python_io#tfrecords_format_details">TFRecords files</a> using the <code><a href="reference/tfrecord_dataset.html">tfrecord_dataset()</a></code> function.</p>
+<p>In many cases you’ll want to map the records in the dataset into a set of named columns. You can do this using the <code><a href="reference/dataset_map.html">dataset_map()</a></code> function along with the <code>tf$parse_single_example()</code> function. for example:</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Creates a dataset that reads all of the examples from two files, and extracts</span>
+<span class="co"># the image and label features.</span>
+filenames &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="st">"/var/data/file1.tfrecord"</span>, <span class="st">"/var/data/file2.tfrecord"</span>)
+dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/tfrecord_dataset.html">tfrecord_dataset</a></span>(filenames) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="reference/dataset_map.html">dataset_map</a></span>(<span class="cf">function</span>(example_proto) {
+    features &lt;-<span class="st"> </span><span class="kw">list</span>(
+      <span class="dt">image =</span> tf<span class="op">$</span><span class="kw">FixedLenFeature</span>(<span class="kw"><a href="http://www.rdocumentation.org/packages/tensorflow/topics/shape">shape</a></span>(), tf<span class="op">$</span>string, <span class="dt">default_value =</span> <span class="st">""</span>),
+      <span class="dt">label =</span> tf<span class="op">$</span><span class="kw">FixedLenFeature</span>(<span class="kw"><a href="http://www.rdocumentation.org/packages/tensorflow/topics/shape">shape</a></span>(), tf<span class="op">$</span>int32, <span class="dt">default_value =</span> 0L)
+    )
+    tf<span class="op">$</span><span class="kw">parse_single_example</span>(example_proto, features)
+  })</code></pre></div>
+</div>
 </div>
 <div id="transformations" class="section level2">
 <h2 class="hasAnchor">

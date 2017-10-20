@@ -5,6 +5,8 @@
 \alias{reexports}
 \alias{tf}
 \alias{reexports}
+\alias{shape}
+\alias{reexports}
 \alias{install_tensorflow}
 \title{Objects exported from other packages}
 \keyword{internal}
@@ -13,6 +15,6 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
-  \item{tensorflow}{\code{\link[tensorflow]{tf}}, \code{\link[tensorflow]{install_tensorflow}}}
+  \item{tensorflow}{\code{\link[tensorflow]{tf}}, \code{\link[tensorflow]{shape}}, \code{\link[tensorflow]{install_tensorflow}}}
 }}
 

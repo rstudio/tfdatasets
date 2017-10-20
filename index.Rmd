@@ -104,7 +104,25 @@ dataset <- text_line_dataset("iris.csv", record_spec = iris_spec, parallel_recor
 
 If you have multiple input files, you can also parallelize reading of these files both across multiple machines (sharding) and/or on multiple threads per-machine (parallel reads with interleaving). See the section on [Reading Multiple Files] below for additional details.
 
+### TFRecords Files
 
+You can read datasets from [TFRecords files](https://www.tensorflow.org/api_guides/python/python_io#tfrecords_format_details) using the `tfrecord_dataset()` function.
+
+In many cases you'll want to map the records in the dataset into a set of named columns. You can do this using the `dataset_map()` function along with the `tf$parse_single_example()` function. for example:
+
+```{r}
+# Creates a dataset that reads all of the examples from two files, and extracts
+# the image and label features.
+filenames <- c("/var/data/file1.tfrecord", "/var/data/file2.tfrecord")
+dataset <- tfrecord_dataset(filenames) %>%
+  dataset_map(function(example_proto) {
+    features <- list(
+      image = tf$FixedLenFeature(shape(), tf$string, default_value = ""),
+      label = tf$FixedLenFeature(shape(), tf$int32, default_value = 0L)
+    )
+    tf$parse_single_example(example_proto, features)
+  })
+```
 
 ## Transformations
 
