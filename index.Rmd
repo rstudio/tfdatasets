@@ -35,15 +35,15 @@ First, install the tfdatasets R package as follows:
 devtools::install_github("rstudio/tfdatasets")
 ```
 
-Then, use the `install_tensorflow()` function to install the current nightly build of TensorFlow:
+Then, use the `install_tensorflow()` function to install TensorFlow:
 
 ```{r, eval=FALSE}
 library(tfdtasets)
-install_tensorflow(version = "nightly")
+install_tensorflow()
 ```
 
 <div class="alert alert-warning" role="alert">
-**IMPORTANT NOTE**: The **tfdatasets** package currently requires the nightly build of TensorFlow, it will not work with the release version as it relies on APIs only in the development version.
+**IMPORTANT NOTE**: The **tfdatasets** package requires the very latest version of TensorFlow (v1.4) so you should be sure to update to v1.4 before using the package (you can do this with the install_tensorflow() function shown above).
 </div>
 
 ## Creating a Dataset
