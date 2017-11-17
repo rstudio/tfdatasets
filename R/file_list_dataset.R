@@ -22,12 +22,9 @@
 #' @export
 file_list_dataset <- function(file_pattern) {
 
-  # validate during dataset contruction
-  validate_tf_version()
-
   # create dataset
   as_tf_dataset(
-    tf$data$Dataset$list_files(file_pattern)
+    tf_data$Dataset$list_files(file_pattern)
   )
 }
 

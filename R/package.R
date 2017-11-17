@@ -1,12 +1,23 @@
 
 
-#' @importFrom reticulate py_last_error tuple
+#' @importFrom reticulate py_last_error tuple py_str
 #' @import tidyselect
 #' @import rlang
 NULL
 
+# Main TF Data module
+tf_data <- NULL
 
 .onLoad <- function(libname, pkgname) {
+
+  tf_data <<- reticulate::import("tensorflow.python.data", delay_load = list(
+    priority = 5,
+    environment = "r-tensorflow",
+    on_error = function(e) {
+      stop(tensorflow::tf_config()$error_message, call. = FALSE)
+    }
+  ))
+
   registerMethods(list(
     # c(package, genname, class)
     c("tfestimators", "input_fn", "tf_dataset")

@@ -10,9 +10,6 @@
 #' @export
 range_dataset <- function(from = 0, to = 0, by = 1) {
 
-  # validate during dataset contruction
-  validate_tf_version()
-
   # cast to correct integer types
   from <- as_integer_tensor(from)
   to <- as_integer_tensor(to)
@@ -20,6 +17,6 @@ range_dataset <- function(from = 0, to = 0, by = 1) {
 
   # create dataset
   as_tf_dataset(
-    tf$data$Dataset$range(from, to, by)
+    tf_data$Dataset$range(from, to, by)
   )
 }

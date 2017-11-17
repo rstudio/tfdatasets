@@ -496,15 +496,19 @@ as_tf_dataset <- function(dataset) {
   if (!is_dataset(dataset))
     stop("Provided dataset is not a TensorFlow Dataset")
 
-  # add class
-  class(dataset) <- c("tf_dataset", class(dataset))
+  # add class if needed
+  if (!inherits(dataset, "tf_dataset"))
+    class(dataset) <- c("tf_dataset", class(dataset))
 
   # return
   dataset
 }
 
-
-
+# TODO: Why is TF somtimes loading during restart?
+# TODO: Get rid of $ prefix in dataset printing
+# TODO: Add example of `str()` to index.Rmd
+# TODO: Why doesn't it work with iris on index.Rmd?
+# TODO: Add unbatch operation and use it in str?
 
 #' @export
 str.tf_dataset <- function(object, width = getOption("width"), preview_cols = 100, ...) {
@@ -512,6 +516,7 @@ str.tf_dataset <- function(object, width = getOption("width"), preview_cols = 10
   # take the first 50 records for previewing
   columns <- with_session(function(sess) {
     object %>%
+      dataset_batch(50) %>%
       dataset_take(50) %>%
       next_batch() %>%
       sess$run()
