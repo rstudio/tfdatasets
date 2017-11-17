@@ -504,13 +504,18 @@ as_tf_dataset <- function(dataset) {
   dataset
 }
 
-# TODO: Why is TF somtimes loading during restart?
 # TODO: Add example of `str()` to index.Rmd
 # TODO: Why doesn't it work with iris on index.Rmd?
 # TODO: Add unbatch operation and use it in str?
 
 #' @export
 str.tf_dataset <- function(object, width = getOption("width"), preview_cols = 100, ...) {
+
+  # print NULL for null xptr
+  if (reticulate::py_is_null_xptr(object)) {
+    cat(reticulate::py_str(object), "\n")
+    return(invisible(NULL))
+  }
 
   # take the first 50 records for previewing
   columns <- with_session(function(sess) {
