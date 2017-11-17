@@ -505,7 +505,6 @@ as_tf_dataset <- function(dataset) {
 }
 
 # TODO: Why is TF somtimes loading during restart?
-# TODO: Get rid of $ prefix in dataset printing
 # TODO: Add example of `str()` to index.Rmd
 # TODO: Why doesn't it work with iris on index.Rmd?
 # TODO: Add unbatch operation and use it in str?
@@ -566,8 +565,8 @@ str.tf_dataset <- function(object, width = getOption("width"), preview_cols = 10
 
   # produce output (truncate on max previews)
   num_cols <- min(length(col_names), preview_cols)
-  cat(paste("$",
-            col_names[1:num_cols],
+  cat(paste(col_names[1:num_cols],
+            ":",
             col_types[1:num_cols],
             col_previews[1:num_cols],
             collapse = "\n"))
