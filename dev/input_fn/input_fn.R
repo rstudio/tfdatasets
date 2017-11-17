@@ -1,11 +1,13 @@
 library(tfdatasets)
 library(tfestimators)
 
+mtcars_spec <- csv_record_spec("mtcars-train.csv")
+
 # return an input_fn for a set of csv files
 mtcars_input_fn <- function(filenames) {
 
   # dataset w/ batch size of 10 that repeats for 5 epochs
-  dataset <- csv_dataset(filenames) %>%
+  dataset <- text_line_dataset(filenames, record_spec = mtcars_spec) %>%
     dataset_shuffle(20) %>%
     dataset_batch(10) %>%
     dataset_repeat(5)
