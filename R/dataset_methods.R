@@ -504,3 +504,71 @@ as_tf_dataset <- function(dataset) {
 }
 
 
+
+
+#' @export
+str.tf_dataset <- function(object, width = getOption("width"), preview_cols = 100, ...) {
+
+  cat("TensorFlow Dataset\n")
+
+  # take the first 50 records for previewing
+  columns <- with_session(function(sess) {
+    object %>%
+      dataset_take(50) %>%
+      next_batch() %>%
+      sess$run()
+  })
+
+  # get column names and types
+  padded_column <- function(column) {
+    sprintf(paste0("%-", max(nchar(column)), "s"), column)
+  }
+  col_names <- padded_column(names(columns))
+  col_types <- sapply(dataset$output_types, function(type) {
+    type_str <- strsplit(py_str(type), "'")[[1]][[2]]
+    paste0("<tf.", type_str, ">")
+  })
+  col_types <- padded_column(col_types)
+
+  # determine space taken by them and compute width
+  col_spaces <- max(nchar(col_names)) + max(nchar(col_types)) + 5
+
+  # get the column data previews
+  col_previews <- sapply(columns, function(column) {
+    capture.output(
+      str(
+        column,
+        no.list = TRUE,
+        give.head = FALSE,
+        vec.len = 50,
+        width = width - col_spaces,
+        strict.width = "cut"
+      )
+    )
+  })
+
+  # produce output (truncate on max previews)
+  num_cols <- min(length(col_names), preview_cols)
+  cat(paste("$",
+            col_names[1:num_cols],
+            col_types[1:num_cols],
+            col_previews[1:num_cols],
+            collapse = "\n"))
+
+  # footer if we have excess columns
+  extra_cols <- length(col_names) - preview_cols
+  if (extra_cols > 0) {
+    cat("\n# ... with", extra_cols, "more columns:\n")
+    cols <- paste(trimws(col_names[-(1:preview_cols)]),
+                  trimws(col_types[-(1:preview_cols)]))
+    cols <- paste0(cols, collapse = ", ")
+    cols <- paste(paste("#  ", strwrap(cols, width = 0.9 * width)),
+                  collapse = "\n")
+    cat(cols)
+  }
+}
+
+
+
+
+
