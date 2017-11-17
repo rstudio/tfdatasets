@@ -509,8 +509,6 @@ as_tf_dataset <- function(dataset) {
 #' @export
 str.tf_dataset <- function(object, width = getOption("width"), preview_cols = 100, ...) {
 
-  cat("TensorFlow Dataset\n")
-
   # take the first 50 records for previewing
   columns <- with_session(function(sess) {
     object %>%
@@ -518,6 +516,20 @@ str.tf_dataset <- function(object, width = getOption("width"), preview_cols = 10
       next_batch() %>%
       sess$run()
   })
+
+  # if we aren't named and rectangular then delegate and return
+  is_named <- !is.null(names(columns))
+  is_rectangular <-
+    is.list(object$output_shapes) &&
+    all(sapply(object$output_shapes, function(shape) {
+      length(shape$as_list()) == 1
+    }))
+  if (!is_named || !is_rectangular) {
+    cat(py_str(object), "\n")
+    return(invisible(NULL))
+  }
+
+  cat("TensorFlow Dataset\n")
 
   # get column names and types
   padded_column <- function(column) {
