@@ -48,8 +48,8 @@ iterator will be initialized automatically. A "one-shot" iterator does not
 currently support re-initialization.
 
 For \code{make_iterator_initializable()},
-the returned iterator will be in an uninitialized state, and you must call
-\code{\link[=iterator_initialize]{iterator_initialize()}} before using it.
+the returned iterator will be in an uninitialized state, and you must run
+the object returned from \code{\link[=iterator_initializer]{iterator_initializer()}} before using it.
 
 For \code{make_iterator_from_structure()}, the returned iterator is not bound
 to a particular dataset, and it has no initializer. To initialize the
@@ -58,6 +58,7 @@ iterator, run the operation returned by \code{\link[=iterator_make_initializer]{
 
 \seealso{
 Other iterator functions: \code{\link{iterator_get_next}},
+  \code{\link{iterator_initializer}},
   \code{\link{iterator_make_initializer}},
   \code{\link{iterator_string_handle}}
 }

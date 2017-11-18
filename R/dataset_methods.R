@@ -505,7 +505,7 @@ as_tf_dataset <- function(dataset) {
 }
 
 
-#' @importFrom utils str
+#' @importFrom utils str capture.output
 #' @export
 str.tf_dataset <- function(object, width = getOption("width"), preview_cols = 100, ...) {
 
@@ -545,7 +545,7 @@ str.tf_dataset <- function(object, width = getOption("width"), preview_cols = 10
     sprintf(paste0("%-", max(nchar(column)), "s"), column)
   }
   col_names <- padded_column(names(columns))
-  col_types <- sapply(dataset$output_types, function(type) {
+  col_types <- sapply(object$output_types, function(type) {
     type_str <- strsplit(py_str(type), "'")[[1]][[2]]
     paste0("<tf.", type_str, ">")
   })

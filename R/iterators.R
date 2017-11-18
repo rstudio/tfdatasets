@@ -10,8 +10,8 @@
 #'   currently support re-initialization.
 #'
 #'   For `make_iterator_initializable()`,
-#'   the returned iterator will be in an uninitialized state, and you must call
-#'   [iterator_initialize()] before using it.
+#'   the returned iterator will be in an uninitialized state, and you must run
+#'   the object returned from [iterator_initializer()] before using it.
 #'
 #'   For `make_iterator_from_structure()`, the returned iterator is not bound
 #'   to a particular dataset, and it has no initializer. To initialize the
@@ -87,6 +87,17 @@ iterator_get_next <- function(iterator, name = NULL) {
   iterator$get_next()
 }
 
+
+#' An operation that should be run to initialize this iterator.
+#'
+#' @param iterator An iterator
+#'
+#' @family iterator functions
+#'
+#' @export
+iterator_initializer <- function(iterator) {
+  iterator$initializer
+}
 
 #' String-valued tensor that represents this iterator
 #'

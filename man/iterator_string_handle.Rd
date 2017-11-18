@@ -19,6 +19,7 @@ String-valued tensor that represents this iterator
 }
 \seealso{
 Other iterator functions: \code{\link{iterator_get_next}},
+  \code{\link{iterator_initializer}},
   \code{\link{iterator_make_initializer}},
   \code{\link{make-iterator}}
 }

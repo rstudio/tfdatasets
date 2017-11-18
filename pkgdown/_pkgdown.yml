@@ -63,6 +63,7 @@ reference:
     contents:
        - make-iterator
        - iterator_get_next
+       - iterator_initializer
        - iterator_string_handle
        - iterator_make_initializer
 

@@ -20,6 +20,7 @@ Create an operation that can be run to initialize this iterator
 }
 \seealso{
 Other iterator functions: \code{\link{iterator_get_next}},
+  \code{\link{iterator_initializer}},
   \code{\link{iterator_string_handle}},
   \code{\link{make-iterator}}
 }

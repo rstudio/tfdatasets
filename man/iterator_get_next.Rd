@@ -19,7 +19,8 @@ Returns a nested list of tensors that when evaluated will yield
 the next element(s) in the dataset.
 }
 \seealso{
-Other iterator functions: \code{\link{iterator_make_initializer}},
+Other iterator functions: \code{\link{iterator_initializer}},
+  \code{\link{iterator_make_initializer}},
   \code{\link{iterator_string_handle}},
   \code{\link{make-iterator}}
 }
