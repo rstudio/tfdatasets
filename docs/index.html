@@ -102,7 +102,16 @@
 iris_spec &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_record_spec.html">csv_record_spec</a></span>(<span class="st">"iris.csv"</span>)
 
 <span class="co"># read the datset</span>
-dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_line_dataset.html">text_line_dataset</a></span>(<span class="st">"iris.csv"</span>, <span class="dt">record_spec =</span> iris_spec)</code></pre></div>
+dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_line_dataset.html">text_line_dataset</a></span>(<span class="st">"iris.csv"</span>, <span class="dt">record_spec =</span> iris_spec)
+
+<span class="co"># take a glimpse at the dataset</span>
+<span class="kw">str</span>(dataset)</code></pre></div>
+<pre><code>TensorFlow Dataset
+Petal.Length : &lt;tf.float32&gt; 1.4 1.4 1.3 1.5 1.4 1.7 1.4 1.5 1.4 1.5 1.5 1.6 1.4 1.1 1.2 1...
+Sepal.Length : &lt;tf.float32&gt; 5.1 4.9 4.7 4.6 5 5.4 4.6 5 4.4 4.9 5.4 4.8 4.8 4.3 5.8 5.7 5...
+Petal.Width  : &lt;tf.float32&gt; 0.2 0.2 0.2 0.2 0.2 0.4 0.3 0.2 0.2 0.1 0.2 0.2 0.1 0.1 0.2 0...
+Sepal.Width  : &lt;tf.float32&gt; 3.5 3 3.2 3.1 3.6 3.9 3.4 3.4 2.9 3.1 3.7 3.4 3 3 4 4.4 3.9 3...
+Species      : &lt;tf.int32&gt;   1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ..</code></pre>
 <p>In the example above, the <code><a href="reference/delim_record_spec.html">csv_record_spec()</a></code> function is passed an example file which is used to automatically detect column names and types (done by reading up to the first 1,000 lines of the file). You can also provide explicit column names and/or data types using the <code>names</code> and <code>types</code> parameters (note that in this case we don’t pass an example file):</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># provide colum names and types explicitly</span>
 iris_spec &lt;-<span class="st"> </span><span class="kw"><a href="reference/delim_record_spec.html">csv_record_spec</a></span>(

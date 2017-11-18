@@ -54,7 +54,6 @@ To create a dataset, use one of the [dataset creation](reference/index.html#sect
 
 For example, to create a dataset from a text file, first create a specification for how records will be decoded from the file, then call `text_line_dataset()` with the file to be read and the specification:
 
-
 ```{r}
 library(tfdatasets)
 
@@ -62,8 +61,20 @@ library(tfdatasets)
 iris_spec <- csv_record_spec("iris.csv")
 
 # read the datset
-dataset <- text_line_dataset("iris.csv", record_spec = iris_spec)
+dataset <- text_line_dataset("iris.csv", record_spec = iris_spec) 
+
+# take a glimpse at the dataset
+str(dataset)
 ```
+```
+TensorFlow Dataset
+Petal.Length : <tf.float32> 1.4 1.4 1.3 1.5 1.4 1.7 1.4 1.5 1.4 1.5 1.5 1.6 1.4 1.1 1.2 1...
+Sepal.Length : <tf.float32> 5.1 4.9 4.7 4.6 5 5.4 4.6 5 4.4 4.9 5.4 4.8 4.8 4.3 5.8 5.7 5...
+Petal.Width  : <tf.float32> 0.2 0.2 0.2 0.2 0.2 0.4 0.3 0.2 0.2 0.1 0.2 0.2 0.1 0.1 0.2 0...
+Sepal.Width  : <tf.float32> 3.5 3 3.2 3.1 3.6 3.9 3.4 3.4 2.9 3.1 3.7 3.4 3 3 4 4.4 3.9 3...
+Species      : <tf.int32>   1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ..
+```
+
 
 In the example above, the `csv_record_spec()` function is passed an example file which is used to  automatically detect column names and types (done by reading up to the first 1,000 lines of the file). You can also provide explicit column names and/or data types using the `names` and `types` parameters (note that in this case we don't pass an example file):
 

@@ -504,11 +504,8 @@ as_tf_dataset <- function(dataset) {
   dataset
 }
 
-# TODO: We could now go back to tf import
-# TODO: Add example of `str()` to index.Rmd
-# TODO: Why doesn't it work with iris on index.Rmd?
-# TODO: Add unbatch operation and use it in str?
 
+#' @importFrom utils str
 #' @export
 str.tf_dataset <- function(object, width = getOption("width"), preview_cols = 100, ...) {
 
@@ -518,12 +515,15 @@ str.tf_dataset <- function(object, width = getOption("width"), preview_cols = 10
     return(invisible(NULL))
   }
 
-  # take the first 50 records for previewing
+  # batch the dataset if necessary so we can draw from it
+  if (!dataset_is_batched(object)) {
+    object <- object %>%
+      dataset_batch(50)
+  }
+
+  # take the batch for previewing
   columns <- with_session(function(sess) {
-    object %>%
-      dataset_take(50) %>%
-      next_batch() %>%
-      sess$run()
+    sess$run(next_batch(object))
   })
 
   # if we aren't named and rectangular then delegate and return

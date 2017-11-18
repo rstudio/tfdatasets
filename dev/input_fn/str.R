@@ -10,3 +10,6 @@ dataset <- text_line_dataset("mtcars-train.csv", record_spec = mtcars_spec) %>%
   dataset_batch(30) %>%
   dataset_repeat(5)
 
+
+str(dataset)
+
