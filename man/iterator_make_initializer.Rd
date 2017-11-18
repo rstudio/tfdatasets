@@ -4,10 +4,12 @@
 \alias{iterator_make_initializer}
 \title{Create an operation that can be run to initialize this iterator}
 \usage{
-iterator_make_initializer(iterator, name = NULL)
+iterator_make_initializer(iterator, dataset, name = NULL)
 }
 \arguments{
 \item{iterator}{An iterator}
+
+\item{dataset}{A dataset}
 
 \item{name}{(Optional) A name for the created operation.}
 }

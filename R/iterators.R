@@ -117,6 +117,7 @@ iterator_string_handle <- function(iterator, name = NULL) {
 #' Create an operation that can be run to initialize this iterator
 #'
 #' @param iterator An iterator
+#' @param dataset A dataset
 #' @param name (Optional) A name for the created operation.
 #'
 #' @return A tf$Operation that can be run to initialize this iterator on the
@@ -125,8 +126,8 @@ iterator_string_handle <- function(iterator, name = NULL) {
 #' @family iterator functions
 #'
 #' @export
-iterator_make_initializer <- function(iterator, name = NULL) {
-  iterator$make_initializer(name = name)
+iterator_make_initializer <- function(iterator, dataset, name = NULL) {
+  iterator$make_initializer(dataset = dataset, name = name)
 }
 
 

@@ -2,12 +2,6 @@ context("dataset-prepare")
 
 source("utils.R")
 
-mtcars_dataset <- function() {
-  csv_dataset("data/mtcars.csv") %>%
-    dataset_shuffle(50) %>%
-    dataset_batch(10)
-}
-
 test_succeeds("dataset_prepare yields list of x and y tensors", {
   batch <- mtcars_dataset() %>%
     dataset_prepare(x = c(mpg, disp), y = cyl) %>%
