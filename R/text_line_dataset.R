@@ -20,12 +20,15 @@
 text_line_dataset <- function(filenames, compression_type = NULL,
                               record_spec = NULL, parallel_records = NULL) {
 
+  # validate during dataset contruction
+  validate_tf_version()
+
   # resolve NULL to ""
   if (is.null(compression_type))
     compression_type <- ""
 
   # basic test line dataset
-  dataset <- tf_data$TextLineDataset(
+  dataset <- tf$data$TextLineDataset(
     filenames = filenames,
     compression_type = compression_type
   )

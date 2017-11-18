@@ -498,7 +498,7 @@ as_tf_dataset <- function(dataset) {
 
   # add class if needed
   if (!inherits(dataset, "tf_dataset"))
-    class(dataset) <- c("tf_dataset", class(dataset))
+  class(dataset) <- c("tf_dataset", class(dataset))
 
   # return
   dataset
@@ -521,7 +521,6 @@ str.tf_dataset <- function(object, width = getOption("width"), preview_cols = 10
   # take the first 50 records for previewing
   columns <- with_session(function(sess) {
     object %>%
-      dataset_batch(50) %>%
       dataset_take(50) %>%
       next_batch() %>%
       sess$run()

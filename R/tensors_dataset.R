@@ -11,8 +11,9 @@
 #'
 #' @export
 tensors_dataset <- function(tensors) {
+  validate_tf_version()
   as_tf_dataset(
-    tf_data$Dataset$from_tensors(tensors = tensors)
+    tf$data$Dataset$from_tensors(tensors = tensors)
   )
 }
 
@@ -27,8 +28,9 @@ tensors_dataset <- function(tensors) {
 #'
 #' @export
 tensor_slices_dataset <-function(tensors) {
+  validate_tf_version()
   as_tf_dataset(
-    tf_data$Dataset$from_tensor_slices(tensors = tensors)
+    tf$data$Dataset$from_tensor_slices(tensors = tensors)
   )
 }
 
@@ -42,8 +44,9 @@ tensor_slices_dataset <-function(tensors) {
 #'
 #' @export
 sparse_tensor_slices_dataset <- function(sparse_tensor) {
+  validate_tf_version()
   as_tf_dataset(
-    tf_data$Dataset$from_sparse_tensor_slices(sparse_tensor = sparse_tensor)
+    tf$data$Dataset$from_sparse_tensor_slices(sparse_tensor = sparse_tensor)
   )
 }
 

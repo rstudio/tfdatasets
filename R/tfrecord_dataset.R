@@ -25,12 +25,15 @@
 #' @export
 tfrecord_dataset <- function(filenames, compression_type = NULL) {
 
+  # validate during dataset construction
+  validate_tf_version()
+
   # resolve NULL compression
   if (is.null(compression_type))
     compression_type <- ""
 
   # read the dataset
   as_tf_dataset(
-    tf_data$TFRecordDataset(filenames, compression_type = compression_type)
+    tf$data$TFRecordDataset(filenames, compression_type = compression_type)
   )
 }
