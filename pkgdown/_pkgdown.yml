@@ -45,6 +45,7 @@ reference:
        - dataset_padded_batch
        - dataset_decode_delim
        - dataset_concatenate
+       - dataset_interleave
        - zip_datasets
 
   - title: "Reading Datasets"
