@@ -504,6 +504,7 @@ as_tf_dataset <- function(dataset) {
   dataset
 }
 
+# TODO: We could now go back to tf import
 # TODO: Add example of `str()` to index.Rmd
 # TODO: Why doesn't it work with iris on index.Rmd?
 # TODO: Add unbatch operation and use it in str?
