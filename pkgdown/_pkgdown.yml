@@ -22,8 +22,9 @@ reference:
        - tensors_dataset
        - tensor_slices_dataset
        - sparse_tensor_slices_dataset
-       - range_dataset
+       - fixed_length_record_dataset
        - file_list_dataset
+       - range_dataset
        - read_files
        - record_spec
        - delim_record_spec

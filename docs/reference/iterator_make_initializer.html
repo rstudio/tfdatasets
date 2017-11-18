@@ -84,7 +84,7 @@
     <p>Create an operation that can be run to initialize this iterator</p>
     
 
-    <pre class="usage"><span class='fu'>iterator_make_initializer</span>(<span class='no'>iterator</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>iterator_make_initializer</span>(<span class='no'>iterator</span>, <span class='no'>dataset</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
@@ -92,6 +92,10 @@
     <tr>
       <th>iterator</th>
       <td><p>An iterator</p></td>
+    </tr>
+    <tr>
+      <th>dataset</th>
+      <td><p>A dataset</p></td>
     </tr>
     <tr>
       <th>name</th>
@@ -107,6 +111,7 @@ given dataset.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <p>Other iterator functions: <code><a href='iterator_get_next.html'>iterator_get_next</a></code>,
+  <code><a href='iterator_initializer.html'>iterator_initializer</a></code>,
   <code><a href='iterator_string_handle.html'>iterator_string_handle</a></code>,
   <code><a href='make-iterator.html'>make-iterator</a></code></p>
     

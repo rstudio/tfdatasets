@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Creates an iterator for enumerating the elements of this dataset. — make-iterator • tfdatasets</title>
+<title>A dataset of fixed-length records from one or more binary files. — fixed_length_record_dataset • tfdatasets</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -77,77 +77,48 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Creates an iterator for enumerating the elements of this dataset.</h1>
+    <h1>A dataset of fixed-length records from one or more binary files.</h1>
     </div>
 
     
-    <p>Creates an iterator for enumerating the elements of this dataset.</p>
+    <p>A dataset of fixed-length records from one or more binary files.</p>
     
 
-    <pre class="usage"><span class='fu'>make_iterator_one_shot</span>(<span class='no'>dataset</span>)
-
-<span class='fu'>make_iterator_initializable</span>(<span class='no'>dataset</span>, <span class='kw'>shared_name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
-
-<span class='fu'>make_iterator_from_structure</span>(<span class='no'>output_types</span>, <span class='kw'>output_shapes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>shared_name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
-
-<span class='fu'>make_iterator_from_string_handle</span>(<span class='no'>string_handle</span>, <span class='no'>output_types</span>,
-  <span class='kw'>output_shapes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
+    <pre class="usage"><span class='fu'>fixed_length_record_dataset</span>(<span class='no'>filenames</span>, <span class='no'>record_bytes</span>, <span class='kw'>header_bytes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>footer_bytes</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>buffer_size</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>dataset</th>
-      <td><p>A dataset</p></td>
+      <th>filenames</th>
+      <td><p>A string tensor containing one or more filenames.</p></td>
     </tr>
     <tr>
-      <th>shared_name</th>
-      <td><p>(Optional) If non-empty, the returned iterator will be
-shared under the given name across multiple sessions that share the same
-devices (e.g. when using a remote server).</p></td>
+      <th>record_bytes</th>
+      <td><p>An integer representing the number of bytes in each
+record.</p></td>
     </tr>
     <tr>
-      <th>output_types</th>
-      <td><p>A nested structure of tf$DType objects corresponding to
-each component of an element of this iterator.</p></td>
+      <th>header_bytes</th>
+      <td><p>(Optional) An integer scalar representing the number of
+bytes to skip at the start of a file.</p></td>
     </tr>
     <tr>
-      <th>output_shapes</th>
-      <td><p>(Optional) A nested structure of tf$TensorShape objects
-corresponding to each component of an element of this dataset. If omitted,
-each component will have an unconstrainted shape.</p></td>
+      <th>footer_bytes</th>
+      <td><p>(Optional) A integer scalar representing the number of
+bytes to ignore at the end of a file.</p></td>
     </tr>
     <tr>
-      <th>string_handle</th>
-      <td><p>A scalar tensor of type string that evaluates
-to a handle produced by the <code><a href='iterator_string_handle.html'>iterator_string_handle()</a></code> method.</p></td>
+      <th>buffer_size</th>
+      <td><p>(Optional) A integer scalar representing the number of
+bytes to buffer when reading.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>An Iterator over the elements of this dataset.</p>
-    
-    <h2 class="hasAnchor" id="initialization"><a class="anchor" href="#initialization"></a>Initialization</h2>
-
-    
-    <p>For <code>make_iterator_one_shot()</code>, the returned
-iterator will be initialized automatically. A "one-shot" iterator does not
-currently support re-initialization.</p>
-<p>For <code>make_iterator_initializable()</code>,
-the returned iterator will be in an uninitialized state, and you must run
-the object returned from <code><a href='iterator_initializer.html'>iterator_initializer()</a></code> before using it.</p>
-<p>For <code>make_iterator_from_structure()</code>, the returned iterator is not bound
-to a particular dataset, and it has no initializer. To initialize the
-iterator, run the operation returned by <code><a href='iterator_make_initializer.html'>iterator_make_initializer()</a></code>.</p>
-    
-    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
-
-    <p>Other iterator functions: <code><a href='iterator_get_next.html'>iterator_get_next</a></code>,
-  <code><a href='iterator_initializer.html'>iterator_initializer</a></code>,
-  <code><a href='iterator_make_initializer.html'>iterator_make_initializer</a></code>,
-  <code><a href='iterator_string_handle.html'>iterator_string_handle</a></code></p>
+    <p>A dataset</p>
     
 
   </div>
@@ -157,10 +128,6 @@ iterator, run the operation returned by <code><a href='iterator_make_initializer
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
-
-      <li><a href="#initialization">Initialization</a></li>
-
-      <li><a href="#see-also">See also</a></li>
           </ul>
 
   </div>
