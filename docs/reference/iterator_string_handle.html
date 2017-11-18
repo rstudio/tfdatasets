@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Output types and shapes — output_types • tfdatasets</title>
+<title>String-valued tensor that represents this iterator — iterator_string_handle • tfdatasets</title>
 
 <!-- jquery -->
 <script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq" crossorigin="anonymous"></script>
@@ -77,31 +77,37 @@
       <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Output types and shapes</h1>
+    <h1>String-valued tensor that represents this iterator</h1>
     </div>
 
     
-    <p>Output types and shapes</p>
+    <p>String-valued tensor that represents this iterator</p>
     
 
-    <pre class="usage"><span class='fu'>output_types</span>(<span class='no'>object</span>)
-
-<span class='fu'>output_shapes</span>(<span class='no'>object</span>)</pre>
+    <pre class="usage"><span class='fu'>iterator_string_handle</span>(<span class='no'>iterator</span>, <span class='kw'>name</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a> Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>object</th>
-      <td><p>A dataset or iterator</p></td>
+      <th>iterator</th>
+      <td><p>An iterator</p></td>
+    </tr>
+    <tr>
+      <th>name</th>
+      <td><p>(Optional) A name for the created operation.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p><code>output_types()</code> returns the type of each component of an element of
-this object; <code>output_shapes()</code> returns the shape of each component of an
-element of this object</p>
+    <p>Scalar tensor of type string</p>
+    
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <p>Other iterator functions: <code><a href='iterator_get_next.html'>iterator_get_next</a></code>,
+  <code><a href='iterator_make_initializer.html'>iterator_make_initializer</a></code>,
+  <code><a href='make-iterator.html'>make-iterator</a></code></p>
     
 
   </div>
@@ -111,6 +117,8 @@ element of this object</p>
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#see-also">See also</a></li>
           </ul>
 
   </div>

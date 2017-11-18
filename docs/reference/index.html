@@ -308,7 +308,39 @@ columns</p></td>
           <td>
             <p><code><a href="output_types.html">output_types</a></code> <code><a href="output_types.html">output_shapes</a></code> </p>
           </td>
-          <td><p>Dataset output types and shapes</p></td>
+          <td><p>Output types and shapes</p></td>
+        </tr>
+      </tbody><tbody>
+        <tr>
+          <th colspan="2">
+            <h2 id="section-iterator" class="hasAnchor"><a href="#section-iterator" class="anchor"></a>Iterator</h2>
+            <p class="section-desc"></p>
+          </th>
+        </tr>
+        <tr>
+          <!--  -->
+          <td>
+            <p><code><a href="make-iterator.html">make_iterator_one_shot</a></code> <code><a href="make-iterator.html">make_iterator_initializable</a></code> <code><a href="make-iterator.html">make_iterator_from_structure</a></code> <code><a href="make-iterator.html">make_iterator_from_string_handle</a></code> </p>
+          </td>
+          <td><p>Creates an iterator for enumerating the elements of this dataset.</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="iterator_get_next.html">iterator_get_next</a></code> </p>
+          </td>
+          <td><p>Get next element from iterator</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="iterator_string_handle.html">iterator_string_handle</a></code> </p>
+          </td>
+          <td><p>String-valued tensor that represents this iterator</p></td>
+        </tr><tr>
+          <!--  -->
+          <td>
+            <p><code><a href="iterator_make_initializer.html">iterator_make_initializer</a></code> </p>
+          </td>
+          <td><p>Create an operation that can be run to initialize this iterator</p></td>
         </tr>
       </tbody>
       </table>
@@ -322,6 +354,7 @@ columns</p></td>
       <li><a href="#section-transforming-datasets">Transforming Datasets</a></li>
       <li><a href="#section-reading-datasets">Reading Datasets</a></li>
       <li><a href="#section-dataset-properites">Dataset Properites</a></li>
+      <li><a href="#section-iterator">Iterator</a></li>
     </ul>
   </div>
 </div>

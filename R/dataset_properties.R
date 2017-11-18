@@ -1,23 +1,23 @@
 
 
-#' Dataset output types and shapes
+#' Output types and shapes
 #'
-#' @param dataset A dataset
+#' @param object A dataset or iterator
 #'
 #' @return `output_types()` returns the type of each component of an element of
-#'   this dataset; `output_shapes()` returns the shape of each component of an
-#'   element of this dataset.
+#'   this object; `output_shapes()` returns the shape of each component of an
+#'   element of this object
 #'
 #' @export
-output_types <- function(dataset) {
-  dataset$output_types
+output_types <- function(object) {
+  object$output_types
 }
 
 
 #' @rdname output_types
 #' @export
-output_shapes <- function(dataset) {
-  dataset$output_shapes
+output_shapes <- function(object) {
+  object$output_shapes
 }
 
 

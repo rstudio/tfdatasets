@@ -3,20 +3,20 @@
 \name{output_types}
 \alias{output_types}
 \alias{output_shapes}
-\title{Dataset output types and shapes}
+\title{Output types and shapes}
 \usage{
-output_types(dataset)
+output_types(object)
 
-output_shapes(dataset)
+output_shapes(object)
 }
 \arguments{
-\item{dataset}{A dataset}
+\item{object}{A dataset or iterator}
 }
 \value{
 \code{output_types()} returns the type of each component of an element of
-this dataset; \code{output_shapes()} returns the shape of each component of an
-element of this dataset.
+this object; \code{output_shapes()} returns the shape of each component of an
+element of this object
 }
 \description{
-Dataset output types and shapes
+Output types and shapes
 }

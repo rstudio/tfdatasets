@@ -48,14 +48,23 @@ reference:
        - dataset_interleave
        - zip_datasets
 
+  - title: "Dataset Properites"
+    contents:
+       - output_shapes
+       - output_types
+
   - title: "Reading Datasets"
     contents:
        - next_batch
        - with_dataset
        - input_fn
 
-  - title: "Dataset Properites"
+  - title: "Dataset Iterators"
     contents:
-       - output_shapes
-       - output_types
+       - make-iterator
+       - iterator_get_next
+       - iterator_string_handle
+       - iterator_make_initializer
+
+
 
