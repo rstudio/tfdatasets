@@ -1,5 +1,6 @@
 
 library(tfdatasets)
+library(zeallot)
 
 # function to read and preprocess mnist dataset
 mnist_dataset <- function(filename) {
@@ -16,6 +17,7 @@ mnist_dataset <- function(filename) {
       # preprocess image
       image <- tf$decode_raw(features$image_raw, tf$uint8)
       image <- tf$cast(image, tf$float32) / 255
+      image <- tf$reshape(image, shape(28, 28))
 
       # convert label to one-hot integer
       label <- tf$one_hot(tf$cast(features$label, tf$int32), 10L)
@@ -27,6 +29,21 @@ mnist_dataset <- function(filename) {
     dataset_repeat()
 }
 
+# prepare various datasets
 train_dataset <- mnist_dataset("mnist/train.tfrecords")
 validation_dataset <- mnist_dataset("mnist/validation.tfrecords")
 test_dataset <- mnist_dataset("mnist/test.tfrecords")
+
+# draw a batch
+sess <- tf$Session()
+batch <- next_batch(train_dataset)
+c(images, labels) %<-% sess$run(batch)
+
+# plot some of the images
+op <- par()
+plot(as.raster(images[18,,]))
+par(op)
+
+
+
+
