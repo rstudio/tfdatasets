@@ -36,8 +36,9 @@ mnist_dataset <- function(filename) {
       list(image, label)
 
     }) %>%
-    dataset_batch(128) %>%
-    dataset_repeat()
+    dataset_repeat() %>%
+    dataset_shuffle(10000) %>%
+    dataset_batch(128)
 }
 
 train_dataset <- mnist_dataset("mnist/train.tfrecords")
@@ -47,9 +48,9 @@ test_dataset <- mnist_dataset("mnist/test.tfrecords")
 
 summary(model)
 
-data_mode <- "tensor"
+data_mode <- "generator"
 
-if (data_mode = "generator") {
+if (data_mode == "generator") {
 
   model <- keras_model_sequential()
   model %>%
