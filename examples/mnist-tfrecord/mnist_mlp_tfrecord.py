@@ -1,4 +1,15 @@
+'''Train MNIST with tfrecords yielded from a TF Dataset
 
+In order to run this example you should first run 'mnist_to_tfrecord.py'
+which will download MNIST data and serialize it into 3 tfrecords files
+(train.tfrecords, validation.tfrecords, and test.tfrecords).
+
+This example demonstrates the use of TF Datasets wrapped by a generator
+function. The example currently only works with a fork of keras that accepts
+`workers=0` as an argument to fit_generator, etc. Passing `workers=0` results
+in the generator function being run on the main thread (without this various
+errors ensue b/c of the way TF handles being called on a background thread).
+'''
 
 from __future__ import print_function
 
@@ -16,6 +27,7 @@ num_classes = 10
 epochs = 20
 steps_per_epoch = 500
 
+# Return a TF dataset for specified filename(s)
 def mnist_dataset(filenames):
 
   def decode_example(example_proto):
@@ -43,6 +55,7 @@ def mnist_dataset(filenames):
   return dataset
 
 
+# Keras generator that yields batches from the speicfied tfrecord filename(s)
 def mnist_generator(filenames):
 
   dataset = mnist_dataset(filenames)
@@ -53,43 +66,36 @@ def mnist_generator(filenames):
     yield K.batch_get_value(batch)
 
 
-sess = tf.Session()
-with sess.as_default():
+model = Sequential()
+model.add(Dense(256, activation='relu', input_shape=(784,)))
+model.add(Dropout(0.4))
+model.add(Dense(128, activation='relu'))
+model.add(Dropout(0.3))
+model.add(Dense(num_classes, activation='softmax'))
 
-  train_generator = mnist_generator('mnist/train.tfrecords')
-  validation_generator = mnist_generator('mnist/validation.tfrecords')
-  test_generator =  mnist_generator('mnist/test.tfrecords')
+model.summary()
 
-  model = Sequential()
-  model.add(Dense(512, activation='relu', input_shape=(784,)))
-  model.add(Dropout(0.2))
-  model.add(Dense(512, activation='relu'))
-  model.add(Dropout(0.2))
-  model.add(Dense(num_classes, activation='softmax'))
+model.compile(loss='categorical_crossentropy',
+              optimizer=RMSprop(),
+              metrics=['accuracy'])
 
-  model.summary()
+history = model.fit_generator(
+  mnist_generator('mnist/train.tfrecords'),
+  steps_per_epoch=steps_per_epoch,
+  epochs=epochs,
+  verbose=1,
+  validation_data=mnist_generator('mnist/validation.tfrecords'),
+  validation_steps=steps_per_epoch,
+  workers = 0  # runs generator on the main thread
+)
 
-  model.compile(loss='categorical_crossentropy',
-                optimizer=RMSprop(),
-                metrics=['accuracy'])
+score = model.evaluate_generator(
+  mnist_generator('mnist/test.tfrecords'),
+  steps=steps_per_epoch,
+  workers = 0  # runs generator on the main thread
+)
 
-
-
-  history = model.fit_generator(
-    train_generator,
-    steps_per_epoch=steps_per_epoch,
-    epochs=epochs,
-    verbose=1,
-    validation_data=validation_generator,
-    validation_steps=steps_per_epoch
-  )
-
-  score = model.evaluate_generator(
-    test_generator,
-    steps=steps_per_epoch
-  )
-
-  print('Test loss:', score[0])
-  print('Test accuracy:', score[1])
+print('Test loss:', score[0])
+print('Test accuracy:', score[1])
 
 
