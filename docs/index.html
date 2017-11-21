@@ -147,8 +147,8 @@ filenames &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="s
 dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/tfrecord_dataset.html">tfrecord_dataset</a></span>(filenames) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw"><a href="reference/dataset_map.html">dataset_map</a></span>(<span class="cf">function</span>(example_proto) {
     features &lt;-<span class="st"> </span><span class="kw">list</span>(
-      <span class="dt">image =</span> tf<span class="op">$</span><span class="kw">FixedLenFeature</span>(<span class="kw"><a href="http://www.rdocumentation.org/packages/tensorflow/topics/shape">shape</a></span>(), tf<span class="op">$</span>string, <span class="dt">default_value =</span> <span class="st">""</span>),
-      <span class="dt">label =</span> tf<span class="op">$</span><span class="kw">FixedLenFeature</span>(<span class="kw"><a href="http://www.rdocumentation.org/packages/tensorflow/topics/shape">shape</a></span>(), tf<span class="op">$</span>int32, <span class="dt">default_value =</span> 0L)
+      <span class="dt">image =</span> tf<span class="op">$</span><span class="kw">FixedLenFeature</span>(<span class="kw"><a href="http://www.rdocumentation.org/packages/tensorflow/topics/shape">shape</a></span>(), tf<span class="op">$</span>string),
+      <span class="dt">label =</span> tf<span class="op">$</span><span class="kw">FixedLenFeature</span>(<span class="kw"><a href="http://www.rdocumentation.org/packages/tensorflow/topics/shape">shape</a></span>(), tf<span class="op">$</span>int32)
     )
     tf<span class="op">$</span><span class="kw">parse_single_example</span>(example_proto, features)
   })</code></pre></div>
