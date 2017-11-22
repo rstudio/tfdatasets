@@ -1,45 +1,5 @@
 
 
-#' Specification for reading a record
-#'
-#' @param names Character vector with column names.
-#' @param types Character vector with olumn types. If `NULL` and `defaults` is
-#'   specified then types will be imputed from the defaults.
-#'
-#'   Types can be explicitliy specified in a character vector as "integer",
-#'   "double", and "character" (e.g. `types = c("double", "double",
-#'   "integer"`).
-#'
-#'   Alternatively, you can use a compact string representation where each
-#'   character represents one column: c = character, i = integer, d = double
-#'   (e.g. `types = `ddi`).
-#'
-#' @param defaults List of default values which are used when data is missing
-#'   from a record (e.g. `list(0, 0, 0L`). If `NULL` then defaults will be
-#'   automatically provided based on `types` (`0` for numeric columns and `""`
-#'   for character columns).
-#'
-#' @return Record specification to be passed to a dataset read function.
-#'
-#' @export
-record_spec <- function(names, types = NULL, defaults = NULL) {
-
-  # verfiy we have types or defaults
-  if (is.null(types) && is.null(defaults))
-    stop("You must specify either types or defaults")
-
-  # impute types from defaults (or vice versa)
-  types <- resolve_record_types(types, defaults)
-
-  # return spec
-  tf_dataset_record_spec(
-    names = names,
-    types = types$types,
-    defaults = types$defaults,
-    delim = NULL,
-    skip = NULL
-  )
-}
 
 
 #' Specification for reading a record from a text file with delimited values

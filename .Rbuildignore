@@ -5,3 +5,4 @@
 ^index.Rmd$
 ^docs$
 ^pkgdown$
+^examples$

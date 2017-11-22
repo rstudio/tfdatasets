@@ -53,7 +53,7 @@ text_line_dataset <- function(filenames, compression_type = NULL,
 #'
 #' @param dataset Dataset containing delimited text lines (e.g. a CSV)
 #'
-#' @param record_spec Specification of column names and types (see [record_spec()]).
+#' @param record_spec Specification of column names and types (see [delim_record_spec()]).
 #'
 #' @param parallel_records (Optional) An integer, representing the number of
 #'   records to decode in parallel. If not specified, records will be

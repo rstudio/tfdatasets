@@ -10,7 +10,7 @@ dataset_decode_delim(dataset, record_spec, parallel_records = NULL)
 \arguments{
 \item{dataset}{Dataset containing delimited text lines (e.g. a CSV)}
 
-\item{record_spec}{Specification of column names and types (see \code{\link[=record_spec]{record_spec()}}).}
+\item{record_spec}{Specification of column names and types (see \code{\link[=delim_record_spec]{delim_record_spec()}}).}
 
 \item{parallel_records}{(Optional) An integer, representing the number of
 records to decode in parallel. If not specified, records will be
