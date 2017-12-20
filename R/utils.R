@@ -13,13 +13,19 @@ as_integer_tensor <- function(x, dtype = tf$int64) {
     tf$constant(as.integer(x), dtype = dtype)
 }
 
-as_tensor_shape <- function(x) {
-  # reflect Python objects back
-  if (inherits(x, "python.builtin.object"))
+as_tensor_shapes <- function(x) {
+  if (is.list(x))
+    tuple(lapply(x, as_tensor_shapes))
+  else if (is_tensor(x))
+    tf$cast(x, dtype = tf$int64)
+  else if (inherits("x", "python.builtin.object"))
     x
+  else if (is.null(x))
+    tf$constant(-1L, dtype = tf$int64)
   else
-    as_integer_tensor(x)
+    tf$constant(as.integer(x), dtype = tf$int64)
 }
+
 
 with_session <- function(f, session = NULL) {
   if (is.null(session))

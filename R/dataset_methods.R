@@ -339,7 +339,7 @@ dataset_shard <- function(dataset, num_shards, index) {
 dataset_padded_batch <- function(dataset, batch_size, padded_shapes, padding_values = NULL) {
   as_tf_dataset(dataset$padded_batch(
     batch_size = as_integer_tensor(batch_size),
-    padded_shapes = as_tensor_shape(padded_shapes),
+    padded_shapes = as_tensor_shapes(padded_shapes),
     padding_values = as_integer_tensor(padding_values)
   ))
 }
