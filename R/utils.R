@@ -14,8 +14,8 @@ as_integer_tensor <- function(x, dtype = tf$int64) {
 }
 
 as_tensor_shape <- function(x) {
-  # reflect TensorShape back
-  if (inherits(x, "tensorflow.python.framework.tensor_shape.TensorShape"))
+  # reflect Python objects back
+  if (inherits(x, "python.builtin.object"))
     x
   else
     as_integer_tensor(x)
