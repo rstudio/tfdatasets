@@ -59,13 +59,13 @@
     
     
 <div class="contents">
-<div id="tfdatasets-r-interface-to-tensorflow-datasets-api" class="section level1">
+<div id="r-interface-to-tensorflow-datasets-api" class="section level1">
 <div class="page-header"><h1 class="hasAnchor">
-<a href="#tfdatasets-r-interface-to-tensorflow-datasets-api" class="anchor"></a>tfdatasets: R interface to TensorFlow Datasets API</h1></div>
+<a href="#r-interface-to-tensorflow-datasets-api" class="anchor"></a>R interface to TensorFlow Datasets API</h1></div>
 <div id="overview" class="section level2">
 <h2 class="hasAnchor">
 <a href="#overview" class="anchor"></a>Overview</h2>
-<p>The TensorFlow Datasets API provides various facilities for creating scalable input pipelines for TensorFlow models, including:</p>
+<p>The TensorFlow Dataset API provides various facilities for creating scalable input pipelines for TensorFlow models, including:</p>
 <ul>
 <li><p>Reading data from a variety of formats including CSV files and <a href="https://www.tensorflow.org/api_guides/python/python_io#tfrecords_format_details">TFRecords files</a> (the standard binary format for TensorFlow training data).</p></li>
 <li><p>Transforming datasets in a variety of ways including mapping arbitrary functions against them.</p></li>
@@ -84,9 +84,6 @@
 <p>Then, use the <code><a href="http://www.rdocumentation.org/packages/tensorflow/topics/install_tensorflow">install_tensorflow()</a></code> function to install TensorFlow:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(tfdtasets)
 <span class="kw"><a href="http://www.rdocumentation.org/packages/tensorflow/topics/install_tensorflow">install_tensorflow</a></span>()</code></pre></div>
-<div class="alert alert-warning" role="alert">
-<p><strong>IMPORTANT NOTE</strong>: The <strong>tfdatasets</strong> package requires the very latest version of TensorFlow (v1.4) so you should be sure to update to v1.4 before using the package (you can do this with the install_tensorflow() function shown above).</p>
-</div>
 </div>
 <div id="creating-a-dataset" class="section level2">
 <h2 class="hasAnchor">
@@ -333,45 +330,69 @@ model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">tr
   <span class="dt">batch_size =</span> <span class="dv">128</span>
 )</code></pre></div>
 <p>However, this requires loading data into an R data frame or matrix before calling fit. You can use the <code><a href="http://www.rdocumentation.org/packages/keras/topics/train_on_batch">train_on_batch()</a></code> function to stream data one batch at a time, however the reading and processing of the input data is still being done serially and outside of native code.</p>
-<p>Alternatively, Keras enables you to wire input and output tensors directly into the model definition, which are then evaluated for each training step. You can combine this capability with <code><a href="reference/dataset_prepare.html">dataset_prepare()</a></code> and <code><a href="reference/next_batch.html">next_batch()</a></code> to efficiently stream data into Keras training operations. Here is a complete example:</p>
+<p>Alternatively, Keras enables you to pass a dataset directly as the <code>generator</code> argument to <code><a href="http://www.rdocumentation.org/packages/keras/topics/fit_generator">fit_generator()</a></code> and <code>validate_generator()</code>. Here’s a complete example that uses datasets to read from TFRecord files containing MNIST digits:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(keras)
 <span class="kw">library</span>(tfdatasets)
-  
-<span class="co"># create dataset that yields batches infinitely</span>
-dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/text_line_dataset.html">text_line_dataset</a></span>(<span class="st">"iris.csv"</span>, <span class="dt">record_spec =</span> iris_spec) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw"><a href="reference/dataset_map.html">dataset_map</a></span>(<span class="cf">function</span>(record) {
-    record<span class="op">$</span>Species &lt;-<span class="st"> </span>tf<span class="op">$</span><span class="kw">one_hot</span>(record<span class="op">$</span>Species, <span class="dt">depth =</span> 3L)
-    record
-  }) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw"><a href="reference/dataset_prepare.html">dataset_prepare</a></span>(<span class="dt">x =</span> <span class="op">-</span>Species, <span class="dt">y =</span> Species) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">1000</span>) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(<span class="dv">128</span>) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>() 
 
-<span class="co"># stream batches from dataset</span>
-batch &lt;-<span class="st"> </span><span class="kw"><a href="reference/next_batch.html">next_batch</a></span>(dataset)
+batch_size =<span class="st"> </span><span class="dv">128</span>
+epochs =<span class="st"> </span><span class="dv">20</span>
+steps_per_epoch =<span class="st"> </span><span class="dv">500</span>
 
-<span class="co"># create model</span>
-input &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/layer_input">layer_input</a></span>(<span class="dt">tensor =</span> batch<span class="op">$</span>x, <span class="dt">shape =</span> <span class="kw">c</span>(<span class="dv">4</span>))
-predictions &lt;-<span class="st"> </span>input <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/layer_dense">layer_dense</a></span>(<span class="dt">units =</span> <span class="dv">10</span>, <span class="dt">activation =</span> <span class="st">"relu"</span>) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/layer_dense">layer_dense</a></span>(<span class="dt">units =</span> <span class="dv">20</span>, <span class="dt">activation =</span> <span class="st">"relu"</span>) <span class="op">%&gt;%</span>
-<span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/layer_dense">layer_dense</a></span>(<span class="dt">units =</span> <span class="dv">3</span>, <span class="dt">activation =</span> <span class="st">"softmax"</span>)
-model &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/keras_model">keras_model</a></span>(input, predictions)
+<span class="co"># function to read and preprocess mnist dataset</span>
+mnist_dataset &lt;-<span class="st"> </span><span class="cf">function</span>(filename) {
+  dataset &lt;-<span class="st"> </span><span class="kw"><a href="reference/tfrecord_dataset.html">tfrecord_dataset</a></span>(filename) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw"><a href="reference/dataset_map.html">dataset_map</a></span>(<span class="cf">function</span>(example_proto) {
+
+      <span class="co"># parse record</span>
+      features &lt;-<span class="st"> </span>tf<span class="op">$</span><span class="kw">parse_single_example</span>(
+        example_proto,
+        <span class="dt">features =</span> <span class="kw">list</span>(
+          <span class="dt">image_raw =</span> tf<span class="op">$</span><span class="kw">FixedLenFeature</span>(<span class="kw"><a href="http://www.rdocumentation.org/packages/tensorflow/topics/shape">shape</a></span>(), tf<span class="op">$</span>string),
+          <span class="dt">label =</span> tf<span class="op">$</span><span class="kw">FixedLenFeature</span>(<span class="kw"><a href="http://www.rdocumentation.org/packages/tensorflow/topics/shape">shape</a></span>(), tf<span class="op">$</span>int64)
+        )
+      )
+
+      <span class="co"># preprocess image</span>
+      image &lt;-<span class="st"> </span>tf<span class="op">$</span><span class="kw">decode_raw</span>(features<span class="op">$</span>image_raw, tf<span class="op">$</span>uint8)
+      image &lt;-<span class="st"> </span>tf<span class="op">$</span><span class="kw">cast</span>(image, tf<span class="op">$</span>float32) <span class="op">/</span><span class="st"> </span><span class="dv">255</span>
+
+      <span class="co"># convert label to one-hot</span>
+      label &lt;-<span class="st"> </span>tf<span class="op">$</span><span class="kw">one_hot</span>(tf<span class="op">$</span><span class="kw">cast</span>(features<span class="op">$</span>label, tf<span class="op">$</span>int32), 10L)
+
+      <span class="co"># return</span>
+      <span class="kw">list</span>(image, label)
+    }) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw"><a href="reference/dataset_repeat.html">dataset_repeat</a></span>() <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw"><a href="reference/dataset_shuffle.html">dataset_shuffle</a></span>(<span class="dv">10000</span>) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw"><a href="reference/dataset_batch.html">dataset_batch</a></span>(batch_size)
+}
+
+model &lt;-<span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/keras_model_sequential">keras_model_sequential</a></span>() <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/layer_dense">layer_dense</a></span>(<span class="dt">units =</span> <span class="dv">256</span>, <span class="dt">activation =</span> <span class="st">'relu'</span>, <span class="dt">input_shape =</span> <span class="kw">c</span>(<span class="dv">784</span>)) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/layer_dropout">layer_dropout</a></span>(<span class="dt">rate =</span> <span class="fl">0.4</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/layer_dense">layer_dense</a></span>(<span class="dt">units =</span> <span class="dv">128</span>, <span class="dt">activation =</span> <span class="st">'relu'</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/layer_dropout">layer_dropout</a></span>(<span class="dt">rate =</span> <span class="fl">0.3</span>) <span class="op">%&gt;%</span>
+<span class="st">  </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/layer_dense">layer_dense</a></span>(<span class="dt">units =</span> <span class="dv">10</span>, <span class="dt">activation =</span> <span class="st">'softmax'</span>)
+
 model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/compile">compile</a></span>(
   <span class="dt">loss =</span> <span class="st">'categorical_crossentropy'</span>,
   <span class="dt">optimizer =</span> <span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/optimizer_rmsprop">optimizer_rmsprop</a></span>(),
-  <span class="dt">metrics =</span> <span class="kw">c</span>(<span class="st">'accuracy'</span>),
-  <span class="dt">target_tensors =</span> batch<span class="op">$</span>y
+  <span class="dt">metrics =</span> <span class="kw">c</span>(<span class="st">'accuracy'</span>)
 )
 
-<span class="co"># fit the model</span>
-model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/fit">fit</a></span>(
-  <span class="dt">steps_per_epoch =</span> <span class="dv">30</span>,
-  <span class="dt">epochs =</span> <span class="dv">5</span>
+history &lt;-<span class="st"> </span>model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/fit_generator">fit_generator</a></span>(
+  <span class="dt">generator =</span> <span class="kw">mnist_dataset</span>(<span class="st">"mnist/train.tfrecords"</span>),
+  <span class="dt">steps_per_epoch =</span> steps_per_epoch,
+  <span class="dt">epochs =</span> epochs,
+  <span class="dt">validation_data =</span> <span class="kw">mnist_dataset</span>(<span class="st">"mnist/validation.tfrecords"</span>),
+  <span class="dt">validation_steps =</span> steps_per_epoch
+)
+
+score &lt;-<span class="st"> </span>model <span class="op">%&gt;%</span><span class="st"> </span><span class="kw"><a href="http://www.rdocumentation.org/packages/keras/topics/evaluate_generator">evaluate_generator</a></span>(
+  <span class="dt">generator =</span> <span class="kw">mnist_dataset</span>(<span class="st">"mnist/test.tfrecords"</span>),
+  <span class="dt">steps =</span> steps_per_epoch
 )</code></pre></div>
-<p>Note that we don’t pass <code>x_train</code> or <code>y_train</code> to <code><a href="http://www.rdocumentation.org/packages/keras/topics/fit">fit()</a></code>, rather the feature data (<code>batch$x</code>) is provided as the <code>tensor</code> argument to <code><a href="http://www.rdocumentation.org/packages/keras/topics/layer_input">layer_input()</a></code> and the response data (<code>batch$y</code>) is provided as the <code>target_tensors</code> argument to <code><a href="http://www.rdocumentation.org/packages/keras/topics/compile">compile()</a></code>. The training data is directly wired into the TensorFlow graph built for the model.</p>
-<p>Note also that rather than calling the Keras <code><a href="http://www.rdocumentation.org/packages/keras/topics/to_categorical">to_categorical()</a></code> function to one-hot encode the “Species” field, we do this instead in a <code><a href="reference/dataset_map.html">dataset_map()</a></code> operation that calls the <code>tf$one_hot()</code> function.</p>
+<p>Note that all data preprocessing (e.g. one-hot encoding of the response variable) is done within the <code><a href="reference/dataset_map.html">dataset_map()</a></code> operation.</p>
 </div>
 <div id="reading-multiple-files" class="section level2">
 <h2 class="hasAnchor">

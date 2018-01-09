@@ -4,13 +4,6 @@
 # which will download MNIST data and serialize it into 3 tfrecords files
 # (train.tfrecords, validation.tfrecords, and test.tfrecords).
 #
-# NOTE: This example requires the development version of Keras as well as the
-# development version of the R Keras interface. These can be installed with:
-#
-#   pip install git+git://github.com/fchollet/keras.git --ignore-installed
-#
-#   devtools::install_github("rstudio/keras)
-#
 
 library(keras)
 library(tfdatasets)

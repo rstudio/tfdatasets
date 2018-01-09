@@ -1,5 +1,5 @@
 ---
-title: "tfdatasets: R interface to TensorFlow Datasets API"
+title: "R interface to TensorFlow Datasets API"
 output: html_document
 ---
 
@@ -7,11 +7,11 @@ output: html_document
 knitr::opts_chunk$set(eval = FALSE)
 ```
 
-# tfdatasets: R interface to TensorFlow Datasets API
+# R interface to TensorFlow Datasets API
 
 ## Overview
 
-The TensorFlow Datasets API provides various facilities for creating scalable input pipelines for TensorFlow models, including:
+The TensorFlow Dataset API provides various facilities for creating scalable input pipelines for TensorFlow models, including:
 
 - Reading data from a variety of formats including CSV files and [TFRecords files](https://www.tensorflow.org/api_guides/python/python_io#tfrecords_format_details) (the standard binary format for TensorFlow training data).
 
@@ -41,10 +41,6 @@ Then, use the `install_tensorflow()` function to install TensorFlow:
 library(tfdtasets)
 install_tensorflow()
 ```
-
-<div class="alert alert-warning" role="alert">
-**IMPORTANT NOTE**: The **tfdatasets** package requires the very latest version of TensorFlow (v1.4) so you should be sure to update to v1.4 before using the package (you can do this with the install_tensorflow() function shown above).
-</div>
 
 ## Creating a Dataset
 
@@ -373,50 +369,74 @@ model %>% fit(
 
 However, this requires loading data into an R data frame or matrix before calling fit. You can use the `train_on_batch()` function to stream data one batch at a time, however the reading and processing of the input data is still being done serially and outside of native code.
 
-Alternatively, Keras enables you to wire input and output tensors directly into the model definition, which are then evaluated for each training step. You can combine this capability with `dataset_prepare()` and `next_batch()` to efficiently stream data into Keras training operations. Here is a complete example:
+
+Alternatively, Keras enables you to pass a dataset directly as the `generator` argument to `fit_generator()` and `validate_generator()`. Here's a complete example that uses datasets to read from TFRecord files containing MNIST digits:
 
 ```{r}
 library(keras)
 library(tfdatasets)
-  
-# create dataset that yields batches infinitely
-dataset <- text_line_dataset("iris.csv", record_spec = iris_spec) %>%
-  dataset_map(function(record) {
-    record$Species <- tf$one_hot(record$Species, depth = 3L)
-    record
-  }) %>%
-  dataset_prepare(x = -Species, y = Species) %>% 
-  dataset_shuffle(1000) %>%
-  dataset_batch(128) %>%
-  dataset_repeat() 
 
-# stream batches from dataset
-batch <- next_batch(dataset)
+batch_size = 128
+epochs = 20
+steps_per_epoch = 500
 
-# create model
-input <- layer_input(tensor = batch$x, shape = c(4))
-predictions <- input %>%
-  layer_dense(units = 10, activation = "relu") %>%
-  layer_dense(units = 20, activation = "relu") %>%
-  layer_dense(units = 3, activation = "softmax")
-model <- keras_model(input, predictions)
+# function to read and preprocess mnist dataset
+mnist_dataset <- function(filename) {
+  dataset <- tfrecord_dataset(filename) %>%
+    dataset_map(function(example_proto) {
+
+      # parse record
+      features <- tf$parse_single_example(
+        example_proto,
+        features = list(
+          image_raw = tf$FixedLenFeature(shape(), tf$string),
+          label = tf$FixedLenFeature(shape(), tf$int64)
+        )
+      )
+
+      # preprocess image
+      image <- tf$decode_raw(features$image_raw, tf$uint8)
+      image <- tf$cast(image, tf$float32) / 255
+
+      # convert label to one-hot
+      label <- tf$one_hot(tf$cast(features$label, tf$int32), 10L)
+
+      # return
+      list(image, label)
+    }) %>%
+    dataset_repeat() %>%
+    dataset_shuffle(10000) %>%
+    dataset_batch(batch_size)
+}
+
+model <- keras_model_sequential() %>%
+  layer_dense(units = 256, activation = 'relu', input_shape = c(784)) %>%
+  layer_dropout(rate = 0.4) %>%
+  layer_dense(units = 128, activation = 'relu') %>%
+  layer_dropout(rate = 0.3) %>%
+  layer_dense(units = 10, activation = 'softmax')
+
 model %>% compile(
   loss = 'categorical_crossentropy',
   optimizer = optimizer_rmsprop(),
-  metrics = c('accuracy'),
-  target_tensors = batch$y
+  metrics = c('accuracy')
 )
 
-# fit the model
-model %>% fit(
-  steps_per_epoch = 30,
-  epochs = 5
+history <- model %>% fit_generator(
+  generator = mnist_dataset("mnist/train.tfrecords"),
+  steps_per_epoch = steps_per_epoch,
+  epochs = epochs,
+  validation_data = mnist_dataset("mnist/validation.tfrecords"),
+  validation_steps = steps_per_epoch
+)
+
+score <- model %>% evaluate_generator(
+  generator = mnist_dataset("mnist/test.tfrecords"),
+  steps = steps_per_epoch
 )
 ```
 
-Note that we don't pass `x_train` or `y_train` to `fit()`, rather the feature data (`batch$x`) is provided as the `tensor` argument to `layer_input()` and the response data (`batch$y`) is provided as the `target_tensors` argument to `compile()`. The training data is directly wired into the TensorFlow graph built for the model.
-
-Note also that rather than calling the Keras `to_categorical()` function to one-hot encode the "Species" field, we do this instead in a `dataset_map()` operation that calls the `tf$one_hot()` function. 
+Note that all data preprocessing (e.g. one-hot encoding of the response variable) is done within the `dataset_map()` operation.
 
 ## Reading Multiple Files
 

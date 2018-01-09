@@ -26,7 +26,6 @@ reference:
        - file_list_dataset
        - range_dataset
        - read_files
-       - record_spec
        - delim_record_spec
 
   - title: "Transforming Datasets"
