@@ -1,13 +1,26 @@
 ---
-title: "R interface to TensorFlow Datasets API"
-output: html_document
+title: "R interface to TensorFlow Dataset API"
+output: 
+  rmarkdown::html_vignette: default
+vignette: >
+  %\VignetteIndexEntry{Introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+type: docs
+repo: https://github.com/rstudio/tfdatasets
+menu:
+  main:
+    name: "Using Datasets"
+    identifier: "tools-tfdatasets-using"
+    parent: "tfdatasets-top"
+    weight: 10
+aliases:
+  - /tools/tfdatasets/
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(eval = FALSE)
 ```
-
-# R interface to TensorFlow Datasets API
 
 ## Overview
 
