@@ -1,11 +1,10 @@
 context("input_fn")
 
-library(tensorflow)
-library(tfestimators)
-
 source("utils.R")
 
 use_input_fn <- function(features, response) {
+
+  require(tfestimators)
 
   # return an input_fn for a set of csv files
   mtcars_input_fn <- function(filenames) {
@@ -90,6 +89,8 @@ test_succeeds("input_fn accepts formula syntax", {
 test_succeeds("input_fn works with custom estimators", {
 
   skip_if_no_tensorflow()
+
+  require(tfestimators)
 
   # define custom estimator model_fn
   simple_custom_model_fn <- function(features, labels, mode, params, config) {
