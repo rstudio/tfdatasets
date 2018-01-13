@@ -14,7 +14,7 @@ Authors@R: c(
   )
 Description: Interface to 'TensorFlow' Datasets, a high-level library for 
     building complex input pipelines from simple, re-usable pieces. 
-    See https://www.tensorflow.org/programmers_guide/datasets for additional
+    See <https://www.tensorflow.org/programmers_guide/datasets> for additional
     details.
 License: Apache License 2.0
 URL: https://github.com/rstudio/tfdatasets

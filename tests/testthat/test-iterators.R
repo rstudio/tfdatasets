@@ -4,6 +4,8 @@ source("utils.R")
 
 test_that("make_iterator_one_shot works", {
 
+  skip_if_no_tensorflow()
+
   batch <- mtcars_dataset() %>%
     make_iterator_one_shot() %>%
     iterator_get_next()
@@ -15,6 +17,8 @@ test_that("make_iterator_one_shot works", {
 })
 
 test_that("make_iterator_initializable works", {
+
+  skip_if_no_tensorflow()
 
   with_session(function(sess) {
 
@@ -48,6 +52,9 @@ test_that("make_iterator_initializable works", {
 })
 
 test_succeeds("make_iterator_from_structure works", {
+
+  skip_if_no_tensorflow()
+
   with_session(function(sess) {
 
     training_dataset <- range_dataset(from = 1, to = 100) %>%
@@ -81,6 +88,9 @@ test_succeeds("make_iterator_from_structure works", {
 })
 
 test_succeeds("make_iterator_from_string_handle works", {
+
+  skip_if_no_tensorflow()
+
   with_session(function(sess) {
 
     training_dataset <- range_dataset(from = 1, to = 100) %>%
