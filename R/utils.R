@@ -42,13 +42,11 @@ validate_tf_version <- function() {
   tf_ver <- tensorflow::tf_version()
   required_ver <- "1.4"
   if (tf_ver < required_ver) {
-      stop(
-        "tfdatasets requires version ", required_ver, " ",
-        "of TensorFlow (you are currently running version ", tf_ver, ").\n",
-        "Please update your TensorFlow to nightly builds following the instruction here: \n",
-        "https://tensorflow.rstudio.com/tools/installation.html#alternate-versions",
-        call. = FALSE
-      )
+    stop(
+      "tfdatasets requires version ", required_ver, " ",
+      "of TensorFlow (you are currently running version ", tf_ver, ").",
+      call. = FALSE
+    )
   }
 }
 
