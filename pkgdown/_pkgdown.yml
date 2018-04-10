@@ -19,6 +19,7 @@ reference:
     contents:
        - text_line_dataset
        - tfrecord_dataset
+       - sql_dataset
        - tensors_dataset
        - tensor_slices_dataset
        - sparse_tensor_slices_dataset

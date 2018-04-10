@@ -38,12 +38,11 @@ with_session <- function(f, session = NULL) {
 }
 
 
-validate_tf_version <- function() {
+validate_tf_version <- function(required_ver = "1.4", feature_name = "tfdatasets") {
   tf_ver <- tensorflow::tf_version()
-  required_ver <- "1.4"
   if (tf_ver < required_ver) {
     stop(
-      "tfdatasets requires version ", required_ver, " ",
+      feature_name, " requires version ", required_ver, " ",
       "of TensorFlow (you are currently running version ", tf_ver, ").",
       call. = FALSE
     )
