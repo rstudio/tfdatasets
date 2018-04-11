@@ -7,6 +7,7 @@
 #'   the database.
 #' @param filename Filename for the database
 #' @param query String containing the SQL query to execute.
+#' @param record_spec Names and types of database columns
 #' @param names Names of columns returned from the query
 #' @param types List of `tf$DType` objects (e.g. `tf$int32`,
 #'   `tf$double`, `tf$string`) representing the types of the columns

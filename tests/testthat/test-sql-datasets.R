@@ -8,8 +8,8 @@ test_succeeds("sqlite_dataset creates a dataset", {
 
   record_spec <- sql_record_spec(
     names = c("disp", "drat", "vs", "gear", "mpg", "qsec", "hp", "am", "wt",  "carb", "cyl"),
-    types = c(tf$double, tf$int32, tf$double, tf$int32, tf$double, tf$double,
-              tf$double, tf$int32, tf$int32, tf$int32, tf$int32)
+    types = c(tf$float64, tf$int32, tf$float64, tf$int32, tf$float64, tf$float64,
+              tf$float64, tf$int32, tf$int32, tf$int32, tf$int32)
   )
 
   dataset <- sqlite_dataset(

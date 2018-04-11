@@ -27,6 +27,8 @@ the database.}
 
 \item{query}{String containing the SQL query to execute.}
 
+\item{record_spec}{Names and types of database columns}
+
 \item{filename}{Filename for the database}
 }
 \value{
