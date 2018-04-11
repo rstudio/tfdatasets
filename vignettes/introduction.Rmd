@@ -144,6 +144,30 @@ dataset <- tfrecord_dataset(filenames) %>%
   })
 ```
 
+## SQLite Databases
+
+You can read datasets from SQLite databases using the `sqlite_dataset()` function. Note that support for SQLite databases required TensorFlow v1.7 as well as the development version of the **tfdatasets** package, which you can install via `devtools::install_github("rstudio/tfdatasts")`.
+
+To use `sqlite_dataset()` you provide the filename of the database, a SQL query to execute, and `sql_record_spec()` that describes the names and TensorFlow types of columns within the query. For example:
+
+```{r, eval=FALSE}
+library(tfdatasets)
+
+record_spec <- sql_record_spec(
+  names = c("disp", "drat", "vs", "gear", "mpg", "qsec", "hp", "am", "wt",  "carb", "cyl"),
+  types = c(tf$double, tf$int32, tf$double, tf$int32, tf$double, tf$double,
+            tf$double, tf$int32, tf$int32, tf$int32, tf$int32)
+)
+
+dataset <- sqlite_dataset(
+  "data/mtcars.sqlite3",
+  "select * from mtcars",
+  record_spec
+)
+```
+
+Note that for floating point data you must use `tf$double` (reading `tf$float32` is not supported for SQLite databases).
+
 ## Transformations
 
 ### Mapping
@@ -202,7 +226,7 @@ dataset <- csv_dataset("mtcars.csv") %>%
   })
 ```
 
-Note that the functions used inside the predicate must be tensor operations (e.g. `tf$not_equal`, `tf$less`, etc.). R generic methods for relational operators (e.g. <, >, <=, etc.) and logical operators (e.g. !, &, |, etc.) are provided so you can use shorthand syntax for most common comparisions (as illustrated above).
+Note that the functions used inside the predicate must be tensor operations (e.g. `tf$not_equal`, `tf$less`, etc.). R generic methods for relational operators (e.g. <, >, <=, etc.) and logical operators (e.g. !, &, |, etc.) are provided so you can use shorthand syntax for most common comparisons (as illustrated above).
 
 
 ### Features and Response 

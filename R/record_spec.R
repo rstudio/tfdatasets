@@ -210,6 +210,19 @@ resolve_record_types <- function(types, defaults) {
 }
 
 
+#' @rdname sql_dataset
+#' @export
+sql_record_spec <- function(names, types) {
+  structure(class = "tf_dataset_record_spec", list(
+    names = names,
+    types = types,
+    defaults = NULL,
+    delim = NULL,
+    skip = NULL
+  ))
+}
+
+
 tf_dataset_record_spec <- function(names, types, defaults, delim, skip) {
   structure(class = "tf_dataset_record_spec", list(
     names = names,
