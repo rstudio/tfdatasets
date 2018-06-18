@@ -45,18 +45,26 @@ dataset_shuffle <- function(dataset, buffer_size, seed = NULL) {
 #' @param dataset A dataset
 #' @param batch_size An integer, representing the number of consecutive elements
 #'   of this dataset to combine in a single batch.
+#' @param drop_remainder Ensure that yoru batches have a fixed size by
+#'   omiting any final smaller batch if it's present. Note that this is
+#'   required for use with the Keras tensor inputs to fit/evaluate/etc.
 #'
 #' @return A dataset
 #'
 #' @family dataset methods
 #'
 #' @export
-dataset_batch <- function(dataset, batch_size) {
-  as_tf_dataset(dataset$batch(
-    batch_size = as_integer_tensor(batch_size)
-  ))
+dataset_batch <- function(dataset, batch_size, drop_remainder = TRUE) {
+  if (drop_remainder) {
+    as_tf_dataset(dataset$apply(
+      tf$contrib$data$batch_and_drop_remainder(as_integer_tensor(batch_size))
+    ))
+  } else {
+    as_tf_dataset(dataset$batch(
+      batch_size = as_integer_tensor(batch_size)
+    ))
+  }
 }
-
 
 #' Caches the elements in this dataset.
 #'
