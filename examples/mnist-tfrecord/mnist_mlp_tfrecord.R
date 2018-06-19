@@ -4,7 +4,11 @@
 # which will download MNIST data and serialize it into 3 tfrecords files
 # (train.tfrecords, validation.tfrecords, and test.tfrecords).
 #
-# Also note that this example requires Keras >= 2.2 and TF >= 1.8
+# Also note that this example requires:
+#   - Keras >= 2.2
+#   - TF >= 1.8
+#   - The dev version of tfdatasets
+#     (devtools::install_github("rstudio/tfdatasets"))
 #
 
 library(keras)
