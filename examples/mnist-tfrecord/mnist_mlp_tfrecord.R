@@ -43,7 +43,7 @@ mnist_dataset <- function(filename) {
     }) %>%
     dataset_repeat() %>%
     dataset_shuffle(1000) %>%
-    dataset_batch(batch_size) %>%
+    dataset_batch(batch_size, drop_remainder = TRUE) %>%
     dataset_prefetch(1)
 }
 

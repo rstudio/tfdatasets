@@ -54,7 +54,7 @@ dataset_shuffle <- function(dataset, buffer_size, seed = NULL) {
 #' @family dataset methods
 #'
 #' @export
-dataset_batch <- function(dataset, batch_size, drop_remainder = TRUE) {
+dataset_batch <- function(dataset, batch_size, drop_remainder = FALSE) {
   if (drop_remainder) {
     as_tf_dataset(dataset$apply(
       tf$contrib$data$batch_and_drop_remainder(as_integer_tensor(batch_size))

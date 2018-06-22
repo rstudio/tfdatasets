@@ -4,7 +4,7 @@
 \alias{dataset_batch}
 \title{Combines consecutive elements of this dataset into batches.}
 \usage{
-dataset_batch(dataset, batch_size, drop_remainder = TRUE)
+dataset_batch(dataset, batch_size, drop_remainder = FALSE)
 }
 \arguments{
 \item{dataset}{A dataset}
