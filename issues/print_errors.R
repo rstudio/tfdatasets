@@ -9,3 +9,13 @@ x2 <- tfdatasets::tensor_slices_dataset(X)
 x3 <- tfdatasets::tensor_slices_dataset(X)
 ds <- zip_datasets(x1, tuple(x2, x3))
 
+ds
+
+
+X <- arr(10, 3, 3)
+
+x1 <- tfdatasets::tensor_slices_dataset(X)
+x2 <- tfdatasets::tensor_slices_dataset(X)
+x3 <- tfdatasets::tensor_slices_dataset(X)
+zip_datasets(x1, tuple(x2, x3)) # error
+
