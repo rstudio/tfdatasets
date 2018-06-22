@@ -4,12 +4,17 @@
 # which will download MNIST data and serialize it into 3 tfrecords files
 # (train.tfrecords, validation.tfrecords, and test.tfrecords).
 #
+# Also note that this example requires:
+#   - Keras >= 2.2
+#   - TF >= 1.8
+#   - The dev version of tfdatasets
+#     (devtools::install_github("rstudio/tfdatasets"))
+#
 
 library(keras)
 library(tfdatasets)
 
 batch_size = 128
-epochs = 20
 steps_per_epoch = 500
 
 # function to read and preprocess mnist dataset
@@ -37,8 +42,9 @@ mnist_dataset <- function(filename) {
       list(image, label)
     }) %>%
     dataset_repeat() %>%
-    dataset_shuffle(10000) %>%
-    dataset_batch(batch_size)
+    dataset_shuffle(1000) %>%
+    dataset_batch(batch_size) %>%
+    dataset_prefetch(1)
 }
 
 model <- keras_model_sequential() %>%
@@ -54,18 +60,20 @@ model %>% compile(
   metrics = c('accuracy')
 )
 
-history <- model %>% fit_generator(
-  generator = mnist_dataset("mnist/train.tfrecords"),
+
+history <- model %>% fit(
+  mnist_dataset("mnist/train.tfrecords"),
   steps_per_epoch = steps_per_epoch,
-  epochs = epochs,
+  epochs = 20,
   validation_data = mnist_dataset("mnist/validation.tfrecords"),
   validation_steps = steps_per_epoch
 )
 
+
 plot(history)
 
-score <- model %>% evaluate_generator(
-  generator = mnist_dataset("mnist/test.tfrecords"),
+score <- model %>% evaluate(
+  mnist_dataset("mnist/test.tfrecords"),
   steps = steps_per_epoch
 )
 
