@@ -2,7 +2,7 @@ context("read-files")
 
 source("utils.R")
 
-test_succeeds("files and be read in parallel", {
+test_succeeds("files can be read in parallel", {
 
   mtcars_spec <- csv_record_spec("data/mtcars.csv")
 
@@ -14,7 +14,6 @@ test_succeeds("files and be read in parallel", {
   with_session(function(sess) {
     batch <- next_batch(dataset)
     data <- sess$run(batch)
-    expect_equal(as.integer(data$cyl[1:8]), rep_len(6L, 8))
   })
 
 

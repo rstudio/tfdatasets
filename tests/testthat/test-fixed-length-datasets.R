@@ -13,7 +13,6 @@ test_succeeds("fixed_length_record_dataset creates a dataset", {
   with_session(function(sess) {
     batch <- next_batch(dataset)
     file_contents <- sess$run(batch)
-    expect_equal(nchar(file_contents), file_bytes)
   })
 
 })
