@@ -531,7 +531,7 @@ str.tf_dataset <- function(object, width = getOption("width"), preview_cols = 10
   is_rectangular <-
     is.list(object$output_shapes) &&
     all(sapply(object$output_shapes, function(shape) {
-      length(shape$as_list()) == 1
+      is_tensor(shape) && length(shape$as_list()) == 1
     }))
   if (!is_named || !is_rectangular) {
     cat(py_str(object), "\n")
