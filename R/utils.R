@@ -2,28 +2,36 @@
 
 
 as_integer_tensor <- function(x, dtype = tf$int64) {
+
   # recurse over lists
   if (is.list(x) || (is.numeric(x) && length(x) > 1))
     lapply(x, function(elem) as_integer_tensor(elem, dtype))
   else if (is.null(x))
     x
   else if (is_tensor(x))
-    tf$cast(x, dtype = dtype)
+    tensor_value(tf$cast(x, dtype = dtype))
   else
-    tf$constant(as.integer(x), dtype = dtype)
+    tensor_value(tf$constant(as.integer(x), dtype = dtype))
 }
 
 as_tensor_shapes <- function(x) {
   if (is.list(x))
     tuple(lapply(x, as_tensor_shapes))
   else if (is_tensor(x))
-    tf$cast(x, dtype = tf$int64)
-  else if (inherits("x", "python.builtin.object"))
+    tensor_value(tf$cast(x, dtype = tf$int64))
+  else if (inherits(x, "python.builtin.object"))
     x
   else if (is.null(x))
-    tf$constant(-1L, dtype = tf$int64)
+    tensor_value(tf$constant(-1L, dtype = tf$int64))
   else
-    tf$constant(as.integer(x), dtype = tf$int64)
+    tensor_value(tf$constant(as.integer(x), dtype = tf$int64))
+}
+
+tensor_value <- function(x) {
+  if (is_eager_tensor(x))
+    x$numpy()
+  else
+    x
 }
 
 
@@ -61,6 +69,10 @@ is_dataset <- function(x) {
 
 is_tensor <- function(x) {
   inherits(x, "tensorflow.python.framework.ops.Tensor")
+}
+
+is_eager_tensor <- function(x) {
+  inherits(x, "python.builtin.EagerTensor")
 }
 
 
