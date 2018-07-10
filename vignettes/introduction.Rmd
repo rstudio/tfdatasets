@@ -406,6 +406,13 @@ dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
   dataset_batch(128) %>% 
   dataset_repeat(3)
 
+cols <- feature_columns(
+  column_numeric("mpg"),
+  column_numeric("disp")
+)
+
+model <- linear_regressor(feature_columns = cols)
+
 model %>% train(
   input_fn(dataset, features = c(mpg, disp), response = cyl)
 )
