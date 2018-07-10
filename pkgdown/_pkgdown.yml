@@ -54,19 +54,15 @@ reference:
        - output_shapes
        - output_types
 
-  - title: "Reading Datasets"
-    contents:
-       - next_batch
-       - with_dataset
-       - input_fn
-
   - title: "Dataset Iterators"
     contents:
+       - input_fn
        - make-iterator
        - iterator_get_next
        - iterator_initializer
        - iterator_string_handle
        - iterator_make_initializer
+       - out_of_range_handler
 
 
 

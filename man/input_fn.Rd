@@ -26,7 +26,3 @@ Creating an input_fn from a dataset requires that the dataset
 consist of a set of named output tensors (e.g. like the dataset
 produced by the \code{\link[=tfrecord_dataset]{tfrecord_dataset()}} or \code{\link[=text_line_dataset]{text_line_dataset()}} function).
 }
-\seealso{
-Other reading datasets: \code{\link{next_batch}},
-  \code{\link{with_dataset}}
-}

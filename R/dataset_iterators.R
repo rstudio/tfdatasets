@@ -63,8 +63,6 @@
 #' })
 #' }
 #'
-#' @family reading datasets
-#'
 #' @export
 next_batch <- function(dataset) {
 
@@ -107,20 +105,49 @@ next_batch <- function(dataset) {
 #' })
 #' }
 #'
-#' @family reading datasets
-#'
 #' @export
 with_dataset <- function(expr) {
   tryCatch({
     force(expr)
   },
-  error = function(e) {
-    last_error <- py_last_error()
-    if (is.null(last_error) || !identical(last_error$type, "OutOfRangeError"))
-      stop(e$message, call. = FALSE)
-  })
+  error = out_of_range_handler)
 }
 
+
+
+#' Handle out of range errors on dataset iterators
+#'
+#' @param e R error object
+#'
+#' @details  When a dataset iterator reaches the end, an out of range runtime error
+#'   will occur. You can catch and ignore the error when it occurs by using
+#'   `out_of_range_handler` as the `error` argument to `tryCatch()`.
+#'
+#' @examples \dontrun{
+#' library(tfdatasets)
+#' dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
+#'   dataset_prepare(x = c(mpg, disp), y = cyl) %>%
+#'   dataset_batch(128) %>%
+#'   dataset_repeat(10)
+#'
+#' batch <- next_batch(dataset)
+#'
+#' tryCatch({
+#'   while(TRUE) {
+#'     batch <- sess$run(next_batch)
+#'     # use batch$x and batch$y tensors
+#'   }
+#' }, error = out_of_range_handler)
+#' }
+#'
+#' @family reading datasets
+#'
+#' @export
+out_of_range_handler <- function(e) {
+  last_error <- py_last_error()
+  if (is.null(last_error) || !identical(last_error$type, "OutOfRangeError"))
+    stop(e$message, call. = FALSE)
+}
 
 
 

@@ -76,14 +76,10 @@ dataset <- text_line_dataset("iris.csv", record_spec = iris_spec)
 str(dataset)
 ```
 ```
-TensorFlow Dataset
-Petal.Length : <tf.float32> 1.4 1.4 1.3 1.5 1.4 1.7 1.4 1.5 1.4 1.5 1.5 1.6 1.4 1.1 1.2 1...
-Sepal.Length : <tf.float32> 5.1 4.9 4.7 4.6 5 5.4 4.6 5 4.4 4.9 5.4 4.8 4.8 4.3 5.8 5.7 5...
-Petal.Width  : <tf.float32> 0.2 0.2 0.2 0.2 0.2 0.4 0.3 0.2 0.2 0.1 0.2 0.2 0.1 0.1 0.2 0...
-Sepal.Width  : <tf.float32> 3.5 3 3.2 3.1 3.6 3.9 3.4 3.4 2.9 3.1 3.7 3.4 3 3 4 4.4 3.9 3...
-Species      : <tf.int32>   1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 ..
+<MapDataset shapes: {Sepal.Length: (), Sepal.Width: (), Petal.Length: (), Petal.Width: (),
+Species: ()}, types: {Sepal.Length: tf.float32, Sepal.Width: tf.float32, Petal.Length:
+tf.float32, Petal.Width: tf.float32, Species: tf.int32}>
 ```
-
 
 In the example above, the `csv_record_spec()` function is passed an example file which is used to  automatically detect column names and types (done by reading up to the first 1,000 lines of the file). You can also provide explicit column names and/or data types using the `names` and `types` parameters (note that in this case we don't pass an example file):
 
@@ -168,18 +164,10 @@ dataset <- sqlite_dataset(
 dataset
 ```
 ```
-TensorFlow Dataset
-disp : <tf.float64> 21 21 22.8 21.4 18.7 18.1 14.3 24.4 22.8 19.2 17.8 16.4 17.3 15.2 10.4..
-drat : <tf.int32>   6 6 4 6 8 6 8 4 4 6 6 8 8 8 8 8 8 4 4 4 4 8 8 8 8 4 4 4 8 6 8 4
-vs   : <tf.float64> 160 160 108 258 360 225 360 146.7 140.8 167.6 167.6 275.8 275.8 275.8 ..
-gear : <tf.int32>   110 110 93 110 175 105 245 62 95 123 123 180 180 180 205 215 230 66 52..
-mpg  : <tf.float64> 3.9 3.9 3.85 3.08 3.15 2.76 3.21 3.69 3.92 3.92 3.92 3.07 3.07 3.07 2...
-qsec : <tf.float64> 2.62 2.88 2.32 3.21 3.44 3.46 3.57 3.19 3.15 3.44 3.44 4.07 3.73 3.78 ..
-hp   : <tf.float64> 16.5 17 18.6 19.4 17 20.2 15.8 20 22.9 18.3 18.9 17.4 17.6 18 18 17.8 ..
-am   : <tf.int32>   0 0 1 1 0 1 0 1 1 1 1 0 0 0 0 0 0 1 1 1 1 0 0 0 0 1 0 1 0 0 0 1
-wt   : <tf.int32>   1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0 0 0 0 1 1 1 1 1 1 1
-carb : <tf.int32>   4 4 4 3 3 3 3 4 4 4 4 3 3 3 3 3 3 4 4 4 3 3 3 3 3 4 5 5 5 5 5 4
-cyl  : <tf.int32>   4 4 1 1 2 1 4 2 2 4 4 3 3 3 4 4 4 1 2 1 1 2 2 4 2 1 2 2 4 6 8 2
+<MapDataset shapes: {disp: (), drat: (), vs: (), gear: (), mpg: (), qsec: (), hp: (), am: (),
+wt: (), carb: (), cyl: ()}, types: {disp: tf.float64, drat: tf.int32, vs: tf.float64, gear:
+tf.int32, mpg: tf.float64, qsec: tf.float64, hp: tf.float64, am: tf.int32, wt: tf.int32, carb:
+tf.int32, cyl: tf.int32}>
 ```
 
 Note that for floating point data you must use `tf$float64` (reading `tf$float32` is not supported for SQLite databases).
@@ -295,120 +283,24 @@ dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
 
 ## Reading Datasets
 
-You read batches of data from a dataset by using tensors that yield the next batch. You can obtain this tensor from a dataset via the `next_batch()` function. For example:
+The method for reading data from a TensorFlow Dataset varies depending upon which API you are using to build your models. If you are using the [keras](https://tensorflow.rstudio.com/keras) or [tfestimators](https://tensorflow.rstudio.com/tfestimators/) packages, then TensorFlow Datasets can be used much like in-memory R matrices and arrays. If you are using the lower-level [tensorflow core](https://tensorflow.rstudio.com/tensorflow/) API then you'll use explicit dataset iteration functions.
 
-```{r}
-dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>% 
-  dataset_prepare(cyl ~ mpg + disp) %>% 
-  dataset_shuffle(20) %>% 
-  dataset_batch(5)
-batch <- next_batch(dataset)
-batch
-```
-```
-$x
-Tensor("IteratorGetNext_13:0", shape=(?, 2), dtype=float32)
+The sections below provide additional details and examples for each of the supported APIs.
 
-$y
-Tensor("IteratorGetNext_13:1", shape=(?,), dtype=int32)
+### keras package
+
+**IMPORTANT NOTE**: Using TensorFlow Datasets with Keras requires that you are running the very latest versions of Keras (v2.2), TensorFlow (v1.8), and the development versions of the **keras** and **tfdatasets** R packages. You can install these packages with:
+
+```r
+devtools::install_github(c("rstudio/keras", "rstudio/tfdatasets"))
 ```
 
-As you can see `batch` isn't the data itself but rather a tensor that will yield the next batch of data when it is evaluated:
+You can ensure that you have the latest version of the core Keras library with:
 
-```{r}
-sess <- tf$Session()
-sess$run(batch)
+```r
+library(keras)
+install_keras()
 ```
-```
-$x
-     [,1] [,2]
-[1,] 21.0  160
-[2,] 21.0  160
-[3,] 22.8  108
-[4,] 21.4  258
-[5,] 18.7  360
-
-$y
-[1] 6 6 4 6 8
-```
-
-## Dataset Iteration
-
-If you are iterating over an entire dataset by evaluating the `next_batch()` tensor you will need to determine at what point to stop iteration. There are a couple of possible approaches to controlling/detecting when iteration should end.
-
-One approach is to create a dataset that yields batches infinitely (traversing the dataset multiple times with different batches randomly drawn). In this case you'd use another mechanism like a global step counter or detecting a learning plateau:
-
-```{r}
-library(tfdatasets)
-dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>% 
-  dataset_prepare(x = c(mpg, disp), y = cyl) %>% 
-  dataset_shuffle(5000) %>% 
-  dataset_batch(128) %>% 
-  dataset_repeat() # repeat infinitely
-
-batch <- next_batch(dataset)
-
-steps <- 200
-for (i in 1:steps) {
-  # use batch$x and batch$y tensors
-}
-```
-
-The call to `dataset_repeat()` with no `count` parameter requests that the dataset be traversed infinitely.
-
-Another approach is to detect when all batches have been yielded from the dataset. When the tensor reaches the end of iteration a runtime error will occur. You can catch and ignore the error when it occurs by wrapping your iteration code in the `with_dataset()` function:
-
-```{r}
-library(tfdatasets)
-dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>% 
-  dataset_prepare(x = c(mpg, disp), y = cyl) %>% 
-  dataset_batch(128) %>% 
-  dataset_repeat(10)
-  
-batch <- next_batch(dataset)
-
-with_dataset({
-  while(TRUE) {
-    # use batch$x and batch$y tensors
-  }
-})
-```
-
-
-## Using with tfestimators
-
-Models created with **tfestimators** use an input function to consume data for training, evaluation, and prediction. For example, here is an example of using an input function to feed data from an in-memory R data frame to an estimators model:
-
-```{r}
-model %>% train(
-  input_fn(mtcars, features = c(mpg, disp), response = cyl,
-           batch_size = 128, epochs = 3)
-)
-```
-
-If you are using **tfdatasets** with the **tfestimators** package, you can create an estimators input function directly from a dataset as follows:
-
-```{r}
-dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>% 
-  dataset_batch(128) %>% 
-  dataset_repeat(3)
-
-model %>% train(
-  input_fn(dataset, features = c(mpg, disp), response = cyl)
-)
-```
-
-Note that we don't use the `dataset_prepare()` or `next_batch()` functions in this example. Rather, these functions are used under the hood to provide the `input_fn` interface expected by tfestimators models.
-
-As with `dataset_prepare()`, you can alternatively use an R formula to specify features and response:
-
-```{r}
-model %>% train(
-  input_fn(dataset, cyl ~ mpg + disp)
-)
-```
-
-## Using with Keras
 
 Keras models are often trained by passing in-memory arrays directly to the `fit` function. For example:
 
@@ -422,15 +314,13 @@ model %>% fit(
 
 However, this requires loading data into an R data frame or matrix before calling fit. You can use the `train_on_batch()` function to stream data one batch at a time, however the reading and processing of the input data is still being done serially and outside of native code.
 
-
-Alternatively, Keras enables you to pass a dataset directly as the `generator` argument to `fit_generator()` and `validate_generator()`. Here's a complete example that uses datasets to read from TFRecord files containing MNIST digits:
+Alternatively, Keras enables you to pass a dataset directly as the `x` argument to `fit()` and `evaluate()`. Here's a complete example that uses datasets to read from TFRecord files containing MNIST digits:
 
 ```{r}
 library(keras)
 library(tfdatasets)
 
 batch_size = 128
-epochs = 20
 steps_per_epoch = 500
 
 # function to read and preprocess mnist dataset
@@ -458,8 +348,9 @@ mnist_dataset <- function(filename) {
       list(image, label)
     }) %>%
     dataset_repeat() %>%
-    dataset_shuffle(10000) %>%
-    dataset_batch(batch_size)
+    dataset_shuffle(1000) %>%
+    dataset_batch(batch_size, drop_remainder = TRUE) %>%
+    dataset_prefetch(1)
 }
 
 model <- keras_model_sequential() %>%
@@ -475,21 +366,152 @@ model %>% compile(
   metrics = c('accuracy')
 )
 
-history <- model %>% fit_generator(
-  generator = mnist_dataset("mnist/train.tfrecords"),
+history <- model %>% fit(
+  mnist_dataset("mnist/train.tfrecords"),
   steps_per_epoch = steps_per_epoch,
-  epochs = epochs,
+  epochs = 20,
   validation_data = mnist_dataset("mnist/validation.tfrecords"),
   validation_steps = steps_per_epoch
 )
 
-score <- model %>% evaluate_generator(
-  generator = mnist_dataset("mnist/test.tfrecords"),
+score <- model %>% evaluate(
+  mnist_dataset("mnist/test.tfrecords"),
   steps = steps_per_epoch
 )
+
+print(score)
 ```
 
 Note that all data preprocessing (e.g. one-hot encoding of the response variable) is done within the `dataset_map()` operation.
+
+### tfestimators package
+
+Models created with **tfestimators** use an input function to consume data for training, evaluation, and prediction. For example, here is an example of using an input function to feed data from an in-memory R data frame to an estimators model:
+
+```{r}
+model %>% train(
+  input_fn(mtcars, features = c(mpg, disp), response = cyl,
+           batch_size = 128, epochs = 3)
+)
+```
+
+If you are using **tfdatasets** with the **tfestimators** package, you can create an estimators input function directly from a dataset as follows:
+
+```{r}
+library(tfestimators)
+library(tfdatasets)
+
+mtcars_spec <- csv_record_spec("mtcars.csv")
+dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>% 
+  dataset_batch(128) %>% 
+  dataset_repeat(3)
+
+model %>% train(
+  input_fn(dataset, features = c(mpg, disp), response = cyl)
+)
+```
+
+Note that we don't use the `dataset_prepare()` function in this example. Rather, this function is used under the hood to provide the `input_fn` interface expected by tfestimators models.
+
+As with `dataset_prepare()`, you can alternatively use an R formula to specify features and response:
+
+```{r}
+model %>% train(
+  input_fn(dataset, cyl ~ mpg + disp)
+)
+```
+
+
+### tensorflow package
+
+You read batches of data from a dataset by using tensors that yield the next batch. You can obtain this tensor from a dataset via the `make_iterator_one_shot()` and `iterator_get_next()` functions. For example:
+
+```{r}
+dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>% 
+  dataset_prepare(cyl ~ mpg + disp) %>% 
+  dataset_shuffle(20) %>% 
+  dataset_batch(5)
+
+iter <- make_iterator_one_shot(dataset)
+next_batch <- iterator_get_next(iter)
+next_batch
+```
+```
+$x
+Tensor("IteratorGetNext_13:0", shape=(?, 2), dtype=float32)
+
+$y
+Tensor("IteratorGetNext_13:1", shape=(?,), dtype=int32)
+```
+
+As you can see `next_batch` isn't the data itself but rather a tensor that will yield the next batch of data when it is evaluated:
+
+```{r}
+sess <- tf$Session()
+sess$run(next_batch)
+```
+```
+$x
+     [,1] [,2]
+[1,] 21.0  160
+[2,] 21.0  160
+[3,] 22.8  108
+[4,] 21.4  258
+[5,] 18.7  360
+
+$y
+[1] 6 6 4 6 8
+```
+
+If you are iterating over a dataset using these functions, you will need to determine at what point to stop iteration. One approach to this is to use the `dataset_repeat()` function to create an dataset that yields values infinitely. For example:
+
+```{r}
+library(tfdatasets)
+
+sess <- tf$Session()
+
+mtcars_spec <- csv_record_spec("mtcars.csv")
+dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>% 
+  dataset_prepare(x = c(mpg, disp), y = cyl) %>% 
+  dataset_shuffle(5000) %>% 
+  dataset_batch(128) %>% 
+  dataset_repeat() # repeat infinitely
+
+iter <- make_iterator_one_shot(dataset)
+next_batch <- iterator_get_next(iter)
+
+steps <- 200
+for (i in 1:steps) {
+  batch <- sess$run(next_batch)
+  # use batch for training, etc.
+}
+```
+
+In this case the `steps` variable is used to determine when to stop drawing new batches of training data (we could have equally included code to detect a learning plateau or any other custom method of determining when to stop training).
+
+Another approach is to detect when all batches have been yielded from the dataset. When a dataset iterator reaches the end, an out of range runtime error will occur. You can catch and ignore the error when it occurs by using `out_of_range_handler` as the `error` argument to `tryCatch()`. For example:
+
+```{r}
+library(tfdatasets)
+
+sess <- tf$Session()
+
+mtcars_spec <- csv_record_spec("mtcars.csv")
+dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>% 
+  dataset_prepare(x = c(mpg, disp), y = cyl) %>% 
+  dataset_batch(128) %>% 
+  dataset_repeat(10)
+  
+iter <- make_iterator_one_shot(dataset)
+next_batch <- iterator_get_next(iter)
+
+tryCatch({
+  while(TRUE) {
+    batch <- sess$run(next_batch)
+    # use batch$x and batch$y tensors
+  }
+}, error = out_of_range_handler)
+```
 
 ## Reading Multiple Files
 
@@ -519,7 +541,7 @@ If you are training on multiple machines and the training supervisor passes a sh
 # supervisor that executes the script)
 FLAGS <- flags(
   flag_integer("num_shards", 1),
-  flag_integeR("shard_index", 1)
+  flag_integer("shard_index", 1)
 )
 
 # forward shard info to read_files

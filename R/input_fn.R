@@ -13,8 +13,6 @@
 #' @return An input_fn suitable for use with tfestimators [train][tfestimators::train.tf_estimator],
 #'   [evaluate][tfestimators::evaluate.tf_estimator], and [predict][tfestimators::predict.tf_estimator] methods
 #'
-#' @family reading datasets
-#'
 #' @rdname input_fn
 #' @aliases input_fn
 #' @export
