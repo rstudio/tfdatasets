@@ -411,7 +411,7 @@ model %>% train(
 )
 ```
 
-Note that we don't use the `dataset_prepare()` or `next_batch()` functions in this example. Rather, these functions are used under the hood to provide the `input_fn` interface expected by tfestimators models.
+Note that we don't use the `dataset_prepare()` function in this example. Rather, this function is used under the hood to provide the `input_fn` interface expected by tfestimators models.
 
 As with `dataset_prepare()`, you can alternatively use an R formula to specify features and response:
 
