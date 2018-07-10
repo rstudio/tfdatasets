@@ -541,7 +541,7 @@ If you are training on multiple machines and the training supervisor passes a sh
 # supervisor that executes the script)
 FLAGS <- flags(
   flag_integer("num_shards", 1),
-  flag_integeR("shard_index", 1)
+  flag_integer("shard_index", 1)
 )
 
 # forward shard info to read_files
