@@ -289,10 +289,17 @@ The sections below provide additional details and examples for each of the suppo
 
 ### keras package
 
-**IMPORTANT NOTE**: Using TensorFlow Datasets with Keras requires that you are running the very latest versions of Keras (v2.2), TensorFlow (v1.8), and the development version of the **tfdatasets** package. You can install the development version with:
+**IMPORTANT NOTE**: Using TensorFlow Datasets with Keras requires that you are running the very latest versions of Keras (v2.2), TensorFlow (v1.8), and the development versions of the **keras** and **tfdatasets** R packages. You can install these packages with:
 
 ```r
-devtools::install_github("rstudio/tfdatasets")
+devtools::install_github(c("rstudio/keras", "rstudio/tfdatasets"))
+```
+
+You can ensure that you have the latest version of the core Keras library with:
+
+```r
+library(keras)
+install_keras()
 ```
 
 Keras models are often trained by passing in-memory arrays directly to the `fit` function. For example:
