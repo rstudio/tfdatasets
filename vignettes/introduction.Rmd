@@ -384,6 +384,8 @@ print(score)
 
 Note that all data preprocessing (e.g. one-hot encoding of the response variable) is done within the `dataset_map()` operation.
 
+Also note that we pass `drop_remainder = TRUE` to the `dataset_batch()` function (this is to make sure that all batches are of equal size, a requirement for Keras tensor inputs).
+
 ### tfestimators package
 
 Models created with **tfestimators** use an input function to consume data for training, evaluation, and prediction. For example, here is an example of using an input function to feed data from an in-memory R data frame to an estimators model:
