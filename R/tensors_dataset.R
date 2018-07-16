@@ -28,7 +28,13 @@ tensors_dataset <- function(tensors) {
 #'
 #' @export
 tensor_slices_dataset <-function(tensors) {
+
   validate_tf_version()
+
+  # convert list into tuple
+  if (is.list(tensors))
+    tensors <- tuple(tensors)
+
   as_tf_dataset(
     tf$data$Dataset$from_tensor_slices(tensors = tensors)
   )
