@@ -19,7 +19,8 @@ steps_per_epoch = 500
 
 # function to read and preprocess mnist dataset
 mnist_dataset <- function(filename) {
-  dataset <- tfrecord_dataset(filename, num_parallel_reads = 2) %>%
+  dataset <- tfrecord_dataset(filename, num_parallel_reads = 8) %>%
+    dataset_shuffle_and_repeat(1000) %>%
     dataset_map(function(example_proto) {
 
       # parse record
@@ -41,8 +42,6 @@ mnist_dataset <- function(filename) {
       # return
       list(image, label)
     }) %>%
-    dataset_repeat() %>%
-    dataset_shuffle(1000) %>%
     dataset_batch(batch_size, drop_remainder = TRUE) %>%
     dataset_prefetch(1)
 }

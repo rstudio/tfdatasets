@@ -222,7 +222,7 @@ dataset <- dataset %>%
     record$Species <- tf$one_hot(record$Species, 3L)
     record
   }) %>% 
-  datset_prefetch(100)
+  datset_prefetch(1)
 ```
 
 
@@ -271,9 +271,17 @@ There are several functions which control how batches are drawn from the dataset
 
 ```{r}
 dataset <- dataset %>% 
-  dataset_shuffle(1000) %>% 
+  dataset_shuffle(1000) %>%
+  dataset_repeat(10) %>% 
   dataset_batch(128) %>% 
-  dataset_repeat(10)
+```
+
+Note that you can optimize performance by fusing the shuffle and repeat operations into a single step using the `dataset_shuffle_and_repeat()` function. For example:
+
+```{r}
+dataset <- dataset %>% 
+  dataset_shuffle_and_repeat(buffer_size = 1000, count = 10) %>%
+  dataset_batch(128)
 ```
 
 
@@ -283,14 +291,13 @@ Here's a complete example of using the various dataset transformation functions 
 
 ```{r}
 dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
-  dataset_prefetch(1000) %>% 
+  dataset_shuffle_and_repeat(buffer_size = 1000, count = 10) %>% 
   dataset_filter(function(record) {
     record$mpg >= 20 & record$cyl >= 6L
   }) %>% 
   dataset_prepare(cyl ~ mpg + disp) %>% 
-  dataset_shuffle(1000) %>% 
   dataset_batch(128) %>% 
-  dataset_repeat(10)
+  dataset_prefetch(1)
 ```
 
 ## Reading Datasets

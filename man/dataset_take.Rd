@@ -31,5 +31,6 @@ Other dataset methods: \code{\link{dataset_batch}},
   \code{\link{dataset_padded_batch}},
   \code{\link{dataset_prefetch}},
   \code{\link{dataset_repeat}},
+  \code{\link{dataset_shuffle_and_repeat}},
   \code{\link{dataset_shuffle}}, \code{\link{dataset_skip}}
 }

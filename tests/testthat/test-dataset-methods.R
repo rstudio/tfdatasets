@@ -14,6 +14,11 @@ test_succeeds("dataset_shuffle returns a dataset", {
     dataset_shuffle(20)
 })
 
+test_succeeds("dataset_shuffle_and_repeat returns a dataset", {
+  dataset <- tensors_dataset(tf$constant(1:100)) %>%
+    dataset_shuffle_and_repeat(20)
+})
+
 test_succeeds("dataset_batch returns a dataset", {
   dataset <- tensors_dataset(tf$constant(1:100)) %>%
     dataset_batch(10)

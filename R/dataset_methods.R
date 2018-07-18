@@ -40,6 +40,26 @@ dataset_shuffle <- function(dataset, buffer_size, seed = NULL) {
   ))
 }
 
+
+#' Shuffles and repeats a dataset returning a new permutation for each epoch.
+#'
+#' @inheritParams dataset_shuffle
+#' @inheritParams dataset_repeat
+#'
+#' @family dataset methods
+#'
+#' @export
+dataset_shuffle_and_repeat <- function(dataset, buffer_size, count = NULL, seed = NULL) {
+  validate_tf_version("1.8", "dataset_shuffle_and_repeat")
+  as_tf_dataset(dataset$apply(
+    tf$contrib$data$shuffle_and_repeat(
+      as_integer_tensor(buffer_size),
+      as_integer_tensor(count),
+      as_integer_tensor(seed)
+    )
+  ))
+}
+
 #' Combines consecutive elements of this dataset into batches.
 #'
 #' @param dataset A dataset
