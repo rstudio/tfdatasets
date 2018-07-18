@@ -62,7 +62,7 @@ test_succeeds("dataset_map handles threads correctly and returns a dataset", {
   # to yield a TF tensor which is used later.
   dataset <- tensors_dataset(tf$constant(1:100)) %>%
     dataset_map(function(x) { gc(); tf$negative(x) }, num_parallel_calls = 8) %>%
-    dataset_prefetch(20)
+    dataset_prefetch(1)
 })
 
 test_succeeds("dataset_map_and_batch returns a dataset", {
@@ -73,6 +73,14 @@ test_succeeds("dataset_map_and_batch returns a dataset", {
     dataset_prefetch(1)
 })
 
+
+test_succeeds("dataset_prefetch_to_device returns a dataset", {
+  dataset <- tensors_dataset(tf$constant(1:100)) %>%
+    dataset_map_and_batch(batch_size = 32, drop_remainder = TRUE,
+                          function(x) { x }
+    ) %>%
+    dataset_prefetch_to_device("/cpu:0", 1)
+})
 
 test_succeeds("dataset_filter narrows the dataset", {
   dataset <- csv_dataset("data/mtcars.csv") %>%

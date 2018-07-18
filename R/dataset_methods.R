@@ -238,6 +238,33 @@ dataset_prefetch <- function(dataset, buffer_size) {
 }
 
 
+#' A transformation that prefetches dataset values to the given `device`
+#'
+#' @param dataset A dataset
+#' @param device A string. The name of a device to which elements will be prefetched
+#'   (e.g. "/gpu:0").
+#' @param buffer_size (Optional.) The number of elements to buffer on device.
+#'   Defaults to an automatically chosen value.
+#'
+#' @return A dataset
+#'
+#' @note Although the transformation creates a dataset, the transformation must be the
+#'   final dataset in the input pipeline.
+#'
+#' @family dataset methods
+#'
+#' @export
+dataset_prefetch_to_device <- function(dataset, device, buffer_size = NULL) {
+  validate_tf_version("1.8", "dataset_prefetch_to_device")
+  as_tf_dataset(dataset$apply(
+    tf$contrib$data$prefetch_to_device(
+      device = device,
+      buffer_size = as_integer_tensor(buffer_size)
+    )
+  ))
+}
+
+
 #' Filter a dataset by a predicate
 #'
 #' @param dataset A dataset

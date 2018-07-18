@@ -282,7 +282,6 @@ mtcars_dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
   dataset_prepare(cyl ~ mpg + disp, batch_size = 16)
 ```
 
-
 ### Shuffling and Batching 
 
 There are several functions which control how batches are drawn from the dataset. For example, the following specifies that data will be drawn in batches of 128 from a shuffled window of 1000 records, and that the dataset will be repeated for 10 epochs:
@@ -302,6 +301,31 @@ dataset <- dataset %>%
   dataset_batch(128)
 ```
 
+### Prefetching
+
+Earlier we alluded to the `dataset_prefetch()` function, which enables you to ensure that a given number of records (or batches of records) are prefetched in parallel so they are ready to go when the next batch is processed. For example:
+
+```{r}
+dataset <- dataset %>% 
+  dataset_map_and_batch(batch_size = 128, function(record) {
+    record$Species <- tf$one_hot(record$Species, 3L)
+    record
+  }) %>% 
+  dataset_prefetch(1)
+```
+
+If you are using a GPU for training, you can also use the `dataset_prefetch_to_device()` function to specify that the parallel prefetch operation stage the data directly into GPU memory. For example:
+
+```{r}
+dataset <- dataset %>% 
+  dataset_map_and_batch(batch_size = 128, function(record) {
+    record$Species <- tf$one_hot(record$Species, 3L)
+    record
+  }) %>% 
+  dataset_prefetch_to_device("/gpu:0")
+```
+
+In this case the buffer size for prefetches is determined automatically (you can manually speicfy it using the `buffer_size` parameter).
 
 ### Complete Example
 
@@ -568,9 +592,8 @@ The `read_files()` function takes a set of files and a read function along with 
 dataset <- read_files("data/*.csv", text_line_dataset, record_spec = mtcars_spec,
                       parallel_files = 4, parallel_interleave = 16) %>% 
   dataset_prefetch(5000) %>% 
-  dataset_shuffle(1000) %>% 
-  dataset_batch(128) %>% 
-  dataset_repeat(3)
+  dataset_shuffle_and_repeat(buffer_size = 1000, count = 3) %>% 
+  dataset_batch(128)
 ```
 
 The `parallel_files` argument requests that 4 files be processed in parallel and the `parallel_interleave` argument requests that blocks of 16 consecutive records from each file be interleaved in the resulting dataset.
@@ -593,10 +616,9 @@ FLAGS <- flags(
 dataset <- read_files("data/*.csv", text_line_dataset, record_spec = mtcars_spec,
                       parallel_files = 4, parallel_interleave = 16,
                       num_shards = FLAGS$num_shards, shard_index = FLAGS$shard_index) %>% 
-  dataset_shuffle(1000) %>% 
+  dataset_shuffle_and_repeat(buffer_size = 1000, count = 3) %>% 
   dataset_batch(128) %>% 
   dataset_prefetch(1) %>% 
-  dataset_repeat(3)
 ```
 
 
