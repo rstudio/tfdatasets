@@ -12,8 +12,8 @@ dataset_batch(dataset, batch_size, drop_remainder = FALSE)
 \item{batch_size}{An integer, representing the number of consecutive elements
 of this dataset to combine in a single batch.}
 
-\item{drop_remainder}{Ensure that yoru batches have a fixed size by
-omiting any final smaller batch if it's present. Note that this is
+\item{drop_remainder}{Ensure that batches have a fixed size by
+omitting any final smaller batch if it's present. Note that this is
 required for use with the Keras tensor inputs to fit/evaluate/etc.}
 }
 \value{
@@ -28,6 +28,7 @@ Other dataset methods: \code{\link{dataset_cache}},
   \code{\link{dataset_decode_delim}},
   \code{\link{dataset_filter}},
   \code{\link{dataset_interleave}},
+  \code{\link{dataset_map_and_batch}},
   \code{\link{dataset_map}},
   \code{\link{dataset_padded_batch}},
   \code{\link{dataset_prefetch}},

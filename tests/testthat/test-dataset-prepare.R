@@ -16,6 +16,13 @@ test_succeeds("dataset_prepare accepts formula syntax", {
   expect_length(setdiff(names(batch), c("x", "y")), 0)
 })
 
+test_succeeds("dataset_prepare can fuse dataset_batch", {
+  batch <- mtcars_dataset() %>%
+    dataset_prepare(cyl ~ mpg + disp, batch_size = 16) %>%
+    next_batch()
+  expect_length(setdiff(names(batch), c("x", "y")), 0)
+})
+
 test_succeeds("dataset_prepare does not require y", {
   batch <- mtcars_dataset() %>%
     dataset_prepare(x = c(mpg, disp)) %>%

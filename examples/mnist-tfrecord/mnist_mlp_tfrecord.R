@@ -21,28 +21,27 @@ steps_per_epoch = 500
 mnist_dataset <- function(filename) {
   dataset <- tfrecord_dataset(filename, num_parallel_reads = 8) %>%
     dataset_shuffle_and_repeat(1000) %>%
-    dataset_map(function(example_proto) {
-
-      # parse record
-      features <- tf$parse_single_example(
-        example_proto,
-        features = list(
-          image_raw = tf$FixedLenFeature(shape(), tf$string),
-          label = tf$FixedLenFeature(shape(), tf$int64)
+    dataset_map_and_batch(batch_size = batch_size, drop_remainder = TRUE,
+      function(example_proto) {
+        # parse record
+        features <- tf$parse_single_example(
+          example_proto,
+          features = list(
+            image_raw = tf$FixedLenFeature(shape(), tf$string),
+            label = tf$FixedLenFeature(shape(), tf$int64)
+          )
         )
-      )
 
-      # preprocess image
-      image <- tf$decode_raw(features$image_raw, tf$uint8)
-      image <- tf$cast(image, tf$float32) / 255
+        # preprocess image
+        image <- tf$decode_raw(features$image_raw, tf$uint8)
+        image <- tf$cast(image, tf$float32) / 255
 
-      # convert label to one-hot
-      label <- tf$one_hot(tf$cast(features$label, tf$int32), 10L)
+        # convert label to one-hot
+        label <- tf$one_hot(tf$cast(features$label, tf$int32), 10L)
 
-      # return
-      list(image, label)
-    }) %>%
-    dataset_batch(batch_size, drop_remainder = TRUE) %>%
+        # return
+        list(image, label)
+      }) %>%
     dataset_prefetch(1)
 }
 

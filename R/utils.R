@@ -1,6 +1,5 @@
 
 
-
 as_integer_tensor <- function(x, dtype = tf$int64) {
 
   # recurse over lists

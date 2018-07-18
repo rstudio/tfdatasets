@@ -65,6 +65,14 @@ test_succeeds("dataset_map handles threads correctly and returns a dataset", {
     dataset_prefetch(20)
 })
 
+test_succeeds("dataset_map_and_batch returns a dataset", {
+  dataset <- tensors_dataset(tf$constant(1:100)) %>%
+    dataset_map_and_batch(batch_size = 32, drop_remainder = TRUE,
+      function(x) { x }
+    ) %>%
+    dataset_prefetch(1)
+})
+
 
 test_succeeds("dataset_filter narrows the dataset", {
   dataset <- csv_dataset("data/mtcars.csv") %>%

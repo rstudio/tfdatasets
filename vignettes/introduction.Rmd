@@ -147,7 +147,7 @@ You can parallelize reading of TFRecord files using the `num_parallel_reads` opt
 
 ```{r}
 filenames <- c("/var/data/file1.tfrecord", "/var/data/file2.tfrecord")
-dataset <- tfrecord_dataset(filenames, num_parallel_reads = 2)
+dataset <- tfrecord_dataset(filenames, num_parallel_reads = 4)
 ```
 
 
@@ -225,6 +225,17 @@ dataset <- dataset %>%
   datset_prefetch(1)
 ```
 
+If you are batching your data for training, you can optimize performance using the `dataset_map_and_batch()` function (which fuses together the map and batch operations). 
+For example:
+
+```{r}
+dataset <- dataset %>% 
+  dataset_map_and_batch(batch_size = 128, function(record) {
+    record$Species <- tf$one_hot(record$Species, 3L)
+    record
+  }) %>% 
+  datset_prefetch(1)
+```
 
 ### Filtering
 
@@ -264,6 +275,13 @@ mtcars_dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
   dataset_prepare(cyl ~ mpg + disp)
 ```
 
+If you are batching your data for training you add a `batch_size` parameter to fuse together the `dataset_prepare()` and `dataset_batch()` steps (which generally results in faster training). For example:
+
+```{r}
+mtcars_dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>% 
+  dataset_prepare(cyl ~ mpg + disp, batch_size = 16)
+```
+
 
 ### Shuffling and Batching 
 
@@ -291,12 +309,11 @@ Here's a complete example of using the various dataset transformation functions 
 
 ```{r}
 dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
-  dataset_shuffle_and_repeat(buffer_size = 1000, count = 10) %>% 
   dataset_filter(function(record) {
     record$mpg >= 20 & record$cyl >= 6L
   }) %>% 
-  dataset_prepare(cyl ~ mpg + disp) %>% 
-  dataset_batch(128) %>% 
+  dataset_shuffle_and_repeat(buffer_size = 1000, count = 10) %>% 
+  dataset_prepare(cyl ~ mpg + disp, batch_size = 128) %>% 
   dataset_prefetch(1)
 ```
 

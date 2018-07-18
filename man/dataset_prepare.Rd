@@ -5,7 +5,8 @@
 \title{Prepare a dataset for analysis}
 \usage{
 dataset_prepare(dataset, x, y = NULL, named = TRUE,
-  named_features = FALSE, parallel_records = NULL)
+  named_features = FALSE, parallel_records = NULL, batch_size = NULL,
+  num_parallel_batches = NULL, drop_remainder = FALSE)
 }
 \arguments{
 \item{dataset}{A dataset}
@@ -26,6 +27,19 @@ have the same underlying data type.}
 \item{parallel_records}{(Optional) An integer, representing the number of
 records to decode in parallel. If not specified, records will be
 processed sequentially.}
+
+\item{batch_size}{(Optional). Batch size if you would like to fuse the
+\code{dataset_prepare()} operation together with a \code{dataset_batch()} (fusing
+generally improves overall training performance).}
+
+\item{num_parallel_batches}{(Optional) An integer, representing the number of batches
+to create in parallel. On one hand, higher values can help mitigate the effect of
+stragglers. On the other hand, higher values can increase contention if CPU is
+scarce.}
+
+\item{drop_remainder}{Ensure that batches have a fixed size by
+omitting any final smaller batch if it's present. Note that this is
+required for use with the Keras tensor inputs to fit/evaluate/etc.}
 }
 \value{
 A dataset. The dataset will have a structure of either:
