@@ -115,8 +115,11 @@ You can also parallelize the reading of data from storage by requesting that a b
 
 ```{r}
 dataset <- text_line_dataset("iris.csv", record_spec = iris_spec, parallel_records = 4) %>% 
-  dataset_prefetch(1000)
+  dataset_batch(128) %>% 
+  dataset_prefetch(1)
 ```
+
+This code will result in the prefetching of a single batch of data on a background thread (i.e. in parallel with training operations).
 
 If you have multiple input files, you can also parallelize reading of these files both across multiple machines (sharding) and/or on multiple threads per-machine (parallel reads with interleaving). See the section on [Reading Multiple Files] below for additional details.
 
@@ -557,9 +560,9 @@ FLAGS <- flags(
 dataset <- read_files("data/*.csv", text_line_dataset, record_spec = mtcars_spec,
                       parallel_files = 4, parallel_interleave = 16,
                       num_shards = FLAGS$num_shards, shard_index = FLAGS$shard_index) %>% 
-  dataset_prefetch(5000) %>% 
   dataset_shuffle(1000) %>% 
   dataset_batch(128) %>% 
+  dataset_prefetch(1) %>% 
   dataset_repeat(3)
 ```
 
