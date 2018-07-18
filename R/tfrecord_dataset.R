@@ -2,10 +2,13 @@
 #' A dataset comprising records from one or more TFRecord files.
 #'
 #' @inheritParams text_line_dataset
+#' @param buffer_size An integer representing the number of bytes in the read buffer. (0
+#'   means no buffering).
+#' @param num_parallel_reads An integer representing the number of files to read in
+#'   parallel. Defaults to reading files sequentially.
 #'
-#' @details If the dataset encodes a set of TFExample instances,
-#'  then they can be decoded into named records using the
-#'  [dataset_map()] function (see example below).
+#' @details If the dataset encodes a set of TFExample instances, then they can be decoded
+#'   into named records using the [dataset_map()] function (see example below).
 #'
 #' @examples \dontrun{
 #'
@@ -23,10 +26,19 @@
 #' }
 #'
 #' @export
-tfrecord_dataset <- function(filenames, compression_type = NULL) {
+tfrecord_dataset <- function(filenames,
+                             compression_type = NULL,
+                             buffer_size = NULL,
+                             num_parallel_reads = NULL) {
 
   # validate during dataset construction
   validate_tf_version()
+
+  # validate version for new parameters
+  if (!missing(buffer_size))
+    validate_tf_version("1.8", "buffer_size")
+  if (!missing(num_parallel_reads))
+    validate_tf_version("1.8", "num_parallel_reads")
 
   # resolve NULL compression
   if (is.null(compression_type))

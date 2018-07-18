@@ -143,6 +143,15 @@ dataset <- tfrecord_dataset(filenames) %>%
   })
 ```
 
+You can parallelize reading of TFRecord files using the `num_parallel_reads` option, for example:
+
+```{r}
+filenames <- c("/var/data/file1.tfrecord", "/var/data/file2.tfrecord")
+dataset <- tfrecord_dataset(filenames, num_parallel_reads = 2)
+```
+
+
+
 ## SQLite Databases
 
 You can read datasets from SQLite databases using the `sqlite_dataset()` function. Note that support for SQLite databases required TensorFlow v1.7 as well as the development version of the **tfdatasets** package, which you can install via `devtools::install_github("rstudio/tfdatasts")`.

@@ -4,21 +4,27 @@
 \alias{tfrecord_dataset}
 \title{A dataset comprising records from one or more TFRecord files.}
 \usage{
-tfrecord_dataset(filenames, compression_type = NULL)
+tfrecord_dataset(filenames, compression_type = NULL, buffer_size = NULL,
+  num_parallel_reads = NULL)
 }
 \arguments{
 \item{filenames}{String(s) specifying one or more filenames}
 
 \item{compression_type}{A string, one of: \code{NULL} (no compression), \code{"ZLIB"}, or
 \code{"GZIP"}.}
+
+\item{buffer_size}{An integer representing the number of bytes in the read buffer. (0
+means no buffering).}
+
+\item{num_parallel_reads}{An integer representing the number of files to read in
+parallel. Defaults to reading files sequentially.}
 }
 \description{
 A dataset comprising records from one or more TFRecord files.
 }
 \details{
-If the dataset encodes a set of TFExample instances,
-then they can be decoded into named records using the
-\code{\link[=dataset_map]{dataset_map()}} function (see example below).
+If the dataset encodes a set of TFExample instances, then they can be decoded
+into named records using the \code{\link[=dataset_map]{dataset_map()}} function (see example below).
 }
 \examples{
 \dontrun{
