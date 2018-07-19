@@ -1,6 +1,6 @@
 
 
-#' @importFrom reticulate py_last_error tuple py_str py_has_attr
+#' @importFrom reticulate py_last_error tuple py_str py_has_attr iter_next
 #' @import tidyselect
 #' @import rlang
 NULL

@@ -19,6 +19,19 @@ test_succeeds("with_dataset catches end of iteration", {
 
 })
 
+test_succeeds("for_each_batch yields batches and terminates", {
+
+  sess <- tf$Session()
+  on.exit(sess$close(), add = TRUE)
+
+  dataset <- tensor_slices_dataset(1:50) %>%
+    dataset_batch(10)
+
+  dataset %>% for_each_batch(function(batch) {
+    sess$run(batch)
+  })
+
+})
 
 
 
