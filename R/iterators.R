@@ -131,50 +131,7 @@ iterator_make_initializer <- function(iterator, dataset, name = NULL) {
 }
 
 
-#' Iterate over a dataset, calling a function for each batch
-#'
-#' @param dataset A dataset
-#' @param func Function to call with batch tensor
-#'
-#' Traverse a dataset by calling a function that accepts the next
-#' batch as a parameter. Note that when running in default (non-eager)
-#' mode, the tensor must actually be evaluated (e.g. passed to
-#' a TensorFlow function that uses it or run explicitly) in order
-#' to advance to the next batch.
-#'
-#' @export
-for_each_batch <- function(dataset, func) {
 
-  if (tf$contrib$eager$executing_eagerly()) {
-
-    # validate we have a version of TF that supports iterable datasets
-    validate_tf_version("1.8", "for_each_batch in eager mode")
-
-    # get python iterator for dataset
-    iter <- dataset$`__iter__`()
-
-    # loop until we are completed
-    while(TRUE) {
-      batch <- iter_next(iter)
-      if (is.null(batch))
-        break
-      func(batch)
-    }
-
-
-  } else {
-
-    # get one shot iterator for dataset
-    iter <- make_iterator_one_shot(dataset)
-    next_batch_tensor <- iterator_get_next(iter)
-
-    # loop over it until we get an out of range error
-    tryCatch({
-      while(TRUE)
-        func(next_batch_tensor)
-    }, error = out_of_range_handler)
-  }
-}
 
 
 

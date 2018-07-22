@@ -19,16 +19,17 @@ test_succeeds("with_dataset catches end of iteration", {
 
 })
 
-test_succeeds("for_each_batch yields batches and terminates", {
+test_succeeds("until_out_of_range catches end of iteration", {
 
   sess <- tf$Session()
   on.exit(sess$close(), add = TRUE)
-
   dataset <- tensor_slices_dataset(1:50) %>%
     dataset_batch(10)
+  batch <- next_batch(dataset)
 
-  dataset %>% for_each_batch(function(batch) {
-    sess$run(batch)
+  until_out_of_range({
+    value <- sess$run(batch)
+    print(value)
   })
 
 })

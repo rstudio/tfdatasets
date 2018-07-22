@@ -13,7 +13,12 @@ record_spec <- sql_record_spec(
 dataset <- sqlite_dataset('mtcars.sqlite3', 'select * from mtcars', record_spec) %>%
   dataset_batch(10)
 
-dataset %>% for_each_batch(function(batch) {
+iter <- make_iterator_one_shot(dataset)
+
+until_out_of_range({
+  batch <- iterator_get_next(iter)
   str(batch)
 })
+
+
 

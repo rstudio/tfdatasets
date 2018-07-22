@@ -96,10 +96,12 @@ next_batch <- function(dataset) {
 #'   dataset_batch(128) %>%
 #'   dataset_repeat(10)
 #'
-#' batch <- next_batch(dataset)
+#' iter <- make_iterator_one_shot(dataset)
+#' next_batch <- iterator_get_next(iter)
 #'
 #' with_dataset({
 #'   while(TRUE) {
+#'     batch <- sess$run(next_batch)
 #'     # use batch$x and batch$y tensors
 #'   }
 #' })
@@ -113,35 +115,56 @@ with_dataset <- function(expr) {
   error = out_of_range_handler)
 }
 
-
-
-#' Handle out of range errors on dataset iterators
+#' Execute code that traverses a dataset until an out of range condition occurs
 #'
-#' @param e R error object
+#' @param expr Expression to execute (will be executed multiple times until
+#' the condition occurs)
+#' @param e Error object
 #'
 #' @details  When a dataset iterator reaches the end, an out of range runtime error
-#'   will occur. You can catch and ignore the error when it occurs by using
-#'   `out_of_range_handler` as the `error` argument to `tryCatch()`.
+#'   will occur. This function will catch and ignore the error when it occurs.
 #'
 #' @examples \dontrun{
 #' library(tfdatasets)
 #' dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
-#'   dataset_prepare(x = c(mpg, disp), y = cyl) %>%
 #'   dataset_batch(128) %>%
-#'   dataset_repeat(10)
+#'   dataset_repeat(10) %>%
+#'   dataset_prepare(x = c(mpg, disp), y = cyl)
 #'
-#' batch <- next_batch(dataset)
+#' iter <- make_iterator_one_shot(dataset)
+#' next_batch <- iterator_get_next(iter)
 #'
-#' tryCatch({
-#'   while(TRUE) {
-#'     batch <- sess$run(next_batch)
-#'     # use batch$x and batch$y tensors
-#'   }
-#' }, error = out_of_range_handler)
+#' until_out_of_range({
+#'   batch <- sess$run(next_batch)
+#'   # use batch$x and batch$y tensors
+#' })
 #' }
 #'
 #' @family reading datasets
 #'
+#' @export
+until_out_of_range <- function(expr) {
+
+  # determine the error message for 'break'
+  break_error <- tryCatch(eval(break), error = function(e) e)
+
+  # get expression and parent frame
+  expr <- substitute(expr)
+  envir <- parent.frame()
+
+  # evaluate repeatedly (exit gracefully on break or out_of_range error)
+  tryCatch({
+    while(TRUE)
+      eval(expr, envir = envir)
+  },
+  error = function(e) {
+    if (!identical(e$message, break_error$message))
+      out_of_range_handler(e)
+  })
+}
+
+
+#' @rdname until_out_of_range
 #' @export
 out_of_range_handler <- function(e) {
   last_error <- py_last_error()
