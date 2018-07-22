@@ -32,11 +32,13 @@ reference:
   - title: "Transforming Datasets"
     contents:
        - dataset_map
+       - dataset_map_and_batch
        - dataset_prepare
        - dataset_skip
        - dataset_filter
        - dataset_shard
        - dataset_shuffle
+       - dataset_shuffle_and_repeat
        - dataset_prefetch
        - dataset_batch
        - dataset_repeat
@@ -47,6 +49,7 @@ reference:
        - dataset_decode_delim
        - dataset_concatenate
        - dataset_interleave
+       - dataset_prefetch_to_device
        - zip_datasets
 
   - title: "Dataset Properites"
