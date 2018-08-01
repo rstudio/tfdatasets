@@ -71,7 +71,8 @@ is_tensor <- function(x) {
 }
 
 is_eager_tensor <- function(x) {
-  inherits(x, "python.builtin.EagerTensor")
+  inherits(x, "python.builtin.EagerTensor") ||
+  inherits(x, "tensorflow.python.framework.ops.EagerTensor")
 }
 
 
