@@ -31,8 +31,8 @@ tensor_slices_dataset <-function(tensors) {
 
   validate_tf_version()
 
-  # convert list into tuple
-  if (is.list(tensors))
+  # convert unnamed list into tuple
+  if (is.list(tensors) && is.null(names(tensors)))
     tensors <- tuple(tensors)
 
   as_tf_dataset(
