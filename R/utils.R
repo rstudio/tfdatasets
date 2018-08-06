@@ -47,7 +47,11 @@ with_session <- function(f, session = NULL) {
 
 validate_tf_version <- function(required_ver = "1.4", feature_name = "tfdatasets") {
   tf_ver <- tensorflow::tf_version()
-  if (tf_ver < required_ver) {
+  if (is.null(tf_ver)) {
+    stop("You need to install TensorFlow to use tfdatasets ",
+         "-- install with tensorflow::install_tensorflow()",
+         call. = FALSE)
+  } else if (tf_ver < required_ver) {
     stop(
       feature_name, " requires version ", required_ver, " ",
       "of TensorFlow (you are currently running version ", tf_ver, ").",
