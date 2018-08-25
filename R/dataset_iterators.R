@@ -146,7 +146,7 @@ with_dataset <- function(expr) {
 until_out_of_range <- function(expr) {
 
   # determine the error message for 'break'
-  break_error <- tryCatch(eval(break), error = function(e) e)
+  break_error <- tryCatch(eval(parse(text = "break")), error = function(e) e)
 
   # get expression and parent frame
   expr <- substitute(expr)

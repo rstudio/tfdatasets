@@ -35,7 +35,11 @@ test_succeeds("until_out_of_range catches end of iteration", {
 })
 
 
-
+test_succeeds("until_out_of_range catches break", {
+  until_out_of_range({
+    break
+  })
+})
 
 
 
