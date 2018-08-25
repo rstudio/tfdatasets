@@ -42,10 +42,10 @@ The R interface to TensorFlow datasets provides access to the Dataset API, inclu
 
 To use **tfdatasets** you need to install both the R package as well as [TensorFlow](https://rstudio.github.io/tensorflow/) itself.
 
-First, install the tfdatasets R package from GitHub as follows:
+First, install the tfdatasets R package from CRAN as follows:
 
 ```{r, eval=FALSE}
-devtools::install_github("rstudio/tfdatasets")
+install.packages("tfdatasets")
 ```
 
 Then, use the `install_tensorflow()` function to install TensorFlow:
@@ -154,9 +154,7 @@ dataset <- tfrecord_dataset(filenames, num_parallel_reads = 4)
 
 ## SQLite Databases
 
-You can read datasets from SQLite databases using the `sqlite_dataset()` function. Note that support for SQLite databases required TensorFlow v1.7 as well as the development version of the **tfdatasets** package, which you can install via `devtools::install_github("rstudio/tfdatasts")`.
-
-To use `sqlite_dataset()` you provide the filename of the database, a SQL query to execute, and `sql_record_spec()` that describes the names and TensorFlow types of columns within the query. For example:
+You can read datasets from SQLite databases using the `sqlite_dataset()` function. To use `sqlite_dataset()` you provide the filename of the database, a SQL query to execute, and `sql_record_spec()` that describes the names and TensorFlow types of columns within the query. For example:
 
 ```{r, eval=FALSE}
 library(tfdatasets)
@@ -349,13 +347,7 @@ The sections below provide additional details and examples for each of the suppo
 
 ### keras package
 
-**IMPORTANT NOTE**: Using TensorFlow Datasets with Keras requires that you are running the very latest versions of Keras (v2.2), TensorFlow (v1.8), and the development versions of the **keras** and **tfdatasets** R packages. You can install these packages with:
-
-```r
-devtools::install_github(c("rstudio/keras", "rstudio/tfdatasets"))
-```
-
-You can ensure that you have the latest version of the core Keras library with:
+**IMPORTANT NOTE**: Using TensorFlow Datasets with Keras requires that you are running the very latest versions of Keras (v2.2) and TensorFlow (v1.9). You can ensure that you have the latest versions of the core Keras and TensorFlow libraries with:
 
 ```r
 library(keras)
