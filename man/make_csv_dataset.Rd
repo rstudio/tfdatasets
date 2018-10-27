@@ -40,14 +40,14 @@ sorted in order of increasing column index.}
 data for this column is returned as a separate tensor from the features dictionary,
 so that the dataset complies with the format expected by a TF Estiamtors and Keras.}
 
-\item{select_columns}{An optional list of integer indices or string column names, that
-specifies a subset of columns of CSV data to select. If column names are provided,
-these must correspond to names provided in \code{column_names} or inferred from the file
-header lines. When this argument is specified, only a subset of CSV columns will be
-parsed and returned, corresponding to the columns specified. Using this results in
-faster parsing and lower memory usage. If both this and \code{column_defaults} are
-specified, these must have the same lengths, and \code{column_defaults} is assumed to be
-sorted in order of increasing column index.}
+\item{select_columns}{(Ignored if using TensorFlow version 1.8.) An optional list of
+integer indices or string column names, that specifies a subset of columns of CSV data
+to select. If column names are provided, these must correspond to names provided in
+\code{column_names} or inferred from the file header lines. When this argument is specified,
+only a subset of CSV columns will be parsed and returned, corresponding to the columns
+specified. Using this results in faster parsing and lower memory usage. If both this
+and \code{column_defaults} are specified, these must have the same lengths, and
+\code{column_defaults} is assumed to be sorted in order of increasing column index.}
 
 \item{field_delim}{An optional string. Defaults to \code{","}. Char delimiter to separate
 fields in a record.}
@@ -77,8 +77,8 @@ training step.}
 \item{num_parallel_reads}{Number of threads used to read CSV records from files. If >1,
 the results will be interleaved.}
 
-\item{num_parallel_parser_calls}{Number of parallel invocations of the CSV parsing
-function on CSV records.}
+\item{num_parallel_parser_calls}{(Ignored if using TensorFlow version 1.11 or later.)
+Number of parallel invocations of the CSV parsing function on CSV records.}
 
 \item{sloppy}{If \code{TRUE}, reading performance will be improved at the cost of
 non-deterministic ordering. If \code{FALSE}, the order of elements produced is

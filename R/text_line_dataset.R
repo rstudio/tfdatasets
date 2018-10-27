@@ -113,14 +113,14 @@ dataset_decode_delim <- function(dataset, record_spec, parallel_records = NULL) 
 #' @param label_name A optional string corresponding to the label column. If provided, the
 #'   data for this column is returned as a separate tensor from the features dictionary,
 #'   so that the dataset complies with the format expected by a TF Estiamtors and Keras.
-#' @param select_columns An optional list of integer indices or string column names, that
-#'   specifies a subset of columns of CSV data to select. If column names are provided,
-#'   these must correspond to names provided in `column_names` or inferred from the file
-#'   header lines. When this argument is specified, only a subset of CSV columns will be
-#'   parsed and returned, corresponding to the columns specified. Using this results in
-#'   faster parsing and lower memory usage. If both this and `column_defaults` are
-#'   specified, these must have the same lengths, and `column_defaults` is assumed to be
-#'   sorted in order of increasing column index.
+#' @param select_columns (Ignored if using TensorFlow version 1.8.) An optional list of
+#'   integer indices or string column names, that specifies a subset of columns of CSV data
+#'   to select. If column names are provided, these must correspond to names provided in
+#'   `column_names` or inferred from the file header lines. When this argument is specified,
+#'   only a subset of CSV columns will be parsed and returned, corresponding to the columns
+#'   specified. Using this results in faster parsing and lower memory usage. If both this
+#'   and `column_defaults` are specified, these must have the same lengths, and
+#'   `column_defaults` is assumed to be sorted in order of increasing column index.
 #' @param field_delim An optional string. Defaults to `","`. Char delimiter to separate
 #'   fields in a record.
 #' @param use_quote_delim An optional bool. Defaults to `TRUE`. If false, treats double
@@ -139,8 +139,8 @@ dataset_decode_delim <- function(dataset, record_spec, parallel_records = NULL) 
 #'   training step.
 #' @param num_parallel_reads Number of threads used to read CSV records from files. If >1,
 #'   the results will be interleaved.
-#' @param num_parallel_parser_calls Number of parallel invocations of the CSV parsing
-#'   function on CSV records.
+#' @param num_parallel_parser_calls (Ignored if using TensorFlow version 1.11 or later.)
+#'   Number of parallel invocations of the CSV parsing function on CSV records.
 #' @param sloppy If `TRUE`, reading performance will be improved at the cost of
 #'   non-deterministic ordering. If `FALSE`, the order of elements produced is
 #'   deterministic prior to shuffling (elements are still randomized if `shuffle=TRUE`.
@@ -165,17 +165,16 @@ make_csv_dataset <- function(file_pattern, batch_size,
                              prefetch_buffer_size = 1,
                              num_parallel_reads = 1, num_parallel_parser_calls = 2,
                              sloppy = FALSE, num_rows_for_inference = 100) {
-
-  # valdiate version
+  ## valdiate version
   validate_tf_version("1.8", "make_csv_dataset")
 
-  tf$contrib$data$make_csv_dataset(
+  ## Gather arguments common to all tensorflow versions
+  args <- list(
     file_pattern = file_pattern,
     batch_size = as.integer(batch_size),
     column_names = column_names,
     column_defaults = column_defaults,
     label_name = label_name,
-    select_columns = select_columns,
     field_delim = field_delim,
     use_quote_delim = use_quote_delim,
     na_value = na_value,
@@ -186,10 +185,23 @@ make_csv_dataset <- function(file_pattern, batch_size,
     shuffle_seed = shuffle_seed,
     prefetch_buffer_size = as.integer(prefetch_buffer_size),
     num_parallel_reads = as.integer(num_parallel_reads),
-    num_parallel_parser_calls = as.integer(num_parallel_parser_calls),
     sloppy = sloppy,
     num_rows_for_inference = as.integer(num_rows_for_inference)
   )
+
+  tf_ver = tensorflow::tf_version()
+
+  ## TensorFlow version 1.8 rejects "select_columns"
+  if (tf_ver > "1.8") {
+    args[['select_columns']] <- select_columns
+  }
+
+  ## TensorFlow versions prior to 1.11 accept "num_parallel_parser_calls"
+  if (tf_ver < "1.11") {
+    args[['num_parallel_parser_calls']] <- as.integer(num_parallel_parser_calls)
+  }
+
+  do.call(tf$contrib$data$make_csv_dataset, args)
 }
 
 
