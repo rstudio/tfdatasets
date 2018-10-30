@@ -4,8 +4,8 @@
 \alias{read_files}
 \title{Read a dataset from a set of files}
 \usage{
-read_files(files, reader, ..., parallel_files = 1, parallel_interleave = 1,
-  num_shards = NULL, shard_index = NULL)
+read_files(files, reader, ..., parallel_files = 1,
+  parallel_interleave = 1, num_shards = NULL, shard_index = NULL)
 }
 \arguments{
 \item{files}{List of filenames or glob pattern for files (e.g. "*.csv")}

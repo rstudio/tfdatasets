@@ -19,3 +19,4 @@ Splits each rank-N \code{tf$SparseTensor} in this dataset row-wise.
 Other tensor datasets: \code{\link{tensor_slices_dataset}},
   \code{\link{tensors_dataset}}
 }
+\concept{tensor datasets}

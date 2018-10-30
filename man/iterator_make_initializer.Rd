@@ -26,3 +26,4 @@ Other iterator functions: \code{\link{iterator_get_next}},
   \code{\link{iterator_string_handle}},
   \code{\link{make-iterator}}
 }
+\concept{iterator functions}

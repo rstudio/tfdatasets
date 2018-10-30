@@ -23,3 +23,4 @@ Other iterator functions: \code{\link{iterator_get_next}},
   \code{\link{iterator_make_initializer}},
   \code{\link{make-iterator}}
 }
+\concept{iterator functions}

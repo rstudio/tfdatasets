@@ -62,3 +62,4 @@ Other iterator functions: \code{\link{iterator_get_next}},
   \code{\link{iterator_make_initializer}},
   \code{\link{iterator_string_handle}}
 }
+\concept{iterator functions}

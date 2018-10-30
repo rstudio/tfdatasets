@@ -4,7 +4,8 @@
 \alias{dataset_shuffle_and_repeat}
 \title{Shuffles and repeats a dataset returning a new permutation for each epoch.}
 \usage{
-dataset_shuffle_and_repeat(dataset, buffer_size, count = NULL, seed = NULL)
+dataset_shuffle_and_repeat(dataset, buffer_size, count = NULL,
+  seed = NULL)
 }
 \arguments{
 \item{dataset}{A dataset}
@@ -38,3 +39,4 @@ Other dataset methods: \code{\link{dataset_batch}},
   \code{\link{dataset_shuffle}},
   \code{\link{dataset_skip}}, \code{\link{dataset_take}}
 }
+\concept{dataset methods}

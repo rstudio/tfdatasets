@@ -50,7 +50,7 @@ Types can be explicitliy specified in a character vector as "integer",
 
 Alternatively, you can use a compact string representation where each
 character represents one column: c = character, i = integer, d = double
-(e.g. \code{types =}ddi`).}
+(e.g. \code{types = }ddi`).}
 
 \item{defaults}{List of default values which are used when data is
 missing from a record (e.g. \code{list(0, 0, 0L}). If \code{NULL} then defaults will

@@ -12,10 +12,7 @@ sample_from_datasets(datasets, weights = NULL, seed = NULL)
 \item{weights}{(Optional.) A list of \code{length(datasets)} floating-point values where
 \code{weights[[i]]} represents the probability with which an element should be sampled
 from \code{datasets[[i]]}, or a dataset object where each element is such a list.
-Defaults to a uniform distribution across \code{datasets}.
-
-[[i]: R:[i
-[[i]: R:[i}
+Defaults to a uniform distribution across \code{datasets}.}
 
 \item{seed}{(Optional.) An integer, representing the random seed
 that will be used to create the distribution.}

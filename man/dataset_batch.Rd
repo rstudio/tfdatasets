@@ -38,3 +38,4 @@ Other dataset methods: \code{\link{dataset_cache}},
   \code{\link{dataset_shuffle}},
   \code{\link{dataset_skip}}, \code{\link{dataset_take}}
 }
+\concept{dataset methods}

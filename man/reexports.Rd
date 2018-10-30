@@ -4,9 +4,7 @@
 \name{reexports}
 \alias{reexports}
 \alias{tf}
-\alias{reexports}
 \alias{shape}
-\alias{reexports}
 \alias{install_tensorflow}
 \title{Objects exported from other packages}
 \keyword{internal}

@@ -20,3 +20,4 @@ Creates a dataset whose elements are slices of the given tensors.
 Other tensor datasets: \code{\link{sparse_tensor_slices_dataset}},
   \code{\link{tensors_dataset}}
 }
+\concept{tensor datasets}

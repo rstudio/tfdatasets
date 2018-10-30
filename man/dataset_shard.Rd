@@ -21,3 +21,4 @@ A dataset
 This dataset operator is very useful when running distributed training, as it
 allows each worker to read a unique subset.
 }
+\concept{Dataset methods}
