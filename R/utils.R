@@ -67,7 +67,8 @@ column_names <- function(dataset) {
 }
 
 is_dataset <- function(x) {
-  inherits(x, "tensorflow.python.data.ops.dataset_ops.Dataset")
+  inherits(x, "tensorflow.python.data.ops.dataset_ops.Dataset") ||
+  inherits(x, "tensorflow.python.data.ops.dataset_ops.DatasetV2")
 }
 
 is_tensor <- function(x) {
