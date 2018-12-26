@@ -116,6 +116,23 @@ test_succeeds("dataset_shard yields a dataset" , {
 
 })
 
+test_succeeds("dataset_padded_batch returns a dataset", {
+
+  dataset <- tensor_slices_dataset(matrix(1.1:8.1, ncol = 2)) %>%
+    dataset_padded_batch(
+      batch_size = 2,
+      padded_shapes = tf$constant(3L, shape = shape(1L), dtype = tf$int32),
+      padding_values = tf$constant(77.1, dtype = tf$float64))
+
+  dataset <- tensor_slices_dataset(matrix(1:8, ncol = 2)) %>%
+    dataset_padded_batch(
+      batch_size = 2,
+      padded_shapes = tf$constant(3L, shape = shape(1L), dtype = tf$int32),
+      padding_values = tf$constant(77L))
+
+
+})
+
 test_succeeds("zip_datasets returns a dataset", {
   zip_datasets(list(tensors_dataset(tf$constant(1:100)), tensors_dataset(tf$constant(101:200))))
 })
