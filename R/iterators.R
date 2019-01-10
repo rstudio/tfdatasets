@@ -36,7 +36,13 @@
 #' @name make-iterator
 #' @export
 make_iterator_one_shot <- function(dataset) {
-  dataset$make_one_shot_iterator()
+
+  if (tensorflow::tf_version() > "1.12") {
+    tf$compat$v1$data$make_one_shot_iterator(dataset)
+  } else {
+    dataset$make_one_shot_iterator()
+  }
+
 }
 
 
