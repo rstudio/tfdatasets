@@ -74,16 +74,22 @@ dataset_shuffle_and_repeat <- function(dataset, buffer_size, count = NULL, seed 
 #' @family dataset methods
 #'
 #' @export
-dataset_batch <- function(dataset, batch_size, drop_remainder = FALSE) {
-  if (drop_remainder) {
-    as_tf_dataset(dataset$apply(
-      tf$contrib$data$batch_and_drop_remainder(as_integer_tensor(batch_size))
-    ))
-  } else {
-    as_tf_dataset(dataset$batch(
-      batch_size = as_integer_tensor(batch_size)
-    ))
-  }
+dataset_batch <-
+  function(dataset, batch_size, drop_remainder = FALSE) {
+    if (tensorflow::tf_version() > "1.9") {
+      as_tf_dataset(
+        dataset$batch(batch_size = as_integer_tensor(batch_size),
+                      drop_remainder = drop_remainder)
+      )
+    } else {
+      if (drop_remainder) {
+        as_tf_dataset(dataset$apply(
+          tf$contrib$data$batch_and_drop_remainder(as_integer_tensor(batch_size))
+        ))
+      } else {
+        as_tf_dataset(dataset$batch(batch_size = as_integer_tensor(batch_size)))
+      }
+    }
 }
 
 #' Caches the elements in this dataset.
