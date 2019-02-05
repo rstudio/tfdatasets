@@ -1,7 +1,7 @@
 Package: tfdatasets
 Type: Package
 Title: Interface to 'TensorFlow' Datasets 
-Version: 1.9.0.9000
+Version: 1.9.0.9001
 Authors@R: c(
   person("JJ", "Allaire", role = c("aut", "cre"),
          email = "jj@rstudio.com"),
@@ -27,11 +27,13 @@ Depends:
     R (>= 3.1)
 Imports:
     reticulate (>= 1.10), 
-    tensorflow (>= 1.9),
+    tensorflow (>= 1.10.0.9000),
     magrittr,
     rlang,
     tidyselect,
     stats
+Remotes:
+    rstudio/tensorflow
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.0
 Suggests:
