@@ -42,10 +42,10 @@ The R interface to TensorFlow datasets provides access to the Dataset API, inclu
 
 To use **tfdatasets** you need to install both the R package as well as [TensorFlow](https://rstudio.github.io/tensorflow/) itself.
 
-First, install the tfdatasets R package from CRAN as follows:
+First, install the tfdatasets R package from GitHub as follows:
 
 ```{r, eval=FALSE}
-install.packages("tfdatasets")
+devtools::install_github("rstudio/tfdatasets")
 ```
 
 Then, use the `install_tensorflow()` function to install TensorFlow:
