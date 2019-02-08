@@ -10,15 +10,21 @@ test_that("make_iterator_one_shot works", {
     make_iterator_one_shot() %>%
     iterator_get_next()
 
-  with_session(function(sess) {
-    records <- sess$run(batch)
-    expect_type(records$disp, "double")
-  })
+  res <- if (tf$executing_eagerly()) {
+    as.array(batch$disp)
+  } else {
+    with_session(function (sess) {
+      sess$run(batch)$disp
+    })
+  }
+
+  expect_type(res, "double")
 })
 
 test_that("make_iterator_initializable works", {
 
   skip_if_no_tensorflow()
+  skip_if_eager("dataset.make_initializable_iterator is not supported when eager execution is enabled.")
 
   with_session(function(sess) {
 
@@ -55,41 +61,61 @@ test_succeeds("make_iterator_from_structure works", {
 
   skip_if_no_tensorflow()
 
-  with_session(function(sess) {
+  training_dataset <- range_dataset(from = 1, to = 100) %>%
+    dataset_map(function(x) {
+      x + tfr_random_uniform(shape(), -10L, 10L, tf$int64)
+    })
 
-    training_dataset <- range_dataset(from = 1, to = 100) %>%
-      dataset_map(function(x) {
-        x + tf$random_uniform(shape(), -10L, 10L, tf$int64)
-      })
+  validation_dataset = range_dataset(from = 1, to = 50)
 
-    validation_dataset = range_dataset(from = 1, to = 50)
+  iterator <- make_iterator_from_structure(output_types(training_dataset),
+                                           output_shapes(training_dataset))
 
-    iterator <- make_iterator_from_structure(output_types(training_dataset),
-                                             output_shapes(training_dataset))
-
-    next_element <- iterator_get_next(iterator)
-
-    training_init_op <- iterator_make_initializer(iterator, training_dataset)
-    validation_init_op = iterator_make_initializer(iterator, validation_dataset)
+  if (tf$executing_eagerly()) {
 
     for (i in 1:20) {
 
       # Initialize an iterator over the training dataset.
-      sess$run(training_init_op)
+      iterator_make_initializer(iterator, training_dataset)
       for (j in 1:99)
-        sess$run(next_element)
+        iterator_get_next(iterator)
 
       # Initialize an iterator over the validation dataset.
-      sess$run(validation_init_op)
+      iterator_make_initializer(iterator, validation_dataset)
       for (j in 1:49)
-        sess$run(next_element)
+        iterator_get_next(iterator)
     }
-  })
+
+  } else {
+
+    with_session(function(sess) {
+
+      next_element <- iterator_get_next(iterator)
+
+      training_init_op <- iterator_make_initializer(iterator, training_dataset)
+      validation_init_op <- iterator_make_initializer(iterator, validation_dataset)
+
+      for (i in 1:20) {
+
+        # Initialize an iterator over the training dataset.
+        sess$run(training_init_op)
+        for (j in 1:99)
+          sess$run(next_element)
+
+        # Initialize an iterator over the validation dataset.
+        sess$run(validation_init_op)
+        for (j in 1:49)
+          sess$run(next_element)
+      }
+    })
+  }
+
 })
 
 test_succeeds("make_iterator_from_string_handle works", {
 
   skip_if_no_tensorflow()
+  skip_if_eager("EagerIterator object has no attribute string_handle")
 
   with_session(function(sess) {
 

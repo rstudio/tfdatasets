@@ -11,11 +11,14 @@ test_succeeds("files can be read in parallel", {
                         num_shards = 2, shard_index = 0) %>%
     dataset_batch(1000)
 
-  with_session(function(sess) {
+  if (tf$executing_eagerly()) {
     batch <- next_batch(dataset)
-    data <- sess$run(batch)
-  })
-
+  } else {
+    with_session(function(sess) {
+      batch <- next_batch(dataset)
+      data <- sess$run(batch)
+    })
+  }
 
 })
 

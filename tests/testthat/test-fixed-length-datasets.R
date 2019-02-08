@@ -10,10 +10,14 @@ test_succeeds("fixed_length_record_dataset creates a dataset", {
   dataset <- fixed_length_record_dataset(
     "data/mtcars-test.csv", record_bytes = file_bytes)
 
-  with_session(function(sess) {
+  if (tf$executing_eagerly()) {
     batch <- next_batch(dataset)
-    file_contents <- sess$run(batch)
-  })
+  } else {
+    with_session(function(sess) {
+      batch <- next_batch(dataset)
+      file_contents <- sess$run(batch)
+    })
+  }
 
 })
 

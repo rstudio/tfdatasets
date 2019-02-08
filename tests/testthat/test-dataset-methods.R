@@ -89,10 +89,17 @@ test_succeeds("dataset_filter narrows the dataset", {
     }) %>%
     dataset_batch(1000)
 
-  sess <- tf$Session()
-  on.exit(sess$close(), add = TRUE)
   batch <- next_batch(dataset)
-  expect_length(sess$run(batch)$mpg, 3)
+
+  res <- if (tf$executing_eagerly()) {
+    batch$mpg
+  } else {
+    with_session(function (sess) {
+      sess$run(batch)$mpg
+    })
+  }
+
+  expect_length(res, 3)
 })
 
 test_succeeds("dataset_interleave yields a dataset" , {
@@ -109,10 +116,17 @@ test_succeeds("dataset_shard yields a dataset" , {
     dataset_shard(num_shards = 4, index = 1) %>%
     dataset_batch(8)
 
-  sess <- tf$Session()
-  on.exit(sess$close(), add = TRUE)
   batch <- next_batch(dataset)
-  expect_length(sess$run(batch)$mpg, 8)
+
+  res <- if (tf$executing_eagerly()) {
+    batch$mpg
+  } else {
+    with_session(function (sess) {
+      sess$run(batch)$mpg
+    })
+  }
+
+  expect_length(res, 8)
 
 })
 

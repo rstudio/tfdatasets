@@ -11,6 +11,9 @@ test_succeeds("tensor_slices_dataset create a dataset", {
 })
 
 test_succeeds("sparse_tensor_slices_dataset creates a dataset", {
+
+  skip_if_v2("from_sparse_tensor_slices is not available in TF 2.0")
+
   sparse_tensor_slices_dataset(tf$SparseTensor(
     indices = list(c(0L, 0L), c(1L, 2L)),
     values = c(1L, 2L),
