@@ -22,7 +22,7 @@ sql_dataset <- function(driver_name, data_source_name, query, record_spec) {
   validate_tf_version("1.7", "sql_dataset")
 
   # dataset
-  dataset <- tf$contrib$data$SqlDataset(
+  dataset <- tfd_SqlDataset(
     driver_name,
     data_source_name,
     query,

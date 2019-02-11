@@ -67,7 +67,7 @@
 next_batch <- function(dataset) {
 
   # get the iterator
-  iter <- dataset$make_one_shot_iterator()
+  iter <- make_iterator_one_shot(dataset)
   next_batch <- iter$get_next()
 
   # re-arrange x and y if necessary

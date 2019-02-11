@@ -69,7 +69,7 @@ dataset_decode_delim <- function(dataset, record_spec, parallel_records = NULL) 
     dataset_skip(record_spec$skip) %>%
     dataset_map(
       map_func = function(line) {
-        decoded <- tf$decode_csv(
+        decoded <- tfio_decode_csv(
           records = line,
           record_defaults = record_spec$defaults,
           field_delim = record_spec$delim
@@ -201,7 +201,7 @@ make_csv_dataset <- function(file_pattern, batch_size,
     args[['num_parallel_parser_calls']] <- as.integer(num_parallel_parser_calls)
   }
 
-  do.call(tf$contrib$data$make_csv_dataset, args)
+  do.call(tfd_make_csv_dataset, args)
 }
 
 
