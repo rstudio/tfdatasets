@@ -82,7 +82,7 @@ test_succeeds("dataset_prepare can provide keras input tensors", {
   } else {
 
     require(keras)
-    # create model
+
     input <- layer_input(tensor = train_batch$x, shape = c(4))
     predictions <- input %>%
       layer_dense(units = 10, activation = "relu") %>%
@@ -90,15 +90,20 @@ test_succeeds("dataset_prepare can provide keras input tensors", {
       layer_dense(units = 3, activation = "softmax")
     model <- keras_model(input, predictions)
 
-    model %>% compile(
+
+    # Hack due to the keras onload hook that replaces "tensorflow.python.keras" in
+    # class names by "keras" not being executed when the test is run.
+    # Remove in case we later decide to provide S3 implementations for
+    # tensorflow.python.keras.xxx.
+    model %>% keras:::compile.keras.engine.training.Model(
       loss = 'categorical_crossentropy',
       optimizer = optimizer_rmsprop(),
       metrics = c('accuracy'),
       target_tensors = train_batch$y
     )
 
-    # fit with the generator
-    model %>% fit(
+    # see above
+    model %>% keras:::fit.keras.engine.training.Model(
       steps_per_epoch = 15L,
       epochs = 5
     )
