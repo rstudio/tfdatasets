@@ -91,10 +91,10 @@ test_succeeds("dataset_prepare can provide keras input tensors", {
     model <- keras_model(input, predictions)
 
 
-    # hack due to the keras onload hook that replaces tensorflow.python.keras in
-    # class names by keras.
+    # Hack due to the keras onload hook that replaces "tensorflow.python.keras" in
+    # class names by "keras" not being executed when the test is run.
     # Remove in case we later decide to provide S3 implementations for
-    # tensorflow.python.keras.xxx and remove the hook.
+    # tensorflow.python.keras.xxx.
     model %>% keras:::compile.keras.engine.training.Model(
       loss = 'categorical_crossentropy',
       optimizer = optimizer_rmsprop(),
