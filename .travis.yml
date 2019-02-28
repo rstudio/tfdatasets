@@ -13,10 +13,11 @@ cache:
 matrix:
   include:
     - name: "tf-stable"
-      env: TENSORFLOW_VERSION="1.12"
+      env: TENSORFLOW_VERSION="1.13.1"
     - name: "2.0-preview"
       env:
-        - TENSORFLOW_VERSION="https://files.pythonhosted.org/packages/20/6e/30238eaae78919134318856f4b7bffcfcb7d09be742565591208fa59e1cb/tf_nightly_2.0_preview-2.0.0.dev20190207-cp27-cp27mu-manylinux1_x86_64.whl"
+        - TENSORFLOW_VERSION="https://files.pythonhosted.org/packages/d2/56/a2ac9e67910dbaebb579c57d33484d0447b228079dd0b0d4ae6cc5cb8e7d/tf_nightly_2.0_preview-2.0.0.dev20190228-cp37-cp37m-manylinux1_x86_64.whl"
+        - TENSORFLOW_PYTHON="/usr/bin/python3"
     - name: "nightly"
       env:
         - TENSORFLOW_VERSION="nightly"
@@ -24,7 +25,8 @@ matrix:
   allow_failures:
     - name: "2.0-preview"
       env:
-        - TENSORFLOW_VERSION="https://files.pythonhosted.org/packages/20/6e/30238eaae78919134318856f4b7bffcfcb7d09be742565591208fa59e1cb/tf_nightly_2.0_preview-2.0.0.dev20190207-cp27-cp27mu-manylinux1_x86_64.whl"
+        - TENSORFLOW_VERSION="https://files.pythonhosted.org/packages/d2/56/a2ac9e67910dbaebb579c57d33484d0447b228079dd0b0d4ae6cc5cb8e7d/tf_nightly_2.0_preview-2.0.0.dev20190228-cp37-cp37m-manylinux1_x86_64.whl"
+        - TENSORFLOW_PYTHON="/usr/bin/python3"
     - name: "nightly"
       env:
         - TENSORFLOW_VERSION="nightly"
@@ -32,7 +34,7 @@ matrix:
 
 before_script:
   - sudo apt-get update
-  - sudo apt-get install python3
+  - sudo apt-get install python3.7
   - pip install --upgrade --ignore-installed --user travis virtualenv
   - R CMD INSTALL .
   - R -e 'tensorflow::install_tensorflow(version = Sys.getenv("TENSORFLOW_VERSION"))'
