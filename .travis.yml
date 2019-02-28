@@ -35,7 +35,7 @@ matrix:
 before_script:
   - sudo apt-get update
   - sudo apt-get install python3
-  - python --version
+  - python3 --version
   - pip install --upgrade --ignore-installed --user travis virtualenv
   - R CMD INSTALL .
   - R -e 'tensorflow::install_tensorflow(version = Sys.getenv("TENSORFLOW_VERSION"))'
