@@ -2,6 +2,8 @@ context("dataset-prepare")
 
 source("utils.R")
 
+require(keras)
+
 test_succeeds("dataset_prepare yields list of x and y tensors", {
   batch <- mtcars_dataset() %>%
     dataset_prepare(x = c(mpg, disp), y = cyl) %>%
@@ -81,8 +83,6 @@ test_succeeds("dataset_prepare can provide keras input tensors", {
 
   } else {
 
-    require(keras)
-
     input <- layer_input(tensor = train_batch$x, shape = c(4))
     predictions <- input %>%
       layer_dense(units = 10, activation = "relu") %>%
@@ -90,12 +90,7 @@ test_succeeds("dataset_prepare can provide keras input tensors", {
       layer_dense(units = 3, activation = "softmax")
     model <- keras_model(input, predictions)
 
-
-    # Hack due to the keras onload hook that replaces "tensorflow.python.keras" in
-    # class names by "keras" not being executed when the test is run.
-    # Remove in case we later decide to provide S3 implementations for
-    # tensorflow.python.keras.xxx.
-    model %>% keras:::compile.keras.engine.training.Model(
+    model %>% compile(
       loss = 'categorical_crossentropy',
       optimizer = optimizer_rmsprop(),
       metrics = c('accuracy'),
@@ -103,7 +98,7 @@ test_succeeds("dataset_prepare can provide keras input tensors", {
     )
 
     # see above
-    model %>% keras:::fit.keras.engine.training.Model(
+    model %>% fit(
       steps_per_epoch = 15L,
       epochs = 5
     )
