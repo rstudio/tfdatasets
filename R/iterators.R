@@ -50,7 +50,7 @@ make_iterator_one_shot <- function(dataset) {
 #' @export
 make_iterator_initializable <- function(dataset, shared_name = NULL) {
 
-  if (tensorflow::tf_version() > "1.12") {
+  if (tensorflow::tf_version() > "1.13") {
     tf$compat$v1$data$make_initializable_iterator(dataset, shared_name = shared_name)
   } else {
     dataset$make_initializable_iterator(shared_name = shared_name)

@@ -33,7 +33,8 @@ Imports:
     tidyselect,
     stats
 Remotes:
-    rstudio/tensorflow
+    rstudio/tensorflow,
+    rstudio/keras
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.0
 Suggests:
