@@ -14,6 +14,8 @@ matrix:
   include:
     - name: "tf-stable"
       env: TENSORFLOW_VERSION="1.13.1"
+    - name: "tf-1.12.0"
+      env: TENSORFLOW_VERSION="1.12.0"
     - name: "2.0-preview"
       env:
         - TENSORFLOW_VERSION="https://files.pythonhosted.org/packages/08/47/e25e6bfb354211b081f3fe8bffe928e343e88c464ce2d5a2109f2ade339d/tf_nightly_2.0_preview-2.0.0.dev20190228-cp27-cp27mu-manylinux1_x86_64.whl"
