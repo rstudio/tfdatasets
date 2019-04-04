@@ -14,7 +14,7 @@ matrix:
   include:
     - name: "tf-stable"
       env: TENSORFLOW_VERSION="1.13.1"
-    - name: "tf-stable"
+    - name: "tf-1.12.0"
       env: TENSORFLOW_VERSION="1.12.0"
     - name: "2.0-preview"
       env:
