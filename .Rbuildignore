@@ -8,3 +8,4 @@
 ^examples$
 ^issues$
 ^appveyor\.yml$
+^\.travis\.yml$
