@@ -41,4 +41,6 @@ Suggests:
     knitr,
     tfestimators,
     keras
+Remotes:
+    rstudio/keras#737
 VignetteBuilder: knitr
