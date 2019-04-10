@@ -53,9 +53,17 @@ validate_tf_version <- function(required_ver = "1.4", feature_name = "tfdatasets
 }
 
 column_names <- function(dataset) {
-  if (!is.list(dataset$output_shapes) || is.null(names(dataset$output_shapes)))
+
+  if (tensorflow::tf_version() >= "2.0") {
+    x <- next_batch(dataset)
+  } else {
+    x <- dataset$output_shapes
+  }
+
+  if (!is.list(x) || is.null(names(x)))
     stop("Unable to resolve features for dataset that does not have named outputs", call. = FALSE)
-  names(dataset$output_shapes)
+
+  names(x)
 }
 
 is_dataset <- function(x) {
