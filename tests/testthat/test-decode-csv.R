@@ -7,14 +7,13 @@ cols <- c("disp", "drat", "vs", "gear", "mpg", "qsec", "hp", "am", "wt",  "carb"
 test_that("decode_csv parses column names from file", {
   skip_if_no_tensorflow()
   dataset <- csv_dataset("data/mtcars.csv")
-  expect_length(setdiff(cols, names(dataset$output_shapes)), 0)
+  expect_length(setdiff(cols, column_names(dataset)), 0)
 })
 
 test_that("decode_csv parses explicitly named columns", {
   skip_if_no_tensorflow()
-  dataset <- csv_dataset("data/mtcars.csv", names = cols) %>%
-    dataset_skip(1)
-  expect_length(setdiff(cols, names(dataset$output_shapes)), 0)
+  dataset <- csv_dataset("data/mtcars.csv", names = cols, skip = 1)
+  expect_length(setdiff(cols, column_names(dataset)), 0)
 })
 
 test_that("decode_csv validates type specififers", {
