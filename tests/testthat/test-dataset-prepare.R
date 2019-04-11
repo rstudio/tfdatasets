@@ -46,6 +46,25 @@ test_succeeds("dataset_prepare can return an unnamed list", {
   expect_null(names(batch))
 })
 
+test_succeeds("dataset_prepare can use names from a string", {
+  batch <- mtcars_dataset() %>%
+    dataset_prepare(x = colnames(mtcars)[c(1,3)], named = TRUE) %>%
+    next_batch()
+
+  expect_length(setdiff(names(batch), c("x")), 0)
+})
+
+test_succeeds("dataset_prepare can use names from unquoting", {
+
+  x <- c("disp", "mpg")
+
+  batch <- mtcars_dataset() %>%
+    dataset_prepare(x = !!x, named = TRUE) %>%
+    next_batch()
+
+  expect_length(setdiff(names(batch), c("x")), 0)
+})
+
 test_succeeds("dataset_prepare can provide keras input tensors", {
 
   # create dataset
