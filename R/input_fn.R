@@ -21,22 +21,16 @@ input_fn.tf_dataset <- function(dataset, features, response = NULL) {
   # validate/retreive column names
   col_names <- column_names(dataset)
 
-  # get tidyselect_data for overscope
-  tidyselect <- asNamespace("tidyselect")
-  exports <- getNamespaceExports(tidyselect)
-  tidyselect_data <- mget(exports, tidyselect, inherits = TRUE)
-
   # default to null response_name
   response_name <- NULL
 
   # evaluate features (use tidyselect overscope)
-  eq_features <- enquo(features)
-  environment(eq_features) <- as_overscope(eq_features, data = tidyselect_data)
+  eq_features <- rlang::enquo(features)
 
   # attempt use of tidyselect. if there is an error it could be because 'x'
   # is a formula. in that case attempt to parse the formula
   feature_names <- tryCatch({
-    vars_select(col_names, !! eq_features)
+    tidyselect::vars_select(col_names, !!eq_features)
   },
   error = function(e) {
     if (is_formula(features)) {
@@ -51,9 +45,8 @@ input_fn.tf_dataset <- function(dataset, features, response = NULL) {
 
   # evaluate response (use tidyselect overscope)
   if (!missing(response) && is.null(response_name)) {
-    eq_response <- enquo(response)
-    environment(eq_response) <- as_overscope(eq_response, data = tidyselect_data)
-    response_name <- vars_select(col_names, !! eq_response)
+    eq_response <- rlang::enquo(response)
+    response_name <- tidyselect::vars_select(col_names, !!eq_response)
     if (length(response_name) > 0) {
       if (length(response_name) != 1)
         stop("More than one response column specified: ", paste(response_name))
