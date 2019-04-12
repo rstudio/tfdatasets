@@ -42,5 +42,5 @@ Suggests:
     tfestimators,
     keras
 Remotes:
-    rstudio/keras#737
+    rstudio/keras
 VignetteBuilder: knitr
