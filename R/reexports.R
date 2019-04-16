@@ -23,4 +23,13 @@ tensorflow::shape
 #' @export
 tensorflow::install_tensorflow
 
+#' @importFrom reticulate as_iterator
+#' @export
+reticulate::as_iterator
+
+#' @importFrom reticulate iter_next
+#' @export
+reticulate::iter_next
+
+
 

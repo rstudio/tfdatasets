@@ -6,6 +6,8 @@
 \alias{tf}
 \alias{shape}
 \alias{install_tensorflow}
+\alias{as_iterator}
+\alias{iter_next}
 \title{Objects exported from other packages}
 \keyword{internal}
 \description{
@@ -13,6 +15,8 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
+  \item{reticulate}{\code{\link[reticulate]{as_iterator}}, \code{\link[reticulate]{iter_next}}}
+
   \item{tensorflow}{\code{\link[tensorflow]{tf}}, \code{\link[tensorflow]{shape}}, \code{\link[tensorflow]{install_tensorflow}}}
 }}
 
