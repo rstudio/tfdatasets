@@ -10,15 +10,31 @@
 #'
 #' @export
 output_types <- function(object) {
-  object$output_types
+  if (tensorflow::tf_version() < "2.0") {
+    object$output_types
+  } else {
+    b <- next_batch(object)
+    if (is.list(b)) {
+      lapply(b, function(x) x$dtype)
+    } else {
+      b$dtype
+    }
+  }
 }
 
 
 #' @rdname output_types
 #' @export
 output_shapes <- function(object) {
-  object$output_shapes
+  if (tensorflow::tf_version() < "2.0") {
+    object$output_shapes
+  } else {
+    b <- next_batch(object)
+    if (is.list(b)) {
+      lapply(b, function(x) x$shape)
+    } else {
+      b$shape
+    }
+  }
 }
-
-
 

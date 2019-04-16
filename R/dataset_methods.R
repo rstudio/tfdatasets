@@ -515,13 +515,12 @@ dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features =
 
   # get features
   col_names <- column_names(dataset)
-  eq_features <- enquo(x)
-  environment(eq_features) <- as_overscope(eq_features, data = tidyselect_data)
+  eq_features <- rlang::enquo(x)
 
   # attempt use of tidyselect. if there is an error it could be because 'x'
   # is a formula. in that case attempt to parse the formula
   feature_col_names <- tryCatch({
-    vars_select(col_names, !! eq_features)
+    tidyselect::vars_select(col_names, !! eq_features)
   },
   error = function(e) {
     if (is_formula(x)) {
@@ -539,9 +538,8 @@ dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features =
 
   # get response if specified
   if (!missing(y) && is.null(response_col)) {
-    eq_response <- enquo(y)
-    environment(eq_response) <- as_overscope(eq_response, data = tidyselect_data)
-    response_name <- vars_select(col_names, !! eq_response)
+    eq_response <- rlang::enquo(y)
+    response_name <- tidyselect::vars_select(col_names, !! eq_response)
     if (length(response_name) > 0) {
       if (length(response_name) != 1)
         stop("Invalid response column: ", paste(response_name))
