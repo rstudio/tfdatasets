@@ -151,6 +151,11 @@ test_succeeds("zip_datasets returns a dataset", {
   zip_datasets(list(tensors_dataset(tf$constant(1:100)), tensors_dataset(tf$constant(101:200))))
 })
 
+test_succeeds("dataset_windows ombines input elements into a dataset of windows", {
+  d <- range_dataset(1, 100) %>%
+    dataset_window(size = 5)
+})
+
 
 
 

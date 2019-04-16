@@ -1,5 +1,4 @@
 
-
 #' Repeats a dataset count times.
 #'
 #' @param dataset A dataset
@@ -633,6 +632,32 @@ as_tf_dataset <- function(dataset) {
 }
 
 
+#' Combines input elements into a dataset of windows.
+#'
+#' @param dataset A dataset
+#' @param size representing the number of elements of the input dataset to
+#'    combine into a window.
+#' @param shift epresenting the forward shift of the sliding window in each
+#'    iteration. Defaults to `size`.
+#' @param stride representing the stride of the input elements in the sliding
+#'    window.
+#' @param drop_remainder representing whether a window should be dropped in
+#'    case its size is smaller `than window_size`.
+#'
+#' @family dataset methods
+#'
+#' @export
+dataset_window <- function(dataset, size, shift = NULL, stride = 1,
+                           drop_remainder = FALSE) {
+  as_tf_dataset(
+    dataset$window(
+      size = as_integer_tensor(size),
+      shift = as_integer_tensor(shift),
+      stride = as_integer_tensor(stride),
+      drop_remainder = drop_remainder
+    )
+  )
+}
 
 
 
