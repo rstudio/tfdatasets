@@ -505,11 +505,6 @@ dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features =
   if (!is_dataset(dataset))
     stop("Provided dataset is not a TensorFlow Dataset")
 
-  # get tidyselect_data for overscope
-  tidyselect <- asNamespace("tidyselect")
-  exports <- getNamespaceExports(tidyselect)
-  tidyselect_data <- mget(exports, tidyselect, inherits = TRUE)
-
   # default to null response_col
   response_col <- NULL
 
