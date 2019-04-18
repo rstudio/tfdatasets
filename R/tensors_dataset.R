@@ -35,6 +35,11 @@ tensor_slices_dataset <-function(tensors) {
   if (is.list(tensors) && is.null(names(tensors)))
     tensors <- tuple(tensors)
 
+  # covert data frame to dict
+  if (is.data.frame(tensors)) {
+    tensors <- as.list(tensors)
+  }
+
   as_tf_dataset(
     tf$data$Dataset$from_tensor_slices(tensors = tensors)
   )
