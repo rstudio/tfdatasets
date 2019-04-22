@@ -1,0 +1,48 @@
+---
+title: "Recipes interface"
+output: 
+  rmarkdown::html_vignette: default
+vignette: >
+  %\VignetteIndexEntry{Introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+type: docs
+repo: https://github.com/rstudio/tfdatasets
+menu:
+  main:
+    name: "Using Datasets"
+    identifier: "tools-tfdatasets-using"
+    parent: "tfdatasets-top"
+    weight: 10
+aliases:
+  - /tools/tfdatasets/
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+## Overview
+
+```{r}
+dataset <- list(a = letters, b = 1:length(letters), c = runif(length(letters)), d = LETTERS) %>%
+  tensor_slices_dataset() %>%
+  dataset_batch(2)
+
+dataset
+
+rec <- recipe(a ~ ., dataset) %>%
+  step_numeric_column(b, c) %>% 
+  step_categorical_column_with_vocabulary_list(a, d) %>%
+  step_indicator_column(a) %>%
+  step_embedding_column(d, dimension = 3)
+
+rec$fit()
+rec$base_features()
+rec$features()
+
+lyr <- keras::layer_dense_features(feature_columns = rec$features())
+ds <- reticulate::as_iterator(dataset)
+lyr(reticulate::iter_next(ds))
+```
+
