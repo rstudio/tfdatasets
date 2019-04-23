@@ -12,6 +12,8 @@ is_dense_column <- function(feature) {
   inherits(feature, "tensorflow.python.feature_column.feature_column._DenseColumn")
 }
 
+# Recipe ------------------------------------------------------------------
+
 Recipe <- R6::R6Class(
   "Recipe",
   public = list(
@@ -136,6 +138,9 @@ Recipe <- R6::R6Class(
   )
 )
 
+
+# Step --------------------------------------------------------------------
+
 Step <- R6::R6Class(
   classname = "Step",
 
@@ -176,6 +181,9 @@ DerivedStep <- R6::R6Class(
   inherit = Step
 )
 
+
+# StepNumericColumn -------------------------------------------------------
+
 StepNumericColumn <- R6::R6Class(
   "StepNumericColumn",
   inherit = Step,
@@ -213,6 +221,8 @@ StepNumericColumn <- R6::R6Class(
     }
   )
 )
+
+# StepCategoricalColumnWithVocabularyList ---------------------------------
 
 StepCategoricalColumnWithVocabularyList <- R6::R6Class(
   "StepCategoricalColumnWithVocabularyList",
@@ -269,6 +279,9 @@ StepCategoricalColumnWithVocabularyList <- R6::R6Class(
   )
 )
 
+
+# StepIndicatorColumn -----------------------------------------------------
+
 StepIndicatorColumn <- R6::R6Class(
   "StepIndicatorColumn",
   inherit = Step,
@@ -284,6 +297,9 @@ StepIndicatorColumn <- R6::R6Class(
     }
   )
 )
+
+
+# StepEmbeddingColumn -----------------------------------------------------
 
 StepEmbeddingColumn <- R6::R6Class(
   "StepEmbeddingColumn",
@@ -335,6 +351,9 @@ StepEmbeddingColumn <- R6::R6Class(
   )
 )
 
+
+# StepCrossedColumn -------------------------------------------------------
+
 StepCrossedColumn <- R6::R6Class(
   "StepCrossedColumn",
   inherit = DerivedStep,
@@ -366,6 +385,9 @@ StepCrossedColumn <- R6::R6Class(
 
   )
 )
+
+
+# Wrappers ----------------------------------------------------------------
 
 recipe <- function(formula, dataset) {
   rec <- Recipe$new(formula, dataset)
