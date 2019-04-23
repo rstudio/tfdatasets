@@ -387,6 +387,36 @@ StepCrossedColumn <- R6::R6Class(
 )
 
 
+# StepBucketizedColumn ----------------------------------------------------
+
+StepBucketizedColumn <- R6::R6Class(
+  "StepBucketizedColumn",
+  inherit = DerivedStep,
+
+  public = list(
+
+    source_column = NULL,
+    boundaries = NULL,
+
+    initialize = function(source_column, boundaries, name) {
+      self$source_column <- source_column
+      self$boundaries <- boundaries
+      self$name <- name
+    },
+
+    feature = function(base_features) {
+
+      tf$feature_column$bucketized_column(
+        source_column = base_features[[self$source_column]],
+        boundaries = self$boundaries
+      )
+
+    }
+
+  )
+
+)
+
 # Wrappers ----------------------------------------------------------------
 
 recipe <- function(formula, dataset) {
@@ -502,6 +532,27 @@ step_crossed_column <- function(rec, ..., hash_bucket_size, hash_key = NULL) {
       name = make_crossed_step_name(quosures[i], variables)
     )
 
+    rec$add_step(stp)
+  }
+
+  rec
+
+}
+
+step_bucketized_column <- function(rec, ..., boundaries) {
+
+  rec <- rec$clone(deep = TRUE)
+  quosures <- quos(...)
+
+  variables <- tidyselect::vars_select(rec$feature_names(), !!!quosures)
+
+  for (i in seq_along(variables)) {
+
+    stp <- StepBucketizedColumn$new(
+      variables[i],
+      boundaries = boundaries,
+      name = make_step_name(quosures[i], variables[i], "bucketized")
+    )
     rec$add_step(stp)
   }
 
