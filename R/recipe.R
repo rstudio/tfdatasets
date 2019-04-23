@@ -17,12 +17,11 @@ Recipe <- R6::R6Class(
     },
 
     add_step = function(step) {
-      if (inherits(step, "StepNumericColumn") ||
-        inherits(step, "StepCategoricalColumnWithVocabularyList")) {
+      if (inherits(step, "StepNumericColumn") || inherits(step, "CategoricalStep")) {
         self$base_steps <- append(self$base_steps, step)
       }
 
-      if (!inherits(step, "StepCategoricalColumnWithVocabularyList")) {
+      if (!inherits(step, "CategoricalStep")) {
         self$steps <- append(self$steps, step)
       }
     },
@@ -51,9 +50,9 @@ Recipe <- R6::R6Class(
     },
 
     features = function() {
+      base_features <- self$base_features()
       feats <- lapply(self$steps, function(x) {
-        print(x$feature)
-        x$feature()
+        x$feature(base_features)
       })
       feats
     }
@@ -89,6 +88,11 @@ Step <- R6::R6Class(
   )
 )
 
+CategoricalStep <- R6::R6Class(
+  classname = "CategoricalStep",
+  inherit = Step
+)
+
 StepNumericColumn <- R6::R6Class(
   "StepNumericColumn",
   inherit = Step,
@@ -115,7 +119,7 @@ StepNumericColumn <- R6::R6Class(
     fit_resume = function() {
 
     },
-    feature = function () {
+    feature = function (base_features) {
       tf$feature_column$numeric_column(
         key = self$key, shape = self$shape,
         default_value = self$default_value,
@@ -128,7 +132,7 @@ StepNumericColumn <- R6::R6Class(
 
 StepCategoricalColumnWithVocabularyList <- R6::R6Class(
   "StepCategoricalColumnWithVocabularyList",
-  inherit = Step,
+  inherit = CategoricalStep,
   public = list(
 
     key = NULL,
@@ -167,7 +171,7 @@ StepCategoricalColumnWithVocabularyList <- R6::R6Class(
 
     },
 
-    feature = function() {
+    feature = function(base_features) {
 
       tf$feature_column$categorical_column_with_vocabulary_list(
         key = self$key,
@@ -187,12 +191,10 @@ StepIndicatorColumn <- R6::R6Class(
   public = list(
     categorical_column = NULL,
     base_features = NULL,
-    initialize = function(categorical_column, base_features) {
+    initialize = function(categorical_column) {
       self$categorical_column = categorical_column
-      self$base_features <- base_features
     },
-    feature = function() {
-      base_features <- self$base_features()
+    feature = function(base_features) {
       tf$feature_column$indicator_column(base_features[[self$categorical_column]])
     }
   )
@@ -211,11 +213,10 @@ StepEmbeddingColumn <- R6::R6Class(
     tensor_name_in_ckpt = NULL,
     max_norm = NULL,
     trainable = NULL,
-    base_features = NULL,
 
     initialize = function(categorical_column, dimension, combiner = "mean", initializer = NULL,
                           ckpt_to_load_from = NULL, tensor_name_in_ckpt = NULL, max_norm = NULL,
-                          trainable = TRUE, base_features) {
+                          trainable = TRUE) {
 
       self$categorical_column <- categorical_column
       self$dimension <- dimension
@@ -225,13 +226,11 @@ StepEmbeddingColumn <- R6::R6Class(
       self$tensor_name_in_ckpt <- tensor_name_in_ckpt
       self$max_norm <- max_norm
       self$trainable <- trainable
-      self$base_features <- base_features
 
     },
 
-    feature = function() {
+    feature = function(base_features) {
 
-      base_features <- self$base_features()
       categorical_column <- base_features[[self$categorical_column]]
 
       tf$feature_column$embedding_column(
@@ -289,7 +288,7 @@ step_indicator_column <- function(rec, ...) {
   rec <- rec$clone(deep = TRUE)
   variables <- tidyselect::vars_select(rec$column_names, !!!quos(...))
   for (var in variables) {
-    stp <- StepIndicatorColumn$new(var, rec$base_features)
+    stp <- StepIndicatorColumn$new(var)
     rec$add_step(stp)
   }
 
@@ -305,8 +304,7 @@ step_embedding_column <- function(rec, ..., dimension, combiner = "mean",
   for (var in variables) {
     stp <- StepEmbeddingColumn$new(var, dimension, combiner, initializer,
                                    ckpt_to_load_from, tensor_name_in_ckpt,
-                                   max_norm, trainable,
-                                   base_features = rec$base_features)
+                                   max_norm, trainable)
     rec$add_step(stp)
   }
 
