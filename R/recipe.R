@@ -22,6 +22,7 @@ Recipe <- R6::R6Class(
     column_names = NULL,
     column_types = NULL,
     dataset = NULL,
+    fitted = FALSE,
 
     initialize = function(formula, dataset) {
       self$formula <- formula
@@ -49,6 +50,10 @@ Recipe <- R6::R6Class(
     },
 
     fit = function() {
+
+      if (self$fitted)
+        stop("Recipe is already fitted.")
+
       ds <- reticulate::as_iterator(self$dataset)
       nxt <- reticulate::iter_next(ds)
 
@@ -62,9 +67,15 @@ Recipe <- R6::R6Class(
       for (i in seq_along(self$base_steps)) {
         self$base_steps[[i]]$fit_resume()
       }
+
+      self$fitted <- TRUE
     },
 
     base_features = function() {
+
+      if (!self$fitted)
+        stop("Only available after fitting the recipe.")
+
       feats <- lapply(self$base_steps, function(x) x$feature())
       names(feats) <- sapply(self$base_steps, function(x) x$key)
 
@@ -72,6 +83,10 @@ Recipe <- R6::R6Class(
     },
 
     derived_features = function() {
+
+      if (!self$fitted)
+        stop("Only available after fitting the recipe.")
+
       base_features <- self$base_features()
       feats <- lapply(self$derived_steps, function(x) {
         x$feature(base_features)
@@ -80,6 +95,10 @@ Recipe <- R6::R6Class(
     },
 
     features = function() {
+
+      if (!self$fitted)
+        stop("Only available after fitting the recipe.")
+
       base_features <- self$base_features()
       derived_features <- self$derived_features()
       features <- append(base_features, derived_features)
@@ -90,6 +109,10 @@ Recipe <- R6::R6Class(
     },
 
     dense_features = function() {
+
+      if (!self$fitted)
+        stop("Only available after fitting the recipe.")
+
       Filter(is_dense_column, self$features())
     },
 
