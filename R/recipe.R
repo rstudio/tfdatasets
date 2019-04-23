@@ -1,7 +1,22 @@
+name_step <- function(step) {
+  if (!is.null(step$name)) {
+    nm <- step$name
+    step <- list(step)
+    names(step) <- nm
+  }
+
+  step
+}
+
+is_dense_column <- function(feature) {
+  inherits(feature, "tensorflow.python.feature_column.feature_column._DenseColumn")
+}
+
 Recipe <- R6::R6Class(
   "Recipe",
   public = list(
     base_steps = list(),
+    derived_steps = list(),
     steps = list(),
     formula = NULL,
     column_names = NULL,
@@ -17,13 +32,20 @@ Recipe <- R6::R6Class(
     },
 
     add_step = function(step) {
+
       if (inherits(step, "StepNumericColumn") || inherits(step, "CategoricalStep")) {
-        self$base_steps <- append(self$base_steps, step)
+        self$base_steps <- append(self$base_steps, name_step(step))
       }
 
-      if (!inherits(step, "CategoricalStep")) {
-        self$steps <- append(self$steps, step)
+      if (inherits(step , "DerivedStep")) {
+        self$derived_steps <- append(self$derived_steps, name_step(step))
       }
+
+      if (!inherits(step, "CategoricalStep") && !inherits(step, "DerivedStep") &&
+          !inherits(step, "StepNumericColumn")) {
+        self$steps <- append(self$steps, name_step(step))
+      }
+
     },
 
     fit = function() {
@@ -49,13 +71,32 @@ Recipe <- R6::R6Class(
       feats
     },
 
-    features = function() {
+    derived_features = function() {
       base_features <- self$base_features()
-      feats <- lapply(self$steps, function(x) {
+      feats <- lapply(self$derived_steps, function(x) {
         x$feature(base_features)
       })
       feats
+    },
+
+    features = function() {
+      base_features <- self$base_features()
+      derived_features <- self$derived_features()
+      features <- append(base_features, derived_features)
+      feats <- lapply(self$steps, function(x) {
+        x$feature(features)
+      })
+      append(feats, features)
+    },
+
+    dense_features = function() {
+      Filter(is_dense_column, self$features())
+    },
+
+    feature_names = function() {
+      unique(c(names(self$steps), names(self$derived_steps), names(self$steps), self$column_names))
     }
+
   ),
 
   private = list(
@@ -73,6 +114,19 @@ Recipe <- R6::R6Class(
 
 Step <- R6::R6Class(
   classname = "Step",
+
+  public = list(
+    name = NULL,
+    fit_batch = function (batch) {
+
+    },
+
+    fit_resume = function () {
+
+    }
+
+  ),
+
   private = list(
     deep_clone = function(name, value) {
 
@@ -93,6 +147,11 @@ CategoricalStep <- R6::R6Class(
   inherit = Step
 )
 
+DerivedStep <- R6::R6Class(
+  "DerivedStep",
+  inherit = Step
+)
+
 StepNumericColumn <- R6::R6Class(
   "StepNumericColumn",
   inherit = Step,
@@ -102,12 +161,13 @@ StepNumericColumn <- R6::R6Class(
     default_value = NULL,
     dtype = NULL,
     normalizer_fn = NULL,
-    initialize = function(key, shape, default_value, dtype, normalizer_fn) {
+    initialize = function(key, shape, default_value, dtype, normalizer_fn, name) {
       self$key <- key
       self$shape <- shape
       self$default_value <- default_value
       self$dtype <- dtype
       self$normalizer_fn <- normalizer_fn
+      self$name <- name
     },
     fit_batch = function(batch) {
       if (is.null(self$normalizer_fn) || is.function(self$normalizer_fn)) {
@@ -143,14 +203,14 @@ StepCategoricalColumnWithVocabularyList <- R6::R6Class(
     vocabulary_list_aux = NULL,
 
     initialize = function(key, vocabulary_list = NULL, dtype = NULL, default_value = -1L,
-                          num_oov_buckets = 0L) {
+                          num_oov_buckets = 0L, name) {
 
       self$key <- key
       self$vocabulary_list <- vocabulary_list
       self$dtype = dtype
       self$default_value <- default_value
       self$num_oov_buckets <- num_oov_buckets
-
+      self$name <- name
     },
 
     fit_batch = function(batch) {
@@ -191,8 +251,9 @@ StepIndicatorColumn <- R6::R6Class(
   public = list(
     categorical_column = NULL,
     base_features = NULL,
-    initialize = function(categorical_column) {
+    initialize = function(categorical_column, name) {
       self$categorical_column = categorical_column
+      self$name <- name
     },
     feature = function(base_features) {
       tf$feature_column$indicator_column(base_features[[self$categorical_column]])
@@ -216,7 +277,7 @@ StepEmbeddingColumn <- R6::R6Class(
 
     initialize = function(categorical_column, dimension, combiner = "mean", initializer = NULL,
                           ckpt_to_load_from = NULL, tensor_name_in_ckpt = NULL, max_norm = NULL,
-                          trainable = TRUE) {
+                          trainable = TRUE, name) {
 
       self$categorical_column <- categorical_column
       self$dimension <- dimension
@@ -226,6 +287,7 @@ StepEmbeddingColumn <- R6::R6Class(
       self$tensor_name_in_ckpt <- tensor_name_in_ckpt
       self$max_norm <- max_norm
       self$trainable <- trainable
+      self$name <- name
 
     },
 
@@ -249,6 +311,38 @@ StepEmbeddingColumn <- R6::R6Class(
   )
 )
 
+StepCrossedColumn <- R6::R6Class(
+  "StepCrossedColumn",
+  inherit = DerivedStep,
+  public = list(
+
+    keys = NULL,
+    hash_bucket_size = NULL,
+    hash_key = NULL,
+
+    initialize = function (keys, hash_bucket_size, hash_key = NULL, name = NULL) {
+      self$keys <- keys
+      self$hash_bucket_size <- hash_bucket_size
+      self$hash_key <- hash_key
+      self$name <- name
+    },
+
+    feature = function(base_features) {
+
+      keys <- lapply(self$keys, function(x) base_features[[x]])
+      names(keys) <- NULL
+
+      tf$feature_column$crossed_column(
+        keys = keys,
+        hash_bucket_size = self$hash_bucket_size,
+        hash_key = self$hash_key
+      )
+
+    }
+
+  )
+)
+
 recipe <- function(formula, dataset) {
   rec <- Recipe$new(formula, dataset)
   rec
@@ -258,9 +352,10 @@ step_numeric_column <- function(rec, ..., shape = 1L, default_value = NULL,
                                 dtype = tf$float32, normalizer_fn = NULL) {
 
   rec <- rec$clone(deep = TRUE)
-  variables <- tidyselect::vars_select(rec$column_names, !!!quos(...))
+  variables <- tidyselect::vars_select(rec$feature_names(), !!!quos(...))
   for (var in variables) {
-    stp <- StepNumericColumn$new(var, shape, default_value, dtype, normalizer_fn)
+    stp <- StepNumericColumn$new(var, shape, default_value, dtype, normalizer_fn,
+                                 name = var)
     rec$add_step(stp)
   }
 
@@ -271,11 +366,12 @@ step_categorical_column_with_vocabulary_list <- function(rec, ..., vocabulary_li
                                                          dtype = NULL, default_value = -1L,
                                                          num_oov_buckets = 0L) {
   rec <- rec$clone(deep = TRUE)
-  variables <- tidyselect::vars_select(rec$column_names, !!!quos(...))
+  variables <- tidyselect::vars_select(rec$feature_names(), !!!quos(...))
   for (var in variables) {
     stp <- StepCategoricalColumnWithVocabularyList$new(
       var, vocabulary_list, dtype,
-      default_value, num_oov_buckets
+      default_value, num_oov_buckets,
+      name = var
     )
     rec$add_step(stp)
   }
@@ -286,9 +382,9 @@ step_categorical_column_with_vocabulary_list <- function(rec, ..., vocabulary_li
 step_indicator_column <- function(rec, ...) {
 
   rec <- rec$clone(deep = TRUE)
-  variables <- tidyselect::vars_select(rec$column_names, !!!quos(...))
+  variables <- tidyselect::vars_select(rec$feature_names(), !!!quos(...))
   for (var in variables) {
-    stp <- StepIndicatorColumn$new(var)
+    stp <- StepIndicatorColumn$new(var, name = paste0("indicator_", var))
     rec$add_step(stp)
   }
 
@@ -300,16 +396,38 @@ step_embedding_column <- function(rec, ..., dimension, combiner = "mean",
                                   tensor_name_in_ckpt = NULL, max_norm = NULL,
                                   trainable = TRUE) {
   rec <- rec$clone(deep = TRUE)
-  variables <- tidyselect::vars_select(rec$column_names, !!!quos(...))
+  variables <- tidyselect::vars_select(rec$feature_names(), !!!quos(...))
   for (var in variables) {
     stp <- StepEmbeddingColumn$new(var, dimension, combiner, initializer,
                                    ckpt_to_load_from, tensor_name_in_ckpt,
-                                   max_norm, trainable)
+                                   max_norm, trainable, name = paste0("embedding_", var))
     rec$add_step(stp)
   }
 
   rec
 }
 
+step_crossed_column <- function(rec, ..., hash_bucket_size, hash_key = NULL) {
 
+  rec <- rec$clone(deep = TRUE)
+  quosures <- quos(...)
+
+
+  for (i in seq_along(quosures)) {
+
+    variables <- tidyselect::vars_select(rec$feature_names(), !!!quosures[[i]])
+
+    stp <- StepCrossedColumn$new(
+      keys = variables,
+      hash_bucket_size = hash_bucket_size,
+      hash_key = hash_key,
+      name = names(quosures[i])
+    )
+
+    rec$add_step(stp)
+  }
+
+  rec
+
+}
 
