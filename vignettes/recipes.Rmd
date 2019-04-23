@@ -35,11 +35,16 @@ rec <- recipe(a ~ ., dataset) %>%
   step_numeric_column(b, c) %>% 
   step_categorical_column_with_vocabulary_list(a, d) %>%
   step_indicator_column(a) %>%
-  step_embedding_column(d, dimension = 3)
+  step_embedding_column(d, dimension = 3) %>% 
+  step_crossed_column(x = c(a, d), hash_bucket_size = 500) %>% 
+  step_indicator_column(x)
 
 rec$fit()
 rec$base_features()
+rec$derived_features()
 rec$features()
+rec$dense_features()
+rec$feature_names()
 
 lyr <- keras::layer_dense_features(feature_columns = rec$features())
 ds <- reticulate::as_iterator(dataset)
