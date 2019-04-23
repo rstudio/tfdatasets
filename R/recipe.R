@@ -103,7 +103,8 @@ Recipe <- R6::R6Class(
     deep_clone = function(name, value) {
       if (inherits(value, "R6")) {
         value$clone(deep = TRUE)
-      } else if (name == "steps" || name == "base_steps") {
+      } else if (name == "steps" || name == "base_steps" ||
+                 name == "derived_steps") {
         lapply(value, function(x) x$clone(deep = TRUE))
       } else {
         value
