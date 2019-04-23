@@ -380,12 +380,28 @@ step_categorical_column_with_vocabulary_list <- function(rec, ..., vocabulary_li
   rec
 }
 
+make_step_name <- function(quosure, variable, step) {
+  nms <- names(quosure)
+  if (!is.null(nms) && nms != "") {
+    nms
+  } else {
+    paste0(step, "_", variable)
+  }
+}
+
 step_indicator_column <- function(rec, ...) {
 
   rec <- rec$clone(deep = TRUE)
-  variables <- tidyselect::vars_select(rec$feature_names(), !!!quos(...))
-  for (var in variables) {
-    stp <- StepIndicatorColumn$new(var, name = paste0("indicator_", var))
+  quosures <- quos(...)
+
+  variables <- tidyselect::vars_select(rec$feature_names(), !!!quosures)
+
+  for (i in seq_along(quosures)) {
+
+    stp <- StepIndicatorColumn$new(
+      variables[i],
+      name = make_step_name(quosures[i], variables[i], "indicator")
+    )
     rec$add_step(stp)
   }
 
@@ -397,15 +413,31 @@ step_embedding_column <- function(rec, ..., dimension, combiner = "mean",
                                   tensor_name_in_ckpt = NULL, max_norm = NULL,
                                   trainable = TRUE) {
   rec <- rec$clone(deep = TRUE)
-  variables <- tidyselect::vars_select(rec$feature_names(), !!!quos(...))
-  for (var in variables) {
-    stp <- StepEmbeddingColumn$new(var, dimension, combiner, initializer,
-                                   ckpt_to_load_from, tensor_name_in_ckpt,
-                                   max_norm, trainable, name = paste0("embedding_", var))
+  quosures <- quos(...)
+
+  variables <- tidyselect::vars_select(rec$feature_names(), !!!quosures)
+
+  for (i in seq_along(variables)) {
+    stp <- StepEmbeddingColumn$new(
+      variables[i], dimension, combiner, initializer,
+      ckpt_to_load_from, tensor_name_in_ckpt,
+      max_norm, trainable,
+      name = make_step_name(quosures[i], variables[i], "embedding")
+    )
     rec$add_step(stp)
   }
 
   rec
+}
+
+
+make_crossed_step_name <- function(quosure, variables) {
+  nms <- names(quosure)
+  if (!is.null(nms) && nms != "") {
+    nms
+  } else {
+    paste0("crossed_", paste(variables, collapse= "_"))
+  }
 }
 
 step_crossed_column <- function(rec, ..., hash_bucket_size, hash_key = NULL) {
@@ -422,7 +454,7 @@ step_crossed_column <- function(rec, ..., hash_bucket_size, hash_key = NULL) {
       keys = variables,
       hash_bucket_size = hash_bucket_size,
       hash_key = hash_key,
-      name = names(quosures[i])
+      name = make_crossed_step_name(quosures[i], variables)
     )
 
     rec$add_step(stp)
@@ -431,4 +463,3 @@ step_crossed_column <- function(rec, ..., hash_bucket_size, hash_key = NULL) {
   rec
 
 }
-
