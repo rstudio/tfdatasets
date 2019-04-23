@@ -1,48 +1,46 @@
 Recipe <- R6::R6Class(
   "Recipe",
   public = list(
-
     base_steps = list(),
     steps = list(),
     formula = NULL,
+    column_names = NULL,
+    column_types = NULL,
     dataset = NULL,
-    column_names = NULL, # keeps the column names
 
     initialize = function(formula, dataset) {
       self$formula <- formula
       self$dataset <- dataset
 
       self$column_names <- column_names(dataset)
+      self$column_types <- output_types(dataset)
     },
 
     add_step = function(step) {
-
       if (inherits(step, "StepNumericColumn") ||
-          inherits(step, "StepCategoricalColumnWithVocabularyList")) {
+        inherits(step, "StepCategoricalColumnWithVocabularyList")) {
         self$base_steps <- append(self$base_steps, step)
       }
 
-      if (!inherits(step, "StepCategoricalColumnWithVocabularyList"))
+      if (!inherits(step, "StepCategoricalColumnWithVocabularyList")) {
         self$steps <- append(self$steps, step)
-
+      }
     },
 
     fit = function() {
+      ds <- reticulate::as_iterator(self$dataset)
+      nxt <- reticulate::iter_next(ds)
 
-     ds <- reticulate::as_iterator(self$dataset)
-     nxt <- reticulate::iter_next(ds)
+      while (!is.null(nxt)) {
+        for (i in seq_along(self$base_steps)) {
+          self$base_steps[[i]]$fit_batch(nxt)
+        }
+        nxt <- reticulate::iter_next(ds)
+      }
 
-     while(!is.null(nxt)) {
-       for (i in seq_along(self$base_steps)) {
-         self$base_steps[[i]]$fit_batch(nxt)
-       }
-       nxt <- reticulate::iter_next(ds)
-     }
-
-     for (i in seq_along(self$base_steps)) {
-       self$base_steps[[i]]$fit_resume()
-     }
-
+      for (i in seq_along(self$base_steps)) {
+        self$base_steps[[i]]$fit_resume()
+      }
     },
 
     base_features = function() {
@@ -53,16 +51,47 @@ Recipe <- R6::R6Class(
     },
 
     features = function() {
-      feats <- lapply(self$steps, function(x) x$feature())
-
+      feats <- lapply(self$steps, function(x) {
+        print(x$feature)
+        x$feature()
+      })
       feats
     }
+  ),
 
+  private = list(
+    deep_clone = function(name, value) {
+      if (inherits(value, "R6")) {
+        value$clone(deep = TRUE)
+      } else if (name == "steps" || name == "base_steps") {
+        lapply(value, function(x) x$clone(deep = TRUE))
+      } else {
+        value
+      }
+    }
+  )
+)
+
+Step <- R6::R6Class(
+  classname = "Step",
+  private = list(
+    deep_clone = function(name, value) {
+
+      if (inherits(value, "python.builtin.object")) {
+        value
+      } else if (inherits(value, "R6")) {
+        value$clone(deep = TRUE)
+      } else {
+        value
+      }
+
+    }
   )
 )
 
 StepNumericColumn <- R6::R6Class(
   "StepNumericColumn",
+  inherit = Step,
   public = list(
     key = NULL,
     shape = NULL,
@@ -99,6 +128,7 @@ StepNumericColumn <- R6::R6Class(
 
 StepCategoricalColumnWithVocabularyList <- R6::R6Class(
   "StepCategoricalColumnWithVocabularyList",
+  inherit = Step,
   public = list(
 
     key = NULL,
@@ -152,23 +182,25 @@ StepCategoricalColumnWithVocabularyList <- R6::R6Class(
 )
 
 StepIndicatorColumn <- R6::R6Class(
-   "StepIndicatorColumn",
-   public = list(
-     categorical_column = NULL,
-     base_features = NULL,
-     initialize = function(categorical_column, base_features) {
-       self$categorical_column = categorical_column
-       self$base_features <- base_features
-     },
-     feature = function() {
-       base_features <- self$base_features()
-       tf$feature_column$indicator_column(base_features[[self$categorical_column]])
-     }
-   )
+  "StepIndicatorColumn",
+  inherit = Step,
+  public = list(
+    categorical_column = NULL,
+    base_features = NULL,
+    initialize = function(categorical_column, base_features) {
+      self$categorical_column = categorical_column
+      self$base_features <- base_features
+    },
+    feature = function() {
+      base_features <- self$base_features()
+      tf$feature_column$indicator_column(base_features[[self$categorical_column]])
+    }
+  )
 )
 
 StepEmbeddingColumn <- R6::R6Class(
   "StepEmbeddingColumn",
+  inherit = Step,
   public = list(
 
     categorical_column = NULL,
@@ -226,7 +258,8 @@ recipe <- function(formula, dataset) {
 step_numeric_column <- function(rec, ..., shape = 1L, default_value = NULL,
                                 dtype = tf$float32, normalizer_fn = NULL) {
 
-  variables <- tidyselect::vars_select(rec$column_names, ...)
+  rec <- rec$clone(deep = TRUE)
+  variables <- tidyselect::vars_select(rec$column_names, !!!quos(...))
   for (var in variables) {
     stp <- StepNumericColumn$new(var, shape, default_value, dtype, normalizer_fn)
     rec$add_step(stp)
@@ -238,8 +271,8 @@ step_numeric_column <- function(rec, ..., shape = 1L, default_value = NULL,
 step_categorical_column_with_vocabulary_list <- function(rec, ..., vocabulary_list = NULL,
                                                          dtype = NULL, default_value = -1L,
                                                          num_oov_buckets = 0L) {
-
-  variables <- tidyselect::vars_select(rec$column_names, ...)
+  rec <- rec$clone(deep = TRUE)
+  variables <- tidyselect::vars_select(rec$column_names, !!!quos(...))
   for (var in variables) {
     stp <- StepCategoricalColumnWithVocabularyList$new(
       var, vocabulary_list, dtype,
@@ -253,7 +286,8 @@ step_categorical_column_with_vocabulary_list <- function(rec, ..., vocabulary_li
 
 step_indicator_column <- function(rec, ...) {
 
-  variables <- tidyselect::vars_select(rec$column_names, ...)
+  rec <- rec$clone(deep = TRUE)
+  variables <- tidyselect::vars_select(rec$column_names, !!!quos(...))
   for (var in variables) {
     stp <- StepIndicatorColumn$new(var, rec$base_features)
     rec$add_step(stp)
@@ -266,8 +300,8 @@ step_embedding_column <- function(rec, ..., dimension, combiner = "mean",
                                   initializer = NULL, ckpt_to_load_from = NULL,
                                   tensor_name_in_ckpt = NULL, max_norm = NULL,
                                   trainable = TRUE) {
-
-  variables <- tidyselect::vars_select(rec$column_names, ...)
+  rec <- rec$clone(deep = TRUE)
+  variables <- tidyselect::vars_select(rec$column_names, !!!quos(...))
   for (var in variables) {
     stp <- StepEmbeddingColumn$new(var, dimension, combiner, initializer,
                                    ckpt_to_load_from, tensor_name_in_ckpt,
@@ -280,26 +314,4 @@ step_embedding_column <- function(rec, ..., dimension, combiner = "mean",
 }
 
 
-dataset <- list(a = letters, b = 1:length(letters), c = runif(length(letters)), d = LETTERS) %>%
-  tensor_slices_dataset() %>%
-  dataset_batch(2)
 
-dataset
-
-rec_1 <- recipe(a ~ ., dataset) %>%
-  step_numeric_column(b, c)
-
-rec <-  rec_1 %>%
-  step_categorical_column_with_vocabulary_list(a, d) %>%
-  step_indicator_column(a) %>%
-  step_embedding_column(d, dimension = 3)
-
-
-rec$fit()
-rec$base_features()
-rec$features()
-
-rec_1$features()
-dataset2 <- rec$bake(dataset)
-
-# step_numeric_column(rec, target)
