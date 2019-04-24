@@ -19,36 +19,176 @@ aliases:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(eval = FALSE)
+knitr::opts_chunk$set(eval = TRUE)
 ```
 
 ## Overview
 
+In this document we will demonstrate the basic usage of the `recipes` interface
+in `tfdatasets`.
+
+The `recipes` interface is a user friendly interface to [`feature_columns`](https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/feature_column).
+It allows us to specify columns transformations and representations when working with
+structured data.
+
+We will use the `hearts` dataset and it can be laoded with `data(hearts)`.
+
 ```{r}
-dataset <- list(a = letters, b = 1:length(letters), c = runif(length(letters)), d = LETTERS) %>%
-  tensor_slices_dataset() %>%
-  dataset_batch(2)
-
-dataset
-
-rec <- recipe(a ~ ., dataset) %>%
-  step_numeric_column(b, c) %>% 
-  step_categorical_column_with_vocabulary_list(a, d) %>%
-  step_indicator_column(a) %>%
-  step_embedding_column(d, dimension = 3) %>% 
-  step_crossed_column(c(a, d), hash_bucket_size = 500) %>% 
-  step_indicator_column(x = crossed_a_d) %>% 
-  step_bucketized_column(b, boundaries = c(5, 10))
-
-rec$fit()
-rec$base_features()
-rec$derived_features()
-rec$features()
-rec$dense_features()
-rec$feature_names()
-
-lyr <- keras::layer_dense_features(feature_columns = rec$dense_features())
-ds <- reticulate::as_iterator(dataset)
-lyr(reticulate::iter_next(ds))
+library(tfdatasets)
+data(hearts)
 ```
 
+```{r}
+head(hearts)
+```
+
+We want to train a model to predict the `target` variable suing Keras but, before
+that we need to prepare the data. We need to transform the categorical variables
+into some form of dense variable, we usually want to normalize all numeric columns too.
+
+The recipes interface works with a TensorFlow dataset which can be created from an R
+`data.frame` using:
+
+```{r}
+dataset <- hearts %>% 
+  tensor_slices_dataset() %>% 
+  dataset_shuffle(nrow(hearts)) %>% 
+  dataset_batch(16)
+```
+
+Now let's start creating our Recipe. 
+
+```{r}
+rec <- recipe(target ~ ., dataset)
+```
+
+The first thing we need to do after creating the recipe is 
+to define how you want to treat your variables as categorical or numeric.
+
+You can do this by adding steps to the recipe.
+
+```{r}
+rec <- rec %>% 
+  step_numeric_column(age, trestbps, chol, thalach, oldpeak, slope, ca) %>% 
+  step_categorical_column_with_vocabulary_list(thal)
+```
+
+The following steps can be used to define the variable type:
+
+* `step_numeric_column` to define numeric variables
+* `step_categorical_with_vocabulary_list` for categorical variables with a fixed vocabulary
+* `step_categorical_column_with_hash_bucket` (TODO)
+* `step_categorical_column_with_identity` (TODO)
+* `step_categorical_column_with_vocabulary_file` (TODO)
+
+When using `step_categorical_column_with_vocabulary_list` you can also provide a `vocabulary` argument
+with the fixed vocabulary. The recipe will find all the unique values in the dataset and use it
+as the vocabulary.
+
+You can also specify a `normalizer_fn` to the `step_numeric_column` in this case the variable will be
+transformed by the feature column. Note that the transformation will occur in the TensorFlow Graph,
+so it must use only TensorFlow ops. We plan to implement pre-maid normalizer functions that obtains
+the normalizing constants from the dataset itself.
+
+Also in the above example we typed the name of all columns, but you can also use selectors like:
+
+* `starts_with()`, `ends_with()`, `matches()` etc. (from tidyselect)
+* `all_numeric()` to select all numeric variables (TODO)
+* `all_nominal()` to select all strings. (TODO)
+* `all_predictors()` to select all predictor variables (TODO)
+* `all_outcomes` to select all outcomes (TODO)
+
+After specifying the types of the columns you can add transformation steps. 
+For example you may want to bucketize a numeric column:
+
+```{r}
+rec <- rec %>% 
+  step_bucketized_column(age, boundaries = c(18, 25, 30, 35, 40, 45, 50, 55, 60, 65))
+```
+
+You can also specify the kind of numeric representation that you want to use for
+your categorical variables.
+
+```{r}
+rec <- rec %>% 
+  step_indicator_column(thal) %>% 
+  step_embedding_column(thal, dimension = 2)
+```
+
+Another common transformation is to add interactions between variables using crossed
+columns. 
+
+```{r}
+rec <- rec %>% 
+  step_crossed_column(thal_and_age = c(thal, bucketized_age), hash_bucket_size = 1000) %>% 
+  step_indicator_column(thal_and_age)
+```
+
+Note that the `crossed_cluumn` is a categorical column, so we need to also specify what
+kind of numeric tranformation we want to use. Also note that we can name the transformed
+variables - each step uses a default naming for columns, eg. `bucketized_age` is the
+default name when you use `step_bucketized_colun` with column called `age`.
+
+With the above code we have created our recipe. Note we can also define the
+recipe by chaining a sequence of methods:
+
+```{r} 
+rec <- recipe(target ~ ., dataset) %>% 
+  step_numeric_column(age, trestbps, chol, thalach, oldpeak, slope, ca) %>% 
+  step_categorical_column_with_vocabulary_list(thal) %>% 
+  step_bucketized_column(age, boundaries = c(18, 25, 30, 35, 40, 45, 50, 55, 60, 65)) %>% 
+  step_indicator_column(thal) %>% 
+  step_embedding_column(thal, dimension = 2)# %>% 
+  # step_crossed_column(c(thal, bucketized_age), hash_bucket_size = 1000) %>%
+  # step_indicator_column(crossed_thal_bucketized_age)
+```
+
+After defining the recipe we need to `prep` it. It's when preparing that we compute the vocabulary
+list for categorical variables or find the mean and standard deviation for the normalizing functions.
+Preparation involves evaluatig the full dataset, so If you have provided the vocabulary list and 
+your columns are already normalized you can skip the preparation step (TODO).
+
+In our case, we will prepare the recipe, since we didn't specify the vocabulary list
+for the categorical variables.
+
+```{r}
+rec_prep <- prep(rec)
+```
+
+After preparing we can see the list of dense features that were defined:
+
+```{r}
+str(rec_prep$dense_features())
+```
+
+Now we are ready to define our model in Keras. We will use a specialized `layer_dense_features` that
+knows what to do with the feature columns specification.
+
+```{r}
+library(keras)
+
+dense_features <- layer_dense_features(feature_columns = rec_prep$dense_features())
+
+model <- keras_model_sequential(layers = list(
+  dense_features,
+  layer_dense(units = 32, activation = "relu"),
+  layer_dense(units = 1, activation = "sigmoid")
+))
+
+model %>% compile(loss = loss_binary_crossentropy, 
+                  optimizer = "adam",
+                  metrics = metric_binary_accuracy)
+```
+
+We can finaly train the model in the dataset:
+
+```{r, warning=FALSE, results="show"}
+# TODO we should provide a transformed dataset with all columns necessary
+# for training and in the same format as keras.
+
+dataset_2 <- dataset %>% 
+  dataset_map(function(x) reticulate::tuple(x, x$target))
+
+model %>% 
+  fit(dataset_2, epochs = 5, verbose = 2)
+```

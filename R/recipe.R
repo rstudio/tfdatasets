@@ -493,17 +493,20 @@ StepSharedEmbeddings <- R6::R6Class(
 
 # Wrappers ----------------------------------------------------------------
 
+#' @export
 recipe <- function(formula, dataset) {
   rec <- Recipe$new(formula, dataset)
   rec
 }
 
+#' @export
 prep <- function(rec) {
   rec <- rec$clone(deep = TRUE)
   rec$fit()
   rec
 }
 
+#' @export
 step_numeric_column <- function(rec, ..., shape = 1L, default_value = NULL,
                                 dtype = tf$float32, normalizer_fn = NULL) {
 
@@ -518,6 +521,7 @@ step_numeric_column <- function(rec, ..., shape = 1L, default_value = NULL,
   rec
 }
 
+#' @export
 step_categorical_column_with_vocabulary_list <- function(rec, ..., vocabulary_list = NULL,
                                                          dtype = NULL, default_value = -1L,
                                                          num_oov_buckets = 0L) {
@@ -544,6 +548,7 @@ make_step_name <- function(quosure, variable, step) {
   }
 }
 
+#' @export
 step_indicator_column <- function(rec, ...) {
 
   rec <- rec$clone(deep = TRUE)
@@ -563,6 +568,7 @@ step_indicator_column <- function(rec, ...) {
   rec
 }
 
+#' @export
 step_embedding_column <- function(rec, ..., dimension, combiner = "mean",
                                   initializer = NULL, ckpt_to_load_from = NULL,
                                   tensor_name_in_ckpt = NULL, max_norm = NULL,
@@ -595,6 +601,7 @@ make_multiple_columns_step_name <- function(quosure, variables, step) {
   }
 }
 
+#' @export
 step_crossed_column <- function(rec, ..., hash_bucket_size, hash_key = NULL) {
 
   rec <- rec$clone(deep = TRUE)
@@ -619,6 +626,7 @@ step_crossed_column <- function(rec, ..., hash_bucket_size, hash_key = NULL) {
 
 }
 
+#' @export
 step_bucketized_column <- function(rec, ..., boundaries) {
 
   rec <- rec$clone(deep = TRUE)
@@ -640,6 +648,7 @@ step_bucketized_column <- function(rec, ..., boundaries) {
 
 }
 
+#' @export
 step_shared_embeddings_column <- function(rec, ..., dimension, combiner = "mean",
                                           initializer = NULL, shared_embedding_collection_name = NULL,
                                           ckpt_to_load_from = NULL, tensor_name_in_ckpt = NULL,
