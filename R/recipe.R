@@ -56,14 +56,26 @@ Recipe <- R6::R6Class(
       if (self$fitted)
         stop("Recipe is already fitted.")
 
-      ds <- reticulate::as_iterator(self$dataset)
-      nxt <- reticulate::iter_next(ds)
+      if (tf$executing_eagerly()) {
+        ds <- reticulate::as_iterator(self$dataset)
+        nxt <- reticulate::iter_next(ds)
+      } else {
+        ds <- make_iterator_one_shot(self$dataset)
+        nxt_it <- ds$get_next()
+        sess <- tf$compat$v1$Session()
+        nxt <- sess$run(nxt_it)
+      }
 
       while (!is.null(nxt)) {
         for (i in seq_along(self$base_steps)) {
           self$base_steps[[i]]$fit_batch(nxt)
         }
-        nxt <- reticulate::iter_next(ds)
+
+        if (tf$executing_eagerly()) {
+          nxt <- reticulate::iter_next(ds)
+        } else {
+          nxt <- tryCatch({sess$run(nxt_it)}, error = out_of_range_handler)
+        }
       }
 
       for (i in seq_along(self$base_steps)) {
@@ -71,6 +83,7 @@ Recipe <- R6::R6Class(
       }
 
       self$fitted <- TRUE
+      sess$close()
     },
 
     base_features = function() {
@@ -81,7 +94,7 @@ Recipe <- R6::R6Class(
       feats <- lapply(self$base_steps, function(x) x$feature())
       names(feats) <- sapply(self$base_steps, function(x) x$key)
 
-      feats
+      unlist(feats)
     },
 
     derived_features = function() {
@@ -93,7 +106,7 @@ Recipe <- R6::R6Class(
       feats <- lapply(self$derived_steps, function(x) {
         x$feature(base_features)
       })
-      feats
+      unlist(feats)
     },
 
     features = function() {
@@ -107,7 +120,7 @@ Recipe <- R6::R6Class(
       feats <- lapply(self$steps, function(x) {
         x$feature(features)
       })
-      append(feats, features)
+      unlist(append(feats, features))
     },
 
     dense_features = function() {
@@ -251,7 +264,11 @@ StepCategoricalColumnWithVocabularyList <- R6::R6Class(
 
       if (is.null(self$vocabulary_list)) {
         values <- batch[[self$key]]
-        unq <- unique(values$numpy())
+
+        if (!is.character(values))
+          values <- values$numpy()
+
+        unq <- unique(values)
         self$vocabulary_list_aux <- sort(unique(c(self$vocabulary_list_aux, unq)))
       }
 
@@ -417,6 +434,61 @@ StepBucketizedColumn <- R6::R6Class(
 
 )
 
+
+# StepSharedEmbeddings ----------------------------------------------------
+
+StepSharedEmbeddings <- R6::R6Class(
+  "StepSharedEmbeddings",
+  inherit = DerivedStep,
+  public = list(
+    categorical_columns = NULL,
+    dimension = NULL,
+    combiner = NULL,
+    initializer = NULL,
+    shared_embedding_collection_name = NULL,
+    ckpt_to_load_from = NULL,
+    tensor_name_in_ckpt = NULL,
+    max_norm = NULL,
+    trainable = NULL,
+
+    initialize = function(categorical_columns, dimension, combiner = "mean",
+                              initializer = NULL, shared_embedding_collection_name = NULL,
+                              ckpt_to_load_from = NULL, tensor_name_in_ckpt = NULL,
+                              max_norm = NULL, trainable = TRUE, name = NULL) {
+      self$categorical_columns <- categorical_columns
+      self$dimension <- dimension
+      self$combiner <- combiner
+      self$initializer <- initializer
+      self$shared_embedding_collection_name <- shared_embedding_collection_name
+      self$ckpt_to_load_from <- ckpt_to_load_from
+      self$tensor_name_in_ckpt <- tensor_name_in_ckpt
+      self$max_norm <- max_norm
+      self$trainable <- trainable
+      self$name <- name
+    },
+
+    feature = function(base_features) {
+      categorical_columns <- lapply(self$categorical_columns, function(x) {
+        base_features[[x]]
+      })
+      names(categorical_columns) <- NULL
+
+      tf$feature_column$shared_embeddings(
+        categorical_columns = categorical_columns,
+        dimension = self$dimension,
+        combiner = self$combiner,
+        initializer = self$initializer,
+        shared_embedding_collection_name = self$shared_embedding_collection_name,
+        ckpt_to_load_from = self$ckpt_to_load_from,
+        tensor_name_in_ckpt = self$tensor_name_in_ckpt,
+        max_norm = self$max_norm,
+        trainable = self$trainable
+      )
+    }
+  )
+)
+
+
 # Wrappers ----------------------------------------------------------------
 
 recipe <- function(formula, dataset) {
@@ -506,12 +578,12 @@ step_embedding_column <- function(rec, ..., dimension, combiner = "mean",
 }
 
 
-make_crossed_step_name <- function(quosure, variables) {
+make_multiple_columns_step_name <- function(quosure, variables, step) {
   nms <- names(quosure)
   if (!is.null(nms) && nms != "") {
     nms
   } else {
-    paste0("crossed_", paste(variables, collapse= "_"))
+    paste0(step, "_", paste(variables, collapse= "_"))
   }
 }
 
@@ -523,13 +595,13 @@ step_crossed_column <- function(rec, ..., hash_bucket_size, hash_key = NULL) {
 
   for (i in seq_along(quosures)) {
 
-    variables <- tidyselect::vars_select(rec$feature_names(), !!!quosures[[i]])
+    variables <- tidyselect::vars_select(rec$feature_names(), !!quosures[[i]])
 
     stp <- StepCrossedColumn$new(
       keys = variables,
       hash_bucket_size = hash_bucket_size,
       hash_key = hash_key,
-      name = make_crossed_step_name(quosures[i], variables)
+      name = make_multiple_columns_step_name(quosures[i], variables, "crossed")
     )
 
     rec$add_step(stp)
@@ -558,4 +630,33 @@ step_bucketized_column <- function(rec, ..., boundaries) {
 
   rec
 
+}
+
+step_shared_embeddings_column <- function(rec, ..., dimension, combiner = "mean",
+                                          initializer = NULL, shared_embedding_collection_name = NULL,
+                                          ckpt_to_load_from = NULL, tensor_name_in_ckpt = NULL,
+                                          max_norm = NULL, trainable = TRUE) {
+  rec <- rec$clone(deep = TRUE)
+  quosures <- quos(...)
+
+  for (i in seq_along(quosures)) {
+    variables <- tidyselect::vars_select(rec$feature_names(), !!quosures[[i]])
+
+    stp <- StepSharedEmbeddings$new(
+      categorical_columns = variables,
+      dimension = dimension,
+      combiner = combiner,
+      initializer = initializer,
+      shared_embedding_collection_name = shared_embedding_collection_name,
+      ckpt_to_load_from = ckpt_to_load_from,
+      tensor_name_in_ckpt = tensor_name_in_ckpt,
+      max_norm = max_norm,
+      trainable = trainable,
+      name = make_multiple_columns_step_name(quosures[i], variables, "shared_embeddings")
+    )
+
+    rec$add_step(stp)
+  }
+
+  rec
 }
