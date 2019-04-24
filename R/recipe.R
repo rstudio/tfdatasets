@@ -83,7 +83,9 @@ Recipe <- R6::R6Class(
       }
 
       self$fitted <- TRUE
-      sess$close()
+
+      if (!tf$executing_eagerly())
+        sess$close()
     },
 
     base_features = function() {
@@ -265,7 +267,7 @@ StepCategoricalColumnWithVocabularyList <- R6::R6Class(
       if (is.null(self$vocabulary_list)) {
         values <- batch[[self$key]]
 
-        if (!is.character(values))
+        if (!is.atomic(values))
           values <- values$numpy()
 
         unq <- unique(values)
