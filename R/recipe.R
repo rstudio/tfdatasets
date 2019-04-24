@@ -498,6 +498,12 @@ recipe <- function(formula, dataset) {
   rec
 }
 
+prep <- function(rec) {
+  rec <- rec$clone(deep = TRUE)
+  rec$fit()
+  rec
+}
+
 step_numeric_column <- function(rec, ..., shape = 1L, default_value = NULL,
                                 dtype = tf$float32, normalizer_fn = NULL) {
 

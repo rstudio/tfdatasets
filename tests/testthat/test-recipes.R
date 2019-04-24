@@ -151,3 +151,32 @@ test_that("Using with layer_dense_features", {
 
   expect_equal(x$shape$as_list(), c(2, 2 + 2*26))
 })
+
+test_that("Recipes are correctly cloned/imutable", {
+
+  rec <- recipe(y ~ ., dataset) %>%
+    step_numeric_column(b, c) %>%
+    step_categorical_column_with_vocabulary_list(a, d)
+
+  rec1 <- rec %>%
+    step_indicator_column(a, d)
+
+  rec2 <- rec %>%
+    step_indicator_column(a, d)
+
+  rec1$fit()
+
+  expect_length(rec1$features(), 6)
+  expect_error(rec2$features())
+  expect_error(rec$features())
+
+  rec <- recipe(y ~ ., dataset) %>%
+    step_numeric_column(b, c) %>%
+    step_categorical_column_with_vocabulary_list(a, d) %>%
+    step_indicator_column(a, d)
+
+  rec_prep <- prep(rec)
+
+  expect_length(rec_prep$features(), 6)
+  expect_error(rec$features())
+})
