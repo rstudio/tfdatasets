@@ -50,16 +50,23 @@ The recipes interface works with a TensorFlow dataset which can be created from 
 `data.frame` using:
 
 ```{r}
-dataset <- hearts %>% 
+library(rsample)
+split <- initial_split(hearts)
+
+dataset_train <- training(split) %>% 
   tensor_slices_dataset() %>% 
   dataset_shuffle(nrow(hearts)) %>% 
-  dataset_batch(16)
+  dataset_batch(32)
+
+dataset_test <- testing(split) %>% 
+  tensor_slices_dataset() %>% 
+  dataset_batch(32)
 ```
 
 Now let's start creating our Recipe. 
 
 ```{r}
-rec <- recipe(target ~ ., dataset)
+rec <- recipe(target ~ ., dataset_train)
 ```
 
 The first thing we need to do after creating the recipe is 
@@ -133,7 +140,7 @@ With the above code we have created our recipe. Note we can also define the
 recipe by chaining a sequence of methods:
 
 ```{r} 
-rec <- recipe(target ~ ., dataset) %>% 
+rec <- recipe(target ~ ., dataset_train) %>% 
   step_numeric_column(age, trestbps, chol, thalach, oldpeak, slope, ca) %>% 
   step_categorical_column_with_vocabulary_list(thal) %>% 
   step_bucketized_column(age, boundaries = c(18, 25, 30, 35, 40, 45, 50, 55, 60, 65)) %>% 
@@ -177,18 +184,24 @@ model <- keras_model_sequential(layers = list(
 
 model %>% compile(loss = loss_binary_crossentropy, 
                   optimizer = "adam",
-                  metrics = metric_binary_accuracy)
+                  metrics = "binary_accuracy")
 ```
 
 We can finaly train the model in the dataset:
 
-```{r, warning=FALSE, results="show"}
+```{r}
 # TODO we should provide a transformed dataset with all columns necessary
 # for training and in the same format as keras.
 
-dataset_2 <- dataset %>% 
+dataset_train2 <- dataset_train %>% 
   dataset_map(function(x) reticulate::tuple(x, x$target))
 
-model %>% 
-  fit(dataset_2, epochs = 5, verbose = 1)
+dataset_test2 <- dataset_test %>% 
+  dataset_map(function(x) reticulate::tuple(x, x$target))
+
+
+history <- model %>% 
+  fit(dataset_train2, epochs = 10, validation_data = dataset_test2)
+
+plot(history, smooth = TRUE)
 ```
