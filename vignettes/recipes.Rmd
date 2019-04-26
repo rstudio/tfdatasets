@@ -138,9 +138,9 @@ rec <- recipe(target ~ ., dataset) %>%
   step_categorical_column_with_vocabulary_list(thal) %>% 
   step_bucketized_column(age, boundaries = c(18, 25, 30, 35, 40, 45, 50, 55, 60, 65)) %>% 
   step_indicator_column(thal) %>% 
-  step_embedding_column(thal, dimension = 2)# %>% 
-  # step_crossed_column(c(thal, bucketized_age), hash_bucket_size = 1000) %>%
-  # step_indicator_column(crossed_thal_bucketized_age)
+  step_embedding_column(thal, dimension = 2) %>% 
+  step_crossed_column(c(thal, bucketized_age), hash_bucket_size = 1000) %>%
+  step_indicator_column(crossed_thal_bucketized_age)
 ```
 
 After defining the recipe we need to `prep` it. It's when preparing that we compute the vocabulary
@@ -190,5 +190,5 @@ dataset_2 <- dataset %>%
   dataset_map(function(x) reticulate::tuple(x, x$target))
 
 model %>% 
-  fit(dataset_2, epochs = 5, verbose = 2)
+  fit(dataset_2, epochs = 5, verbose = 1)
 ```

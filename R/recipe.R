@@ -36,18 +36,7 @@ Recipe <- R6::R6Class(
 
     add_step = function(step) {
 
-      if (inherits(step, "StepNumericColumn") || inherits(step, "CategoricalStep")) {
-        self$base_steps <- append(self$base_steps, name_step(step))
-      }
-
-      if (inherits(step , "DerivedStep")) {
-        self$derived_steps <- append(self$derived_steps, name_step(step))
-      }
-
-      if (!inherits(step, "CategoricalStep") && !inherits(step, "DerivedStep") &&
-          !inherits(step, "StepNumericColumn")) {
-        self$steps <- append(self$steps, name_step(step))
-      }
+      self$steps <- append(self$steps, name_step(step))
 
     },
 
@@ -67,8 +56,8 @@ Recipe <- R6::R6Class(
       }
 
       while (!is.null(nxt)) {
-        for (i in seq_along(self$base_steps)) {
-          self$base_steps[[i]]$fit_batch(nxt)
+        for (i in seq_along(self$steps)) {
+          self$steps[[i]]$fit_batch(nxt)
         }
 
         if (tf$executing_eagerly()) {
@@ -78,8 +67,8 @@ Recipe <- R6::R6Class(
         }
       }
 
-      for (i in seq_along(self$base_steps)) {
-        self$base_steps[[i]]$fit_resume()
+      for (i in seq_along(self$steps)) {
+        self$steps[[i]]$fit_resume()
       }
 
       self$fitted <- TRUE
@@ -88,41 +77,20 @@ Recipe <- R6::R6Class(
         sess$close()
     },
 
-    base_features = function() {
-
-      if (!self$fitted)
-        stop("Only available after fitting the recipe.")
-
-      feats <- lapply(self$base_steps, function(x) x$feature())
-      names(feats) <- sapply(self$base_steps, function(x) x$key)
-
-      unlist(feats)
-    },
-
-    derived_features = function() {
-
-      if (!self$fitted)
-        stop("Only available after fitting the recipe.")
-
-      base_features <- self$base_features()
-      feats <- lapply(self$derived_steps, function(x) {
-        x$feature(base_features)
-      })
-      unlist(feats)
-    },
-
     features = function() {
 
       if (!self$fitted)
         stop("Only available after fitting the recipe.")
 
-      base_features <- self$base_features()
-      derived_features <- self$derived_features()
-      features <- append(base_features, derived_features)
-      feats <- lapply(self$steps, function(x) {
-        x$feature(features)
-      })
-      unlist(append(feats, features))
+      feats <- NULL
+      for (i in seq_along(self$steps)) {
+        stp <- self$steps[i]
+        feature <- lapply(stp, function(x) x$feature(feats))
+        feats <- append(feats, feature)
+        feats <- unlist(feats)
+      }
+
+      feats
     },
 
     dense_features = function() {
