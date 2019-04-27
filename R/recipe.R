@@ -19,6 +19,28 @@ dtype_chr <- function(x) {
     "numeric"
 }
 
+get_variables_from_formula <- function(formula, col_names) {
+
+  df <- as.list(character(length = length(col_names)))
+  names(df) <- col_names
+  class(df) <- "data.frame"
+
+  terms <- terms(model.frame(formula, data = df))
+
+  predictors <- attr(terms, "term.labels")
+  response_id <- attr(terms, "response")
+  response <- names(attr(terms, "dataClasses")[response_id])
+
+  sapply(col_names, function(x) {
+    if (x %in% predictors)
+      "predictor"
+    else if (x %in% response)
+      "outcome"
+    else
+      NA_character_
+  })
+}
+
 # Recipe ------------------------------------------------------------------
 
 Recipe <- R6::R6Class(
@@ -30,6 +52,7 @@ Recipe <- R6::R6Class(
     formula = NULL,
     column_names = NULL,
     column_types = NULL,
+    column_roles = NULL,
     dataset = NULL,
     fitted = FALSE,
 
@@ -39,6 +62,8 @@ Recipe <- R6::R6Class(
 
       self$column_names <- column_names(dataset)
       self$column_types <- output_types(dataset)
+
+      self$column_roles <- get_variables_from_formula(self$formula, self$column_names)
     },
 
     add_step = function(step) {
@@ -130,6 +155,10 @@ Recipe <- R6::R6Class(
       }
 
       feature_types
+
+    },
+
+    feature_roles = function() {
 
     }
 

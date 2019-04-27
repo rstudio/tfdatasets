@@ -13,7 +13,8 @@ df <- list(
   a = letters,
   b = 1:length(letters),
   c = runif(length(letters)),
-  d = LETTERS
+  d = LETTERS,
+  y = runif(length(letters))
 )
 
 dataset <-  df %>%
@@ -190,6 +191,20 @@ test_that("Recipes column types", {
 
   expect_equal(
     rec$feature_types(),
-    c("numeric", "nominal", "nominal", "numeric", "numeric", "numeric")
+    c("numeric", "nominal", "nominal", "numeric", "numeric", "numeric", "numeric")
   )
+})
+
+test_that("Recipes roles", {
+
+  rec <- recipe(y ~ ., dataset) %>%
+    step_numeric_column(b) %>%
+    step_categorical_column_with_vocabulary_list(a, d) %>%
+    step_indicator_column(a, d)
+
+  expect_equivalent(
+    rec$column_roles,
+    c("predictor", "outcome", "predictor", "predictor", "predictor")
+  )
+
 })
