@@ -180,3 +180,16 @@ test_that("Recipes are correctly cloned/imutable", {
   expect_length(rec_prep$features(), 6)
   expect_error(rec$features())
 })
+
+test_that("Recipes column types", {
+
+  rec <- recipe(y ~ ., dataset) %>%
+    step_numeric_column(b) %>%
+    step_categorical_column_with_vocabulary_list(a, d) %>%
+    step_indicator_column(a, d)
+
+  expect_equal(
+    rec$feature_types(),
+    c("numeric", "nominal", "nominal", "numeric", "numeric", "numeric")
+  )
+})

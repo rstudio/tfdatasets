@@ -12,6 +12,13 @@ is_dense_column <- function(feature) {
   inherits(feature, "tensorflow.python.feature_column.feature_column._DenseColumn")
 }
 
+dtype_chr <- function(x) {
+  if (x == tf$string || x == tf$bool)
+    "nominal"
+  else
+    "numeric"
+}
+
 # Recipe ------------------------------------------------------------------
 
 Recipe <- R6::R6Class(
@@ -102,7 +109,28 @@ Recipe <- R6::R6Class(
     },
 
     feature_names = function() {
-      unique(c(names(self$steps), names(self$derived_steps), names(self$steps), self$column_names))
+      unique(c(names(self$steps), self$column_names))
+    },
+
+    feature_types = function() {
+
+      feature_names <- self$feature_names()
+      feature_types <- character(length = length(feature_names))
+
+      for (i in seq_along(feature_names)) {
+
+        ft <- feature_names[i]
+
+        if (is.null(self$steps[[ft]])) {
+          feature_types[i] <- dtype_chr(self$column_types[[which(self$column_names == ft)]])
+        } else {
+          feature_types[i] <- self$steps[[ft]]$column_type
+        }
+
+      }
+
+      feature_types
+
     }
 
   ),
@@ -129,6 +157,7 @@ Step <- R6::R6Class(
 
   public = list(
     name = NULL,
+
     fit_batch = function (batch) {
 
     },
@@ -176,6 +205,7 @@ StepNumericColumn <- R6::R6Class(
     default_value = NULL,
     dtype = NULL,
     normalizer_fn = NULL,
+    column_type = "numeric",
     initialize = function(key, shape, default_value, dtype, normalizer_fn, name) {
       self$key <- key
       self$shape <- shape
@@ -218,6 +248,7 @@ StepCategoricalColumnWithVocabularyList <- R6::R6Class(
     default_value = -1L,
     num_oov_buckets = 0L,
     vocabulary_list_aux = NULL,
+    column_type = "nominal",
 
     initialize = function(key, vocabulary_list = NULL, dtype = NULL, default_value = -1L,
                           num_oov_buckets = 0L, name) {
@@ -275,6 +306,7 @@ StepIndicatorColumn <- R6::R6Class(
   public = list(
     categorical_column = NULL,
     base_features = NULL,
+    column_type = "numeric",
     initialize = function(categorical_column, name) {
       self$categorical_column = categorical_column
       self$name <- name
@@ -301,6 +333,7 @@ StepEmbeddingColumn <- R6::R6Class(
     tensor_name_in_ckpt = NULL,
     max_norm = NULL,
     trainable = NULL,
+    column_type = "numeric",
 
     initialize = function(categorical_column, dimension, combiner = "mean", initializer = NULL,
                           ckpt_to_load_from = NULL, tensor_name_in_ckpt = NULL, max_norm = NULL,
@@ -349,6 +382,7 @@ StepCrossedColumn <- R6::R6Class(
     keys = NULL,
     hash_bucket_size = NULL,
     hash_key = NULL,
+    column_type = "nominal",
 
     initialize = function (keys, hash_bucket_size, hash_key = NULL, name = NULL) {
       self$keys <- keys
@@ -384,6 +418,7 @@ StepBucketizedColumn <- R6::R6Class(
 
     source_column = NULL,
     boundaries = NULL,
+    column_type = "numeric",
 
     initialize = function(source_column, boundaries, name) {
       self$source_column <- source_column
@@ -420,6 +455,7 @@ StepSharedEmbeddings <- R6::R6Class(
     tensor_name_in_ckpt = NULL,
     max_norm = NULL,
     trainable = NULL,
+    column_type = "numeric",
 
     initialize = function(categorical_columns, dimension, combiner = "mean",
                               initializer = NULL, shared_embedding_collection_name = NULL,
