@@ -26,14 +26,14 @@ dataset <-  df %>%
 
 test_that("Can create a recipe", {
   skip_if_not_eager_and_tf()
-  rec <- recipe(y ~ ., dataset)
-  expect_equal(sort(rec$feature_names()), sort(names(df)))
+  rec <- recipe(dataset, y ~ a+b+c+d)
+  expect_equal(sort(rec$feature_names()), sort(names(df)[-which(names(df) == "y")]))
 })
 
 test_that("Can create numeric columns", {
   skip_if_not_eager_and_tf()
 
-  rec <- recipe(y ~ ., dataset) %>%
+  rec <- recipe(dataset, y ~ a+b+c+d) %>%
     step_numeric_column(b, c)
 
   rec$fit() #TODO use the fit S3 method when available
@@ -47,7 +47,7 @@ test_that("Can create numeric columns", {
 test_that("Can create categorical columns with vocabulary list", {
   skip_if_not_eager_and_tf()
 
-  rec <- recipe(y ~ ., dataset) %>%
+  rec <- recipe(dataset, y ~ a + b + c + d) %>%
     step_categorical_column_with_vocabulary_list(a, d)
 
   rec$fit()
@@ -57,7 +57,7 @@ test_that("Can create categorical columns with vocabulary list", {
   expect_s3_class(rec$features()[[1]], "tensorflow.python.feature_column.feature_column._CategoricalColumn")
   expect_s3_class(rec$features()[[2]], "tensorflow.python.feature_column.feature_column._CategoricalColumn")
 
-  rec <- recipe(y ~ ., dataset) %>%
+  rec <- recipe(dataset, y ~ a+b+c+d) %>%
     step_categorical_column_with_vocabulary_list(a, vocabulary_list = letters[1:5])
 
   rec$fit()
@@ -68,7 +68,7 @@ test_that("Can create categorical columns with vocabulary list", {
 test_that("Can create indicator variables", {
   skip_if_not_eager_and_tf()
 
-  rec <- recipe(y ~ ., dataset) %>%
+  rec <- recipe(dataset, y ~ a+b+c+d) %>%
     step_categorical_column_with_vocabulary_list(a, d) %>%
     step_indicator_column(a, d)
 
@@ -78,7 +78,7 @@ test_that("Can create indicator variables", {
   expect_named(rec$dense_features(), c("indicator_a", "indicator_d"))
   expect_s3_class(rec$dense_features()[[1]], "tensorflow.python.feature_column.feature_column_v2.IndicatorColumn")
 
-  rec <- recipe(y ~ ., dataset) %>%
+  rec <- recipe(dataset, y ~ a+b+c+d) %>%
     step_categorical_column_with_vocabulary_list(a, d) %>%
     step_indicator_column(ind_a = a)
 
@@ -90,7 +90,7 @@ test_that("Can create indicator variables", {
 test_that("Can create embedding columns", {
   skip_if_not_eager_and_tf()
 
-  rec <- recipe(y ~ ., dataset) %>%
+  rec <- recipe(dataset, y ~ a+b+c+d) %>%
     step_categorical_column_with_vocabulary_list(a, d) %>%
     step_embedding_column(a, d, dimension = 5)
 
@@ -100,7 +100,7 @@ test_that("Can create embedding columns", {
   expect_named(rec$dense_features(), c("embedding_a", "embedding_d"))
   expect_s3_class(rec$dense_features()[[1]], "tensorflow.python.feature_column.feature_column_v2.EmbeddingColumn")
 
-  rec <- recipe(y ~ ., dataset) %>%
+  rec <- recipe(dataset, y ~ a+b+c+d) %>%
     step_categorical_column_with_vocabulary_list(a, d) %>%
     step_embedding_column(emb_a = a, dimension = 5)
 
@@ -112,7 +112,7 @@ test_that("Can create embedding columns", {
 test_that("Can create crossed columns", {
   skip_if_not_eager_and_tf()
 
-  rec <- recipe(y ~ ., dataset) %>%
+  rec <- recipe(dataset, y ~ a+b+c+d) %>%
     step_categorical_column_with_vocabulary_list(a, d) %>%
     step_crossed_column(c(a, d), hash_bucket_size = 100) %>%
     step_indicator_column(crossed_a_d)
@@ -127,7 +127,7 @@ test_that("Can create crossed columns", {
 
 test_that("Can create bucketized columns", {
 
-  rec <- recipe(y ~ ., dataset) %>%
+  rec <- recipe(dataset, y ~ a+b+c+d) %>%
     step_numeric_column(b) %>%
     step_bucketized_column(b, boundaries = c(5, 10, 15))
 
@@ -138,7 +138,7 @@ test_that("Can create bucketized columns", {
 
 test_that("Using with layer_dense_features", {
 
-  rec <- recipe(y ~ ., dataset) %>%
+  rec <- recipe(dataset, y ~ a+b+c+d) %>%
     step_numeric_column(b, c) %>%
     step_categorical_column_with_vocabulary_list(a, d) %>%
     step_indicator_column(a, d)
@@ -155,7 +155,7 @@ test_that("Using with layer_dense_features", {
 
 test_that("Recipes are correctly cloned/imutable", {
 
-  rec <- recipe(y ~ ., dataset) %>%
+  rec <- recipe(dataset, y ~ a+b+c+d) %>%
     step_numeric_column(b, c) %>%
     step_categorical_column_with_vocabulary_list(a, d)
 
@@ -171,7 +171,7 @@ test_that("Recipes are correctly cloned/imutable", {
   expect_error(rec2$features())
   expect_error(rec$features())
 
-  rec <- recipe(y ~ ., dataset) %>%
+  rec <- recipe(dataset, y ~ a+b+c+d) %>%
     step_numeric_column(b, c) %>%
     step_categorical_column_with_vocabulary_list(a, d) %>%
     step_indicator_column(a, d)
@@ -182,29 +182,16 @@ test_that("Recipes are correctly cloned/imutable", {
   expect_error(rec$features())
 })
 
-test_that("Recipes column types", {
 
-  rec <- recipe(y ~ ., dataset) %>%
+test_that("Recipes column types", {
+  rec <- recipe(dataset, y ~ a+b+c+d) %>%
     step_numeric_column(b) %>%
     step_categorical_column_with_vocabulary_list(a, d) %>%
     step_indicator_column(a, d)
 
   expect_equal(
     rec$feature_types(),
-    c("numeric", "nominal", "nominal", "numeric", "numeric", "numeric", "numeric")
+    c("numeric", "nominal", "nominal", "numeric", "numeric", "numeric")
   )
 })
 
-test_that("Recipes roles", {
-
-  rec <- recipe(y ~ ., dataset) %>%
-    step_numeric_column(b) %>%
-    step_categorical_column_with_vocabulary_list(a, d) %>%
-    step_indicator_column(a, d)
-
-  expect_equivalent(
-    rec$column_roles,
-    c("predictor", "outcome", "predictor", "predictor", "predictor")
-  )
-
-})
