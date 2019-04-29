@@ -518,6 +518,7 @@ dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features =
     tidyselect::vars_select(col_names, !! eq_features)
   },
   error = function(e) {
+    x <- get_expr(eq_features)
     if (is_formula(x)) {
       parsed <- parse_formula(x)
       if (!is.null(parsed$response))
