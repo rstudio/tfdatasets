@@ -34,13 +34,22 @@ Recipe <- R6::R6Class(
     dataset = NULL,
     fitted = FALSE,
     prepared_dataset = NULL,
+    x = NULL,
+    y = NULL,
 
     initialize = function(dataset, x, y = NULL) {
       self$formula <- formula
-      self$prepared_dataset <- dataset_prepare(dataset, x, y, named_features = TRUE)
-      self$dataset <- dataset_map(self$prepared_dataset, function(x) x$x)
+      self$x <- rlang::enquo(x)
+      self$y <- rlang::enquo(y)
+      self$set_dataset(dataset)
       self$column_names <- column_names(self$dataset)
       self$column_types <- output_types(self$dataset)
+    },
+
+    set_dataset = function(dataset) {
+      self$prepared_dataset <- dataset_prepare(dataset, !!self$x, !!self$y, named_features = TRUE)
+      self$dataset <- dataset_map(self$prepared_dataset, function(x) x$x)
+      invisible(self)
     },
 
     add_step = function(step) {
@@ -501,16 +510,48 @@ StepSharedEmbeddings <- R6::R6Class(
 
 #' @export
 recipe <- function(dataset, x, y = NULL) {
-  rec <- Recipe$new(dataset, x, y)
+  en_x <- rlang::enquo(x)
+  en_y <- rlang::enquo(y)
+  rec <- Recipe$new(dataset, x = !!en_x, y = !!en_y)
   rec
 }
 
 #' @export
-prep <- function(rec) {
+prep <- function(rec, dataset=NULL) {
   rec <- rec$clone(deep = TRUE)
+
+  if (!is.null(dataset))
+    rec$set_dataset(dataset)
+
   rec$fit()
   rec
 }
+
+#' @export
+juice <- function(rec) {
+  if (reticulate::py_is_null_xptr(rec$prepared_dataset))
+    stop("The tensorflow dataset was not found. Please use `bake` instead.")
+
+  if (!rec$fitted)
+    stop("Recipe must be prepared before juicing.")
+
+  rec$prepared_dataset
+}
+
+#' @export
+bake <- function(rec, dataset) {
+
+  if (!inherits(dataset, "tensorflow.python.data.ops.dataset_ops.DatasetV2"))
+    stop("`dataset` must be a TensorFlow dataset.")
+
+  if (!rec$fitted)
+    stop("Recipe must be prepared before juicing.")
+
+  rec <- rec$clone(deep = TRUE)
+  rec$set_dataset(dataset)
+  rec$prepared_dataset
+}
+
 
 #' @export
 step_numeric_column <- function(rec, ..., shape = 1L, default_value = NULL,

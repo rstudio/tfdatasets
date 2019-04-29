@@ -195,3 +195,46 @@ test_that("Recipes column types", {
   )
 })
 
+test_that("Bake recipe", {
+
+  rec <- recipe(dataset, y ~ a + b + c + d) %>%
+    step_numeric_column(b) %>%
+    step_categorical_column_with_vocabulary_list(a, d) %>%
+    step_indicator_column(a, d)
+
+  rec_prep <- prep(rec)
+
+  expect_error(bake(rec, dataset))
+  expect_s3_class(bake(rec_prep, dataset), "tensorflow.python.data.ops.dataset_ops.DatasetV2")
+})
+
+test_that("Juice recipe", {
+
+  rec <- recipe(dataset, y ~ a + b + c + d) %>%
+    step_numeric_column(b) %>%
+    step_categorical_column_with_vocabulary_list(a, d) %>%
+    step_indicator_column(a, d)
+
+  rec_prep <- prep(rec)
+
+  expect_error(juice(rec))
+  expect_s3_class(juice(rec_prep), "tensorflow.python.data.ops.dataset_ops.DatasetV2")
+})
+
+test_that("Prep with different dataset", {
+
+  rec <- recipe(dataset, y ~ a + b + c + d) %>%
+    step_numeric_column(b) %>%
+    step_categorical_column_with_vocabulary_list(a, d) %>%
+    step_indicator_column(a, d)
+
+  ds <- df %>%
+    tensor_slices_dataset() %>%
+    dataset_take(10)
+
+  rec_prep <- prep(rec, ds)
+
+  expect_s3_class(juice(rec_prep), "tensorflow.python.data.ops.dataset_ops.DatasetV2")
+})
+
+
