@@ -662,7 +662,8 @@ juice <- function(rec) {
   if (!rec$fitted)
     stop("Recipe must be prepared before juicing.")
 
-  rec$prepared_dataset
+  rec$prepared_dataset %>%
+    dataset_map(function(x) reticulate::tuple(x$x, x$y))
 }
 
 #' @export
@@ -676,7 +677,8 @@ bake <- function(rec, dataset) {
 
   rec <- rec$clone(deep = TRUE)
   rec$set_dataset(dataset)
-  rec$prepared_dataset
+  rec$prepared_dataset %>%
+    dataset_map(function(x) reticulate::tuple(x$x, x$y))
 }
 
 
