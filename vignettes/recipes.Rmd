@@ -66,7 +66,7 @@ dataset_test <- testing(split) %>%
 Now let's start creating our Recipe. 
 
 ```{r}
-rec <- recipe(target ~ ., dataset_train)
+rec <- recipe(dataset_train, target ~ .)
 ```
 
 The first thing we need to do after creating the recipe is 
@@ -84,9 +84,9 @@ The following steps can be used to define the variable type:
 
 * `step_numeric_column` to define numeric variables
 * `step_categorical_with_vocabulary_list` for categorical variables with a fixed vocabulary
-* `step_categorical_column_with_hash_bucket` (TODO)
-* `step_categorical_column_with_identity` (TODO)
-* `step_categorical_column_with_vocabulary_file` (TODO)
+* `step_categorical_column_with_hash_bucket` for categorical variables using the hash trick
+* `step_categorical_column_with_identity` for categorical variables integerized
+* `step_categorical_column_with_vocabulary_file` when you have the possible vocabulary in a file
 
 When using `step_categorical_column_with_vocabulary_list` you can also provide a `vocabulary` argument
 with the fixed vocabulary. The recipe will find all the unique values in the dataset and use it
@@ -100,10 +100,8 @@ the normalizing constants from the dataset itself.
 Also in the above example we typed the name of all columns, but you can also use selectors like:
 
 * `starts_with()`, `ends_with()`, `matches()` etc. (from tidyselect)
-* `all_numeric()` to select all numeric variables (TODO)
-* `all_nominal()` to select all strings. (TODO)
-* `all_predictors()` to select all predictor variables (TODO)
-* `all_outcomes` to select all outcomes (TODO)
+* `all_numeric()` to select all numeric variables
+* `all_nominal()` to select all strings
 
 After specifying the types of the columns you can add transformation steps. 
 For example you may want to bucketize a numeric column:
@@ -140,7 +138,7 @@ With the above code we have created our recipe. Note we can also define the
 recipe by chaining a sequence of methods:
 
 ```{r} 
-rec <- recipe(target ~ ., dataset_train) %>% 
+rec <- recipe(dataset_train, target ~ .) %>% 
   step_numeric_column(age, trestbps, chol, thalach, oldpeak, slope, ca) %>% 
   step_categorical_column_with_vocabulary_list(thal) %>% 
   step_bucketized_column(age, boundaries = c(18, 25, 30, 35, 40, 45, 50, 55, 60, 65)) %>% 
