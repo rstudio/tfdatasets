@@ -19,6 +19,41 @@ dtype_chr <- function(x) {
     "numeric"
 }
 
+
+# Selectors ---------------------------------------------------------------
+
+cur_info_env <- rlang::child_env(rlang::env_parent(rlang::env()))
+
+set_current_info <- function(x) {
+  old <- cur_info_env
+  cur_info_env$feature_names <- x$feature_names
+  cur_info_env$feature_types <- x$feature_types
+
+  invisible(old)
+}
+
+current_info <- function() {
+  cur_info_env %||% stop("Variable context not set", call. = FALSE)
+}
+
+has_type <- function(match = "numeric") {
+  info <- current_info()
+  lgl_matches <- purrr::map_lgl(info$feature_types, ~any(.x %in% match))
+  info$feature_names[which(lgl_matches)]
+}
+
+terms_select <- function(feature_names, feature_types, terms) {
+
+  old_info <- set_current_info(
+    list(feature_names = feature_names, feature_types = feature_types)
+    )
+  on.exit(set_current_info(old_info), add = TRUE)
+
+  sel <- tidyselect::vars_select(feature_names, !!! terms)
+
+  sel
+}
+
 # Recipe ------------------------------------------------------------------
 
 Recipe <- R6::R6Class(
@@ -558,7 +593,9 @@ step_numeric_column <- function(rec, ..., shape = 1L, default_value = NULL,
                                 dtype = tf$float32, normalizer_fn = NULL) {
 
   rec <- rec$clone(deep = TRUE)
-  variables <- tidyselect::vars_select(rec$feature_names(), !!!quos(...))
+  quos_ <- quos(...)
+
+  variables <- terms_select(rec$feature_names(), rec$feature_types(), quos_)
   for (var in variables) {
     stp <- StepNumericColumn$new(var, shape, default_value, dtype, normalizer_fn,
                                  name = var)
@@ -573,7 +610,9 @@ step_categorical_column_with_vocabulary_list <- function(rec, ..., vocabulary_li
                                                          dtype = NULL, default_value = -1L,
                                                          num_oov_buckets = 0L) {
   rec <- rec$clone(deep = TRUE)
-  variables <- tidyselect::vars_select(rec$feature_names(), !!!quos(...))
+  quos_ <- quos(...)
+
+  variables <- terms_select(rec$feature_names(), rec$feature_types(), quos_)
   for (var in variables) {
     stp <- StepCategoricalColumnWithVocabularyList$new(
       var, vocabulary_list, dtype,
@@ -595,24 +634,44 @@ make_step_name <- function(quosure, variable, step) {
   }
 }
 
-#' @export
-step_indicator_column <- function(rec, ...) {
+step_ <- function(rec, ..., step, args, prefix) {
 
   rec <- rec$clone(deep = TRUE)
+
   quosures <- quos(...)
 
-  variables <- tidyselect::vars_select(rec$feature_names(), !!!quosures)
+  for (j in seq_along(quosures)) {
 
-  for (i in seq_along(quosures)) {
+    variables <- terms_select(rec$feature_names(), rec$feature_types(), quosures[j])
+    nms <- names(quosures[j])
 
-    stp <- StepIndicatorColumn$new(
-      variables[i],
-      name = make_step_name(quosures[i], variables[i], "indicator")
-    )
-    rec$add_step(stp)
+    for (i in seq_along(variables)) {
+
+      if ( (!is.null(nms) && nms != "") && (length(variables) > 1) )
+        stop("Step connot be named when using a selector.")
+
+      args_ <- append(
+        list(
+          variables[i],
+          name = make_step_name(quosures[j], variables[i], prefix)
+          ),
+        args
+      )
+
+      stp <- do.call(step, args_)
+
+      rec$add_step(stp)
+    }
+
   }
 
   rec
+
+}
+
+#' @export
+step_indicator_column <- function(rec, ...) {
+  step_(rec, ..., step = StepIndicatorColumn$new, args = list(), prefix = "indicator")
 }
 
 #' @export
@@ -620,24 +679,29 @@ step_embedding_column <- function(rec, ..., dimension, combiner = "mean",
                                   initializer = NULL, ckpt_to_load_from = NULL,
                                   tensor_name_in_ckpt = NULL, max_norm = NULL,
                                   trainable = TRUE) {
-  rec <- rec$clone(deep = TRUE)
-  quosures <- quos(...)
 
-  variables <- tidyselect::vars_select(rec$feature_names(), !!!quosures)
 
-  for (i in seq_along(variables)) {
-    stp <- StepEmbeddingColumn$new(
-      variables[i], dimension, combiner, initializer,
-      ckpt_to_load_from, tensor_name_in_ckpt,
-      max_norm, trainable,
-      name = make_step_name(quosures[i], variables[i], "embedding")
-    )
-    rec$add_step(stp)
-  }
+  args <- list(
+    dimension = dimension,
+    combiner = combiner,
+    initializer = initializer,
+    ckpt_to_load_from = ckpt_to_load_from,
+    tensor_name_in_ckpt = tensor_name_in_ckpt,
+    max_norm = max_norm,
+    trainable = trainable
+  )
 
-  rec
+  step_(rec, ..., step = StepEmbeddingColumn$new, args = args, prefix = "embedding")
 }
 
+#' @export
+step_bucketized_column <- function(rec, ..., boundaries) {
+  args <- list(
+    boundaries = boundaries
+  )
+
+  step_(rec, ..., step = StepBucketizedColumn$new, args = args, prefix = "bucketized")
+}
 
 make_multiple_columns_step_name <- function(quosure, variables, step) {
   nms <- names(quosure)
@@ -648,8 +712,7 @@ make_multiple_columns_step_name <- function(quosure, variables, step) {
   }
 }
 
-#' @export
-step_crossed_column <- function(rec, ..., hash_bucket_size, hash_key = NULL) {
+step_multiple_ <- function(rec, ..., step, args, prefix) {
 
   rec <- rec$clone(deep = TRUE)
   quosures <- quos(...)
@@ -657,42 +720,34 @@ step_crossed_column <- function(rec, ..., hash_bucket_size, hash_key = NULL) {
 
   for (i in seq_along(quosures)) {
 
-    variables <- tidyselect::vars_select(rec$feature_names(), !!quosures[[i]])
-
-    stp <- StepCrossedColumn$new(
-      keys = variables,
-      hash_bucket_size = hash_bucket_size,
-      hash_key = hash_key,
-      name = make_multiple_columns_step_name(quosures[i], variables, "crossed")
+    variables <- terms_select(rec$feature_names(), rec$feature_types(), quosures[i])
+    args_ <- append(
+      list(
+        variables,
+        name = make_multiple_columns_step_name(quosures[i], variables, "crossed")
+      ),
+      args
     )
+
+    stp <- do.call(step, args_)
 
     rec$add_step(stp)
   }
 
   rec
+
 
 }
 
 #' @export
-step_bucketized_column <- function(rec, ..., boundaries) {
+step_crossed_column <- function(rec, ..., hash_bucket_size, hash_key = NULL) {
 
-  rec <- rec$clone(deep = TRUE)
-  quosures <- quos(...)
+  args <- list(
+    hash_bucket_size = hash_bucket_size,
+    hash_key = hash_key
+  )
 
-  variables <- tidyselect::vars_select(rec$feature_names(), !!!quosures)
-
-  for (i in seq_along(variables)) {
-
-    stp <- StepBucketizedColumn$new(
-      variables[i],
-      boundaries = boundaries,
-      name = make_step_name(quosures[i], variables[i], "bucketized")
-    )
-    rec$add_step(stp)
-  }
-
-  rec
-
+  step_multiple_(rec, ..., step = StepCrossedColumn$new, args = args, prefix = "crossed")
 }
 
 #' @export
@@ -700,27 +755,22 @@ step_shared_embeddings_column <- function(rec, ..., dimension, combiner = "mean"
                                           initializer = NULL, shared_embedding_collection_name = NULL,
                                           ckpt_to_load_from = NULL, tensor_name_in_ckpt = NULL,
                                           max_norm = NULL, trainable = TRUE) {
-  rec <- rec$clone(deep = TRUE)
-  quosures <- quos(...)
 
-  for (i in seq_along(quosures)) {
-    variables <- tidyselect::vars_select(rec$feature_names(), !!quosures[[i]])
+  args <- list(
+    dimension = dimension,
+    combiner = combiner,
+    initializer = initializer,
+    shared_embedding_collection_name = shared_embedding_collection_name,
+    ckpt_to_load_from = ckpt_to_load_from,
+    tensor_name_in_ckpt = tensor_name_in_ckpt,
+    max_norm = max_norm,
+    trainable = trainable
+  )
 
-    stp <- StepSharedEmbeddings$new(
-      categorical_columns = variables,
-      dimension = dimension,
-      combiner = combiner,
-      initializer = initializer,
-      shared_embedding_collection_name = shared_embedding_collection_name,
-      ckpt_to_load_from = ckpt_to_load_from,
-      tensor_name_in_ckpt = tensor_name_in_ckpt,
-      max_norm = max_norm,
-      trainable = trainable,
-      name = make_multiple_columns_step_name(quosures[i], variables, "shared_embeddings")
-    )
-
-    rec$add_step(stp)
-  }
-
-  rec
+  step_multiple_(
+    rec, ...,
+    step = StepSharedEmbeddings$new,
+    args = args,
+    prefix = "shared_embeddings"
+  )
 }

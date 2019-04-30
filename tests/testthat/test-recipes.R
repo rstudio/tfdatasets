@@ -237,4 +237,20 @@ test_that("Prep with different dataset", {
   expect_s3_class(juice(rec_prep), "tensorflow.python.data.ops.dataset_ops.DatasetV2")
 })
 
+test_that("Can select with has_type", {
+
+  rec <- recipe(dataset, y ~ a + b + c + d) %>%
+    step_numeric_column(has_type("numeric"))
+
+  expect_length(rec$steps, 2)
+
+  rec <- recipe(dataset, y ~ a + b + c + d) %>%
+    step_numeric_column(has_type("numeric")) %>%
+    step_categorical_column_with_vocabulary_list(has_type("nominal")) %>%
+    step_indicator_column(has_type("nominal"))
+
+  expect_length(rec$steps, 6)
+  expect_error(rec %>% step_indicator_column(a = has_type("nominal")))
+})
+
 
