@@ -251,6 +251,13 @@ test_that("Can select with has_type", {
 
   expect_length(rec$steps, 6)
   expect_error(rec %>% step_indicator_column(a = has_type("nominal")))
+
+  rec <- recipe(dataset, y ~ a + b + c + d) %>%
+    step_numeric_column(all_numeric()) %>%
+    step_categorical_column_with_vocabulary_list(has_type("nominal")) %>%
+    step_indicator_column(all_nominal())
+
+  expect_length(rec$steps, 6)
 })
 
 

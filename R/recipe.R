@@ -19,7 +19,6 @@ dtype_chr <- function(x) {
     "numeric"
 }
 
-
 # Selectors ---------------------------------------------------------------
 
 cur_info_env <- rlang::child_env(rlang::env_parent(rlang::env()))
@@ -36,6 +35,7 @@ current_info <- function() {
   cur_info_env %||% stop("Variable context not set", call. = FALSE)
 }
 
+#' @export
 has_type <- function(match = "numeric") {
   info <- current_info()
   lgl_matches <- purrr::map_lgl(info$feature_types, ~any(.x %in% match))
@@ -52,6 +52,16 @@ terms_select <- function(feature_names, feature_types, terms) {
   sel <- tidyselect::vars_select(feature_names, !!! terms)
 
   sel
+}
+
+#' @export
+all_numeric <- function() {
+  has_type("numeric")
+}
+
+#' @export
+all_nominal <- function() {
+  has_type("nominal")
 }
 
 # Recipe ------------------------------------------------------------------
