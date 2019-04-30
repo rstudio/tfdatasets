@@ -520,7 +520,12 @@ dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features =
   error = function(e) {
     x <- get_expr(eq_features)
     if (is_formula(x)) {
-      parsed <- parse_formula(x)
+
+      data <- lapply(column_names(dataset), function(x) "")
+      names(data) <- column_names(dataset)
+      data <- as.data.frame(data)
+
+      parsed <- parse_formula(x, data)
       if (!is.null(parsed$response))
         response_col <<- match(parsed$response, col_names)
       parsed$features
