@@ -351,6 +351,91 @@ StepCategoricalColumnWithVocabularyList <- R6::R6Class(
 )
 
 
+# StepCategoricalColumnWithHashBucket -------------------------------------
+
+StepCategoricalColumnWithHashBucket <- R6::R6Class(
+  "StepCategoricalColumnWithHashBucket",
+  inherit = CategoricalStep,
+  public = list(
+    key = NULL,
+    hash_bucket_size = NULL,
+    dtype = NULL,
+    initialize = function(key, hash_bucket_size, dtype = tf$string, name) {
+      self$key <- key
+      self$hash_bucket_size <- hash_bucket_size
+      self$dtype <- dtype
+      self$name <- name
+    },
+    feature = function (base_features) {
+      tf$feature_column$categorical_column_with_hash_bucket(
+        key = self$key,
+        hash_bucket_size = self$hash_bucket_size,
+        dtype = self$dtype
+      )
+    }
+  )
+)
+
+# StepCategoricalColumnWithIdentity -------------------------------------
+
+StepCategoricalColumnWithIdentity <- R6::R6Class(
+  "StepCategoricalColumnWithIdentity",
+  inherit = CategoricalStep,
+  public = list(
+    key = NULL,
+    num_buckets = NULL,
+    default_value = NULL,
+    initialize = function(key, num_buckets, default_value = NULL, name) {
+      self$key <- key
+      self$num_buckets <- num_buckets
+      self$default_value <- default_value
+      self$name <- name
+    },
+    feature = function (base_features) {
+      tf$feature_column$categorical_column_with_identity(
+        key = self$key,
+        num_buckets = self$num_buckets,
+        default_value = self$default_value
+      )
+    }
+  )
+)
+
+# StepCategoricalColumnWithVocabularyFile -------------------------------------
+
+StepCategoricalColumnWithVocabularyFile <- R6::R6Class(
+  "StepCategoricalColumnWithVocabularyFile",
+  inherit = CategoricalStep,
+  public = list(
+    key = NULL,
+    vocabulary_file = NULL,
+    vocabulary_size = NULL,
+    dtype = NULL,
+    default_value = NULL,
+    num_oov_buckets = NULL,
+    initialize = function(key, vocabulary_file, vocabulary_size = NULL, dtype = tf$string,
+                          default_value = NULL, num_oov_buckets = 0L, name) {
+      self$key <- key
+      self$vocabulary_file <- normalizePath(vocabulary_file)
+      self$vocabulary_size <- vocabulary_size
+      self$dtype <- dtype
+      self$default_value <- default_value
+      self$num_oov_buckets <- num_oov_buckets
+      self$name <- name
+    },
+    feature = function (base_features) {
+      tf$feature_column$categorical_column_with_vocabulary_file(
+        key = self$key,
+        vocabulary_file = self$vocabulary_file,
+        vocabulary_size = self$vocabulary_size,
+        dtype = self$dtype,
+        default_value = self$default_value,
+        num_oov_buckets = self$num_oov_buckets
+      )
+    }
+  )
+)
+
 # StepIndicatorColumn -----------------------------------------------------
 
 StepIndicatorColumn <- R6::R6Class(
@@ -624,6 +709,74 @@ step_categorical_column_with_vocabulary_list <- function(rec, ..., vocabulary_li
     stp <- StepCategoricalColumnWithVocabularyList$new(
       var, vocabulary_list, dtype,
       default_value, num_oov_buckets,
+      name = var
+    )
+    rec$add_step(stp)
+  }
+
+  rec
+}
+
+#' @export
+step_categorical_column_with_hash_bucket <- function(rec, ..., hash_bucket_size,
+                                                     dtype = tf$string) {
+
+  rec <- rec$clone(deep = TRUE)
+  quos_ <- quos(...)
+
+  variables <- terms_select(rec$feature_names(), rec$feature_types(), quos_)
+  for (var in variables) {
+    stp <- StepCategoricalColumnWithHashBucket$new(
+      var,
+      hash_bucket_size = hash_bucket_size,
+      dtype = dtype,
+      name = var
+    )
+    rec$add_step(stp)
+  }
+
+  rec
+}
+
+#' @export
+step_categorical_column_with_identity <- function(rec, ..., num_buckets,
+                                                     default_value = NULL) {
+
+  rec <- rec$clone(deep = TRUE)
+  quos_ <- quos(...)
+
+  variables <- terms_select(rec$feature_names(), rec$feature_types(), quos_)
+  for (var in variables) {
+    stp <- StepCategoricalColumnWithIdentity$new(
+      key = var,
+      num_buckets = num_buckets,
+      default_value = default_value,
+      name = var
+    )
+    rec$add_step(stp)
+  }
+
+  rec
+}
+
+#' @export
+step_categorical_column_with_vocabulary_file <- function(rec, ..., vocabulary_file,
+                                                         vocabulary_size = NULL,
+                                                         dtype = tf$string,
+                                                         default_value = NULL,
+                                                         num_oov_buckets = 0L) {
+  rec <- rec$clone(deep = TRUE)
+  quos_ <- quos(...)
+
+  variables <- terms_select(rec$feature_names(), rec$feature_types(), quos_)
+  for (var in variables) {
+    stp <- StepCategoricalColumnWithVocabularyFile$new(
+      key = var,
+      vocabulary_file = vocabulary_file,
+      vocabulary_size = vocabulary_size,
+      dtype = dtype,
+      default_value = default_value,
+      num_oov_buckets = num_oov_buckets,
       name = var
     )
     rec$add_step(stp)

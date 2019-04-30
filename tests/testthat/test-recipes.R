@@ -65,6 +65,49 @@ test_that("Can create categorical columns with vocabulary list", {
   expect_length(rec$dense_features(), 0)
 })
 
+test_that("Can create categorical columns with hash_bucket", {
+  skip_if_not_eager_and_tf()
+
+  rec <- recipe(dataset, y ~ a + b + c + d) %>%
+    step_categorical_column_with_hash_bucket(a, d, hash_bucket_size = 10)
+
+  rec$fit()
+
+  expect_length(rec$features(), 2)
+  expect_named(rec$features(), c("a", "d"))
+  expect_s3_class(rec$features()[[1]], "tensorflow.python.feature_column.feature_column._CategoricalColumn")
+  expect_s3_class(rec$features()[[2]], "tensorflow.python.feature_column.feature_column._CategoricalColumn")
+})
+
+test_that("Can create categorical columns with identity", {
+  skip_if_not_eager_and_tf()
+
+  rec <- recipe(dataset, y ~ a + b + c + d) %>%
+    step_categorical_column_with_identity(a, num_buckets = 10)
+
+  rec$fit()
+
+  expect_length(rec$features(), 1)
+  expect_named(rec$features(), c("a"))
+  expect_s3_class(rec$features()[[1]], "tensorflow.python.feature_column.feature_column._CategoricalColumn")
+})
+
+test_that("Can create categorical columns with vocabulary file", {
+  skip_if_not_eager_and_tf()
+
+  tmp <- tempfile()
+  writeLines(tmp, text = letters)
+
+  rec <- recipe(dataset, y ~ a + b + c + d) %>%
+    step_categorical_column_with_vocabulary_file(a, vocabulary_file = tmp)
+
+  rec$fit()
+
+  expect_length(rec$features(), 1)
+  expect_named(rec$features(), c("a"))
+  expect_s3_class(rec$features()[[1]], "tensorflow.python.feature_column.feature_column._CategoricalColumn")
+})
+
 test_that("Can create indicator variables", {
   skip_if_not_eager_and_tf()
 
@@ -259,5 +302,7 @@ test_that("Can select with has_type", {
 
   expect_length(rec$steps, 6)
 })
+
+
 
 
