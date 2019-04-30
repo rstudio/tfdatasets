@@ -169,6 +169,7 @@ test_that("Can create crossed columns", {
 })
 
 test_that("Can create bucketized columns", {
+  skip_if_not_eager_and_tf()
 
   rec <- recipe(dataset, y ~ a+b+c+d) %>%
     step_numeric_column(b) %>%
@@ -180,6 +181,7 @@ test_that("Can create bucketized columns", {
 })
 
 test_that("Using with layer_dense_features", {
+  skip_if_not_eager_and_tf()
 
   rec <- recipe(dataset, y ~ a+b+c+d) %>%
     step_numeric_column(b, c) %>%
@@ -197,6 +199,7 @@ test_that("Using with layer_dense_features", {
 })
 
 test_that("Recipes are correctly cloned/imutable", {
+  skip_if_not_eager_and_tf()
 
   rec <- recipe(dataset, y ~ a+b+c+d) %>%
     step_numeric_column(b, c) %>%
@@ -227,6 +230,8 @@ test_that("Recipes are correctly cloned/imutable", {
 
 
 test_that("Recipes column types", {
+  skip_if_not_eager_and_tf()
+
   rec <- recipe(dataset, y ~ a+b+c+d) %>%
     step_numeric_column(b) %>%
     step_categorical_column_with_vocabulary_list(a, d) %>%
@@ -239,6 +244,7 @@ test_that("Recipes column types", {
 })
 
 test_that("Bake recipe", {
+  skip_if_not_eager_and_tf()
 
   rec <- recipe(dataset, y ~ a + b + c + d) %>%
     step_numeric_column(b) %>%
@@ -252,6 +258,7 @@ test_that("Bake recipe", {
 })
 
 test_that("Juice recipe", {
+  skip_if_not_eager_and_tf()
 
   rec <- recipe(dataset, y ~ a + b + c + d) %>%
     step_numeric_column(b) %>%
@@ -265,6 +272,7 @@ test_that("Juice recipe", {
 })
 
 test_that("Prep with different dataset", {
+  skip_if_not_eager_and_tf()
 
   rec <- recipe(dataset, y ~ a + b + c + d) %>%
     step_numeric_column(b) %>%
@@ -281,6 +289,7 @@ test_that("Prep with different dataset", {
 })
 
 test_that("Can select with has_type", {
+  skip_if_not_eager_and_tf()
 
   rec <- recipe(dataset, y ~ a + b + c + d) %>%
     step_numeric_column(has_type("numeric"))
@@ -301,6 +310,20 @@ test_that("Can select with has_type", {
     step_indicator_column(all_nominal())
 
   expect_length(rec$steps, 6)
+})
+
+test_that("Can remove variables using -", {
+  skip_if_not_eager_and_tf()
+
+  rec <- recipe(dataset, y ~ a + b + c + d) %>%
+    step_numeric_column(has_type("numeric"), - b) %>%
+    step_categorical_column_with_vocabulary_list(has_type("nominal")) %>%
+    step_indicator_column(has_type("nominal"), - a)
+
+  rec <- prep(rec)
+
+  expect_length(rec$dense_features(), 2)
+  expect_named(rec$dense_features(), c("c", "indicator_d"))
 })
 
 

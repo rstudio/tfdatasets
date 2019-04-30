@@ -115,7 +115,12 @@ Recipe <- R6::R6Class(
         nxt <- sess$run(nxt_it)
       }
 
+      pb <- progress::progress_bar$new(
+        format = ":spin Preparing :tick_rate batches/s [:current batches in :elapsedfull]",
+        total = Inf)
+
       while (!is.null(nxt)) {
+        pb$tick(1)
         for (i in seq_along(self$steps)) {
           self$steps[[i]]$fit_batch(nxt)
         }
@@ -125,6 +130,8 @@ Recipe <- R6::R6Class(
         } else {
           nxt <- tryCatch({sess$run(nxt_it)}, error = out_of_range_handler)
         }
+
+
       }
 
       for (i in seq_along(self$steps)) {
@@ -788,8 +795,10 @@ step_categorical_column_with_vocabulary_file <- function(rec, ..., vocabulary_fi
 }
 
 make_step_name <- function(quosure, variable, step) {
+
   nms <- names(quosure)
-  if (!is.null(nms) && nms != "") {
+
+  if (!is.null(nms) && !is.na(nms) && length(nms) == 1 && nms != "" ) {
     nms
   } else {
     paste0(step, "_", variable)
@@ -801,34 +810,29 @@ step_ <- function(rec, ..., step, args, prefix) {
   rec <- rec$clone(deep = TRUE)
 
   quosures <- quos(...)
+  variables <- terms_select(rec$feature_names(), rec$feature_types(), quosures)
+  nms <- names(quosures)
 
-  for (j in seq_along(quosures)) {
+  if ( !is.null(nms) && any(nms != "") && length(nms) != length(variables) )
+    stop("Can't name feature if using a selector.")
 
-    variables <- terms_select(rec$feature_names(), rec$feature_types(), quosures[j])
-    nms <- names(quosures[j])
+  for (i in seq_along(variables)) {
 
-    for (i in seq_along(variables)) {
+    args_ <- append(
+      list(
+        variables[i],
+        name = make_step_name(quosures[i], variables[i], prefix)
+      ),
+      args
+    )
 
-      if ( (!is.null(nms) && nms != "") && (length(variables) > 1) )
-        stop("Step connot be named when using a selector.")
+    stp <- do.call(step, args_)
 
-      args_ <- append(
-        list(
-          variables[i],
-          name = make_step_name(quosures[j], variables[i], prefix)
-          ),
-        args
-      )
-
-      stp <- do.call(step, args_)
-
-      rec$add_step(stp)
-    }
-
+    rec$add_step(stp)
   }
 
-  rec
 
+  rec
 }
 
 #' @export
