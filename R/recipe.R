@@ -69,13 +69,10 @@ all_nominal <- function() {
 Recipe <- R6::R6Class(
   "Recipe",
   public = list(
-    base_steps = list(),
-    derived_steps = list(),
     steps = list(),
     formula = NULL,
     column_names = NULL,
     column_types = NULL,
-    column_roles = NULL,
     dataset = NULL,
     fitted = FALSE,
     prepared_dataset = NULL,
