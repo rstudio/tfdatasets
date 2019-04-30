@@ -181,25 +181,19 @@ model <- keras_model_sequential(layers = list(
 ))
 
 model %>% compile(loss = loss_binary_crossentropy, 
-                  optimizer = "adam",
+                  optimizer = "adam", 
                   metrics = "binary_accuracy")
 ```
 
 We can finaly train the model in the dataset:
 
 ```{r}
-# TODO we should provide a transformed dataset with all columns necessary
-# for training and in the same format as keras.
+dataset_train <- juice(rec_prep)
 
-dataset_train2 <- dataset_train %>% 
-  dataset_map(function(x) reticulate::tuple(x, x$target))
-
-dataset_test2 <- dataset_test %>% 
-  dataset_map(function(x) reticulate::tuple(x, x$target))
-
+dataset_test <- bake(rec_prep, dataset_test)
 
 history <- model %>% 
-  fit(dataset_train2, epochs = 10, validation_data = dataset_test2)
+  fit(dataset_train, epochs = 10, validation_data = dataset_test)
 
-plot(history, smooth = TRUE)
+plot(history)
 ```
