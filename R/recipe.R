@@ -191,6 +191,22 @@ Recipe <- R6::R6Class(
 
       feature_types
 
+    },
+
+    print = function() {
+      cat(cli::style_bold(paste("A recipe with", length(self$steps), "steps.\n")))
+
+      cat("Prepared:", self$fitted, "\n")
+
+      if (self$fitted)
+        cat("The recipe has", length(self$dense_features), "dense features.\n")
+
+      if (length(self$steps) > 0) {
+        step_types <- sapply(self$steps, function(x) class(x)[1])
+        for (step_type in sort(unique(step_types))) {
+          cat(paste0(cli::style_bold(step_type), ":"), paste(names(step_types[step_types == step_type]), collapse = ", "), "\n")
+        }
+      }
     }
 
   ),
