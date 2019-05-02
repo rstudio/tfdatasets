@@ -13,10 +13,7 @@ is_dense_column <- function(feature) {
 }
 
 dtype_chr <- function(x) {
-  if (x == tf$string || x == tf$bool)
-    "nominal"
-  else
-    "numeric"
+  x$name
 }
 
 # Selectors ---------------------------------------------------------------
@@ -36,7 +33,7 @@ current_info <- function() {
 }
 
 #' @export
-has_type <- function(match = "numeric") {
+has_type <- function(match = "float32") {
   info <- current_info()
   lgl_matches <- purrr::map_lgl(info$feature_types, ~any(.x %in% match))
   info$feature_names[which(lgl_matches)]
@@ -56,12 +53,12 @@ terms_select <- function(feature_names, feature_types, terms) {
 
 #' @export
 all_numeric <- function() {
-  has_type("numeric")
+  has_type(c("float16", "float32", "float64", "int16", "int32", "int64", "half", "double"))
 }
 
 #' @export
 all_nominal <- function() {
-  has_type("nominal")
+  has_type(c("string"))
 }
 
 # Recipe ------------------------------------------------------------------
@@ -182,6 +179,8 @@ Recipe <- R6::R6Class(
         ft <- feature_names[i]
 
         if (is.null(self$steps[[ft]])) {
+          feature_types[i] <- dtype_chr(self$column_types[[which(self$column_names == ft)]])
+        } else if (is.null(self$steps[[ft]]$column_type)) {
           feature_types[i] <- dtype_chr(self$column_types[[which(self$column_names == ft)]])
         } else {
           feature_types[i] <- self$steps[[ft]]$column_type
@@ -370,7 +369,7 @@ StepNumericColumn <- R6::R6Class(
     default_value = NULL,
     dtype = NULL,
     normalizer_fn = NULL,
-    column_type = "numeric",
+    column_type = NULL,
     initialize = function(key, shape, default_value, dtype, normalizer_fn, name) {
       self$key <- key
       self$shape <- shape
@@ -378,6 +377,7 @@ StepNumericColumn <- R6::R6Class(
       self$dtype <- dtype
       self$normalizer_fn <- normalizer_fn
       self$name <- name
+      self$column_type = dtype_chr(dtype)
     },
     fit_batch = function(batch) {
       if (inherits(self$normalizer_fn, "Normalizer")) {
@@ -414,7 +414,7 @@ StepCategoricalColumnWithVocabularyList <- R6::R6Class(
     default_value = -1L,
     num_oov_buckets = 0L,
     vocabulary_list_aux = NULL,
-    column_type = "nominal",
+    column_type = NULL,
 
     initialize = function(key, vocabulary_list = NULL, dtype = NULL, default_value = -1L,
                           num_oov_buckets = 0L, name) {
@@ -425,6 +425,9 @@ StepCategoricalColumnWithVocabularyList <- R6::R6Class(
       self$default_value <- default_value
       self$num_oov_buckets <- num_oov_buckets
       self$name <- name
+      if (!is.null(dtype)) {
+        self$column_type = dtype_chr(dtype)
+      }
     },
 
     fit_batch = function(batch) {
@@ -473,11 +476,15 @@ StepCategoricalColumnWithHashBucket <- R6::R6Class(
     key = NULL,
     hash_bucket_size = NULL,
     dtype = NULL,
+    column_type = NULL,
     initialize = function(key, hash_bucket_size, dtype = tf$string, name) {
       self$key <- key
       self$hash_bucket_size <- hash_bucket_size
       self$dtype <- dtype
       self$name <- name
+      if (!is.null(dtype)) {
+        self$column_type = dtype_chr(dtype)
+      }
     },
     feature = function (base_features) {
       tf$feature_column$categorical_column_with_hash_bucket(
@@ -526,6 +533,7 @@ StepCategoricalColumnWithVocabularyFile <- R6::R6Class(
     dtype = NULL,
     default_value = NULL,
     num_oov_buckets = NULL,
+    column_type = NULL,
     initialize = function(key, vocabulary_file, vocabulary_size = NULL, dtype = tf$string,
                           default_value = NULL, num_oov_buckets = 0L, name) {
       self$key <- key
@@ -535,6 +543,9 @@ StepCategoricalColumnWithVocabularyFile <- R6::R6Class(
       self$default_value <- default_value
       self$num_oov_buckets <- num_oov_buckets
       self$name <- name
+      if (!is.null(dtype)) {
+        self$column_type = dtype_chr(dtype)
+      }
     },
     feature = function (base_features) {
       tf$feature_column$categorical_column_with_vocabulary_file(
@@ -557,7 +568,7 @@ StepIndicatorColumn <- R6::R6Class(
   public = list(
     categorical_column = NULL,
     base_features = NULL,
-    column_type = "numeric",
+    column_type = "float32",
     initialize = function(categorical_column, name) {
       self$categorical_column = categorical_column
       self$name <- name
@@ -584,7 +595,7 @@ StepEmbeddingColumn <- R6::R6Class(
     tensor_name_in_ckpt = NULL,
     max_norm = NULL,
     trainable = NULL,
-    column_type = "numeric",
+    column_type = "float32",
 
     initialize = function(categorical_column, dimension, combiner = "mean", initializer = NULL,
                           ckpt_to_load_from = NULL, tensor_name_in_ckpt = NULL, max_norm = NULL,
@@ -633,7 +644,7 @@ StepCrossedColumn <- R6::R6Class(
     keys = NULL,
     hash_bucket_size = NULL,
     hash_key = NULL,
-    column_type = "nominal",
+    column_type = "string",
 
     initialize = function (keys, hash_bucket_size, hash_key = NULL, name = NULL) {
       self$keys <- keys
@@ -669,7 +680,7 @@ StepBucketizedColumn <- R6::R6Class(
 
     source_column = NULL,
     boundaries = NULL,
-    column_type = "numeric",
+    column_type = "float32",
 
     initialize = function(source_column, boundaries, name) {
       self$source_column <- source_column
@@ -706,7 +717,7 @@ StepSharedEmbeddings <- R6::R6Class(
     tensor_name_in_ckpt = NULL,
     max_norm = NULL,
     trainable = NULL,
-    column_type = "numeric",
+    column_type = "float32",
 
     initialize = function(categorical_columns, dimension, combiner = "mean",
                               initializer = NULL, shared_embedding_collection_name = NULL,

@@ -245,7 +245,7 @@ test_that("Recipes column types", {
 
   expect_equal(
     rec$feature_types(),
-    c("numeric", "nominal", "nominal", "numeric", "numeric", "numeric")
+    c("float32", "string", "string", "float32", "float32", "float32")
   )
 })
 
@@ -298,21 +298,23 @@ test_that("Can select with has_type", {
   skip_if_not_eager_and_tf()
 
   rec <- recipe(dataset, y ~ a + b + c + d) %>%
-    step_numeric_column(has_type("numeric"))
+    step_numeric_column(has_type("float32")) %>%
+    step_numeric_column(has_type("int32"))
 
   expect_length(rec$steps, 2)
 
   rec <- recipe(dataset, y ~ a + b + c + d) %>%
-    step_numeric_column(has_type("numeric")) %>%
-    step_categorical_column_with_vocabulary_list(has_type("nominal")) %>%
-    step_indicator_column(has_type("nominal"))
+    step_numeric_column(has_type("float32")) %>%
+    step_numeric_column(has_type("int32")) %>%
+    step_categorical_column_with_vocabulary_list(has_type("string")) %>%
+    step_indicator_column(has_type("string"))
 
   expect_length(rec$steps, 6)
-  expect_error(rec %>% step_indicator_column(a = has_type("nominal")))
+  expect_error(rec %>% step_indicator_column(a = has_type("string")))
 
   rec <- recipe(dataset, y ~ a + b + c + d) %>%
     step_numeric_column(all_numeric()) %>%
-    step_categorical_column_with_vocabulary_list(has_type("nominal")) %>%
+    step_categorical_column_with_vocabulary_list(has_type("string")) %>%
     step_indicator_column(all_nominal())
 
   expect_length(rec$steps, 6)
@@ -322,9 +324,9 @@ test_that("Can remove variables using -", {
   skip_if_not_eager_and_tf()
 
   rec <- recipe(dataset, y ~ a + b + c + d) %>%
-    step_numeric_column(has_type("numeric"), - b) %>%
-    step_categorical_column_with_vocabulary_list(has_type("nominal")) %>%
-    step_indicator_column(has_type("nominal"), - a)
+    step_numeric_column(all_numeric(), - b) %>%
+    step_categorical_column_with_vocabulary_list(all_nominal()) %>%
+    step_indicator_column(all_nominal(), - a)
 
   rec <- prep(rec)
 
