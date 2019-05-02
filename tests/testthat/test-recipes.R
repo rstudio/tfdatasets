@@ -21,6 +21,12 @@ dataset <-  df %>%
   tensor_slices_dataset() %>%
   dataset_batch(2)
 
+get_features <- function(df, feature_columns) {
+  example <- reticulate::iter_next(reticulate::as_iterator(df))
+  k <- keras::layer_dense_features(feature_columns = feature_columns)
+  k(example)
+}
+
 # Tests -------------------------------------------------------------------
 
 
@@ -326,6 +332,29 @@ test_that("Can remove variables using -", {
   expect_named(rec$dense_features(), c("c", "indicator_d"))
 })
 
+test_that("StandardScaler works as expected", {
+  x <- runif(100)
+  sc <- StandardScaler$new()
+  splited <- split(x, rep(1:10, each = 10))
+  a <- lapply(splited, sc$fit_batch)
+  sc$fit_resume()
+
+  expect_equal(sc$mean, mean(x))
+  expect_equal(sc$sd, sd(x))
+})
+
+test_that("Can use a StepNormalizer", {
+  skip_if_not_eager_and_tf()
+
+  rec <- recipe(dataset, y ~ a + b + c + d) %>%
+    step_numeric_column(c, normalizer_fn = standard_scaler(), dtype = tf$float32)
+
+  rec <- prep(rec)
+
+  value <- get_features(dataset, rec$dense_features())
+  normalized_df <- (df$c - mean(df$c))/sd(df$c)
+  expect_equal(as.numeric(value), normalized_df[1:2], tol = 1e-6)
+})
 
 
 

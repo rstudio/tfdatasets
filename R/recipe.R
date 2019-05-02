@@ -269,6 +269,55 @@ DerivedStep <- R6::R6Class(
   inherit = Step
 )
 
+# Scalers -----------------------------------------------------------------
+
+Normalizer <- R6::R6Class(
+  "Normalizer",
+  public = list(
+    fit_batch = function(batch) {
+
+    },
+    fit_resume = function() {
+
+    },
+    fun = function() {
+
+    }
+  )
+)
+
+StandardScaler <- R6::R6Class(
+  "StandardScaler",
+  inherit = Normalizer,
+  public = list(
+    sum = 0,
+    sum_2 = 0,
+    n = 0,
+    sd = NULL,
+    mean = NULL,
+    fit_batch = function (batch) {
+      self$sum <- self$sum + sum(batch)
+      self$sum_2 <- self$sum_2 + sum(batch^2)
+      self$n <- self$n + length(batch)
+    },
+    fit_resume = function() {
+      self$mean <- self$sum/self$n
+      self$sd <- sqrt((self$n/(self$n-1))*(self$sum_2/self$n - (self$sum/self$n)^2))
+    },
+    fun = function() {
+      mean_ <- self$mean
+      sd_ <- self$sd
+      function(x) {
+        (x - mean_)/sd_
+      }
+    }
+  )
+)
+
+standard_scaler <- function() {
+  StandardScaler$new()
+}
+
 
 # StepNumericColumn -------------------------------------------------------
 
@@ -291,14 +340,15 @@ StepNumericColumn <- R6::R6Class(
       self$name <- name
     },
     fit_batch = function(batch) {
-      if (is.null(self$normalizer_fn) || is.function(self$normalizer_fn)) {
-
-      } else {
-
+      if (inherits(self$normalizer_fn, "Normalizer")) {
+        self$normalizer_fn$fit_batch(as.numeric(batch[[self$key]]))
       }
     },
     fit_resume = function() {
-
+      if (inherits(self$normalizer_fn, "Normalizer")) {
+        self$normalizer_fn$fit_resume()
+        self$normalizer_fn <- self$normalizer_fn$fun()
+      }
     },
     feature = function (base_features) {
       tf$feature_column$numeric_column(
