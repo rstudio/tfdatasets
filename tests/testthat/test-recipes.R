@@ -347,13 +347,15 @@ test_that("Can use a StepNormalizer", {
   skip_if_not_eager_and_tf()
 
   rec <- recipe(dataset, y ~ a + b + c + d) %>%
-    step_numeric_column(c, normalizer_fn = standard_scaler(), dtype = tf$float32)
+    step_numeric_column(all_numeric(), normalizer_fn = standard_scaler())
 
   rec <- prep(rec)
 
-  value <- get_features(dataset, rec$dense_features())
-  normalized_df <- (df$c - mean(df$c))/sd(df$c)
-  expect_equal(as.numeric(value), normalized_df[1:2], tol = 1e-6)
+  value <- as.matrix(get_features(dataset, rec$dense_features()))
+  normalized_c <- (df$c - mean(df$c))/sd(df$c)
+  normalized_b <- (df$b - mean(df$b))/sd(df$b)
+  expect_equal(as.numeric(value[,2]), normalized_c[1:2], tol = 1e-6)
+  expect_equal(as.numeric(value[,1]), normalized_b[1:2], tol = 1e-6)
 })
 
 

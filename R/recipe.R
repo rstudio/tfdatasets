@@ -308,7 +308,12 @@ StandardScaler <- R6::R6Class(
       mean_ <- self$mean
       sd_ <- self$sd
       function(x) {
+
+        if (!x$dtype$is_floating)
+          x <- tf$cast(x, tf$float32)
+
         (x - mean_)/sd_
+
       }
     }
   )
