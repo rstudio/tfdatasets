@@ -76,7 +76,10 @@ You can do this by adding steps to the recipe.
 
 ```{r}
 rec <- rec %>% 
-  step_numeric_column(age, trestbps, chol, thalach, oldpeak, slope, ca) %>% 
+  step_numeric_column(
+    all_numeric(), -cp, -restecg, -exang, -sex, -fbs,
+    normalizer_fn = scaler_standard()
+  ) %>% 
   step_categorical_column_with_vocabulary_list(thal)
 ```
 
@@ -94,14 +97,21 @@ as the vocabulary.
 
 You can also specify a `normalizer_fn` to the `step_numeric_column` in this case the variable will be
 transformed by the feature column. Note that the transformation will occur in the TensorFlow Graph,
-so it must use only TensorFlow ops. We plan to implement pre-maid normalizer functions that obtains
-the normalizing constants from the dataset itself.
+so it must use only TensorFlow ops. Like in the example we offer pre-made normalizers - and they will
+compute the normalizing function during the recipe preparation.
 
-Also in the above example we typed the name of all columns, but you can also use selectors like:
+You can also use selectors like:
 
 * `starts_with()`, `ends_with()`, `matches()` etc. (from tidyselect)
 * `all_numeric()` to select all numeric variables
 * `all_nominal()` to select all strings
+* `has_type("float32")` to select based on TensorFlow varaible type.
+
+Now we can print the Recipe:
+
+```{r}
+rec
+```
 
 After specifying the types of the columns you can add transformation steps. 
 For example you may want to bucketize a numeric column:
@@ -139,7 +149,10 @@ recipe by chaining a sequence of methods:
 
 ```{r} 
 rec <- recipe(dataset_train, target ~ .) %>% 
-  step_numeric_column(age, trestbps, chol, thalach, oldpeak, slope, ca) %>% 
+  step_numeric_column(
+    all_numeric(), -cp, -restecg, -exang, -sex, -fbs,
+    normalizer_fn = scaler_standard()
+  ) %>% 
   step_categorical_column_with_vocabulary_list(thal) %>% 
   step_bucketized_column(age, boundaries = c(18, 25, 30, 35, 40, 45, 50, 55, 60, 65)) %>% 
   step_indicator_column(thal) %>% 
