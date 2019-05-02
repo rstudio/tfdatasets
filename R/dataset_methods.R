@@ -157,7 +157,8 @@ dataset_take <- function(dataset, count) {
 #' @param dataset A dataset
 #' @param map_func A function mapping a nested structure of tensors (having
 #'   shapes and types defined by [output_shapes()] and [output_types()] to
-#'   another nested structure of tensors.
+#'   another nested structure of tensors. It also supports `purrr` style
+#'   lambda functions powered by [rlang::as_function()].
 #' @param num_parallel_calls (Optional) An integer, representing the
 #'   number of elements to process in parallel If not specified, elements will
 #'   be processed sequentially.
@@ -169,7 +170,7 @@ dataset_take <- function(dataset, count) {
 #' @export
 dataset_map <- function(dataset, map_func, num_parallel_calls = NULL) {
   as_tf_dataset(dataset$map(
-    map_func = map_func,
+    map_func = rlang::as_function(map_func),
     num_parallel_calls = as_integer_tensor(num_parallel_calls, tf$int32)
   ))
 }
@@ -200,7 +201,7 @@ dataset_map_and_batch <- function(dataset,
   validate_tf_version("1.8", "dataset_map_and_batch")
   as_tf_dataset(dataset$apply(
     tfd_map_and_batch(
-      map_func,
+      rlang::as_function(map_func),
       as.integer(batch_size),
       as_integer_tensor(num_parallel_batches),
       drop_remainder,
