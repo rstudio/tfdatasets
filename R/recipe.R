@@ -319,10 +319,45 @@ StandardScaler <- R6::R6Class(
   )
 )
 
+#' @export
 standard_scaler <- function() {
   StandardScaler$new()
 }
 
+MinMaxScaler <- R6::R6Class(
+  "MinMaxScaler",
+  inherit = Normalizer,
+  public = list(
+    min = Inf,
+    max = -Inf,
+    fit_batch = function (batch) {
+      self$min <- min(c(self$min, min(batch)))
+      self$max <- max(c(self$max, max(batch)))
+    },
+    fun = function() {
+      min_ <- self$min
+      max_ <- self$max
+      function(x) {
+
+        if (!x$dtype$is_floating)
+          x <- tf$cast(x, tf$float32)
+
+        (x - min_)/(max_ - min_)
+
+      }
+    }
+  )
+)
+
+#' @export
+scaler_standard <- function() {
+  StandardScaler$new()
+}
+
+#' @export
+scaler_min_max <- function() {
+  MinMaxScaler$new()
+}
 
 # StepNumericColumn -------------------------------------------------------
 

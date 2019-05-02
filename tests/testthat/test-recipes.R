@@ -343,11 +343,11 @@ test_that("StandardScaler works as expected", {
   expect_equal(sc$sd, sd(x))
 })
 
-test_that("Can use a StepNormalizer", {
+test_that("Can use a scaler_standard", {
   skip_if_not_eager_and_tf()
 
   rec <- recipe(dataset, y ~ a + b + c + d) %>%
-    step_numeric_column(all_numeric(), normalizer_fn = standard_scaler())
+    step_numeric_column(all_numeric(), normalizer_fn = scaler_standard())
 
   rec <- prep(rec)
 
@@ -358,5 +358,29 @@ test_that("Can use a StepNormalizer", {
   expect_equal(as.numeric(value[,1]), normalized_b[1:2], tol = 1e-6)
 })
 
+test_that("MinMaxScaler works as expected", {
+  x <- runif(100)
+  sc <- MinMaxScaler$new()
+  splited <- split(x, rep(1:10, each = 10))
+  a <- lapply(splited, sc$fit_batch)
+  sc$fit_resume()
 
+  expect_equal(sc$min, min(x))
+  expect_equal(sc$max, max(x))
+})
+
+test_that("Can use a scaler_min_max", {
+  skip_if_not_eager_and_tf()
+
+  rec <- recipe(dataset, y ~ a + b + c + d) %>%
+    step_numeric_column(all_numeric(), normalizer_fn = scaler_min_max())
+
+  rec <- prep(rec)
+
+  value <- as.matrix(get_features(dataset, rec$dense_features()))
+  normalized_c <- (df$c - min(df$c))/(max(df$c) - min(df$c))
+  normalized_b <- (df$b - min(df$b))/(max(df$b) - min(df$b))
+  expect_equal(as.numeric(value[,2]), normalized_c[1:2], tol = 1e-6)
+  expect_equal(as.numeric(value[,1]), normalized_b[1:2], tol = 1e-6)
+})
 
