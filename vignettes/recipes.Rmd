@@ -200,7 +200,7 @@ model %>% compile(loss = loss_binary_crossentropy,
 
 We can finaly train the model in the dataset:
 
-```{r}
+```{r, warning=FALSE}
 dataset_train <- juice(rec_prep)
 
 dataset_test <- bake(rec_prep, dataset_test)
