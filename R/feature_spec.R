@@ -759,6 +759,40 @@ StepSharedEmbeddings <- R6::R6Class(
 
 # Wrappers ----------------------------------------------------------------
 
+#' Creates a feature specification.
+#'
+#' Used to create initilialize a feature columns specification.
+#'
+#' @param dataset A TensorFlow dataset.
+#' @param x Features to include can use [tidyselect::select_helpers()] or
+#'   a `formula`.
+#' @param y (Optional) The response variable. Can also be specified using
+#'   a `formula` in the `x` argument.
+#'
+#' @details
+#' After creating the `feature_spec` object you can add steps using the
+#' `step` functions.
+#'
+#' @return a `FeatureSpec` object.
+#'
+#' @seealso
+#' * [fit.FeatureSpec()] to fit the FeatureSpec
+#' * [dataset_use_spec()] to create a tensorflow dataset prepared to modeling.
+#' * [steps] to a list of all implemented steps.
+#'
+#' @examples
+#' \dontrun{
+#' library(tfdatasets)
+#' data(hearts)
+#' hearts <- tensor_slices_dataset(hearts) %>% dataset_batch(32)
+#'
+#' # use the formula interface
+#' spec <- feature_spec(hearts, target ~ .)
+#'
+#' # select using `tidyselect` helpers
+#' spec <- feature_spec(hearts, x = c(thal, age), y = target)
+#' }
+#' @family Feature Spec Functions
 #' @export
 feature_spec <- function(dataset, x, y = NULL) {
   en_x <- rlang::enquo(x)
@@ -767,6 +801,39 @@ feature_spec <- function(dataset, x, y = NULL) {
   spec
 }
 
+#' Fits a feature specification.
+#'
+#' This function will `fit` the specification. Depending
+#' on the steps added to the specification it will compute
+#' for example, the levels of categorical features, normalization
+#' constants, etc.
+#'
+#' @param spec A feature specification created with [feature_spec()].
+#' @param dataset (Optional) A TensorFlow dataset. If `NULL` it will use
+#'   the dataset provided when initilializing the `feature_spec`.
+#' @param ... (unused)
+#'
+#' @seealso
+#' * [feature_spec()] to initialize the feature specification.
+#' * [dataset_use_spec()] to create a tensorflow dataset prepared to modeling.
+#' * [steps] to a list of all implemented steps.
+#'
+#' @return a fitted `FeatureSpec` object.
+#'
+#' @examples
+#' \dontrun{
+#' library(tfdatasets)
+#' data(hearts)
+#' hearts <- tensor_slices_dataset(hearts) %>% dataset_batch(32)
+#'
+#' # use the formula interface
+#' spec <- feature_spec(hearts, target ~ age) %>%
+#'   step_numeric_column(age)
+#'
+#' spec_fit <- fit(spec)
+#' spec_fit
+#' }
+#' @family Feature Spec Functions
 #' @export
 fit.FeatureSpec <- function(spec, dataset=NULL, ...) {
   spec <- spec$clone(deep = TRUE)
@@ -778,6 +845,35 @@ fit.FeatureSpec <- function(spec, dataset=NULL, ...) {
   spec
 }
 
+#' Transform the dataset using the provided spec.
+#'
+#' Prepares the dataset to be used directly in a model.The transformed
+#' dataset is prepared to return tuples (x,y) that can be used directly
+#' in Keras.
+#'
+#' @param dataset A TensorFlow dataset.
+#' @param spec A feature specification created with [feature_spec()].
+#' @seealso
+#' * [feature_spec()] to initialize the feature specification.
+#' * [fit.FeatureSpec()] to create a tensorflow dataset prepared to modeling.
+#' * [steps] to a list of all implemented steps.
+#'
+#' @return A TensorFlow dataset.
+#'
+#' @examples
+#' \dontrun{
+#' library(tfdatasets)
+#' data(hearts)
+#' hearts <- tensor_slices_dataset(hearts) %>% dataset_batch(32)
+#'
+#' # use the formula interface
+#' spec <- feature_spec(hearts, target ~ age) %>%
+#'   step_numeric_column(age)
+#'
+#' spec_fit <- fit(spec)
+#' final_dataset <- hearts %>% dataset_use_spec(hearts, spec_fit)
+#' }
+#' @family Feature Spec Functions
 #' @export
 dataset_use_spec <- function(dataset, spec) {
 
@@ -793,7 +889,29 @@ dataset_use_spec <- function(dataset, spec) {
     dataset_map(function(x) reticulate::tuple(x$x, x$y))
 }
 
+#' Steps for feature columns specification.
+#'
+#' List of steps that can be used to specify columns in the `feature_spec` interface.
+#'
+#' @section Steps:
+#'
+#' * [step_numeric_column()] to define numeric columns.
+#' * [step_categorical_column_with_vocabulary_list()] to define categorical columns.
+#' * [step_categorical_column_with_hash_bucket()]
+#' * [step_categorical_column_with_identity()]
+#' * [step_categorical_column_with_vocabulary_file()]
+#' * [step_indicator_column()]
+#' * [step_embedding_column()]
+#' * [step_bucketized_column()]
+#' * [step_crossed_column()]
+#' * [step_shared_embeddings_column()]
+#'
+#' @name steps
+#' @rdname steps
+#' @family Feature Spec Functions
+NULL
 
+#' @family Feature Spec Functions
 #' @export
 step_numeric_column <- function(spec, ..., shape = 1L, default_value = NULL,
                                 dtype = tf$float32, normalizer_fn = NULL) {
