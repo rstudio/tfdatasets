@@ -18,6 +18,20 @@ dtype_chr <- function(x) {
 
 # Selectors ---------------------------------------------------------------
 
+#' Selectors
+#'
+#' List of selectors that can be used to specify variables inside
+#' steps.
+#'
+#' @section Selectors:
+#'
+#' * [has_type()]
+#' * [all_numeric()]
+#' * [all_nominal()]
+#'
+#' @name selectors
+#' @rdname selectors
+
 cur_info_env <- rlang::child_env(rlang::env_parent(rlang::env()))
 
 set_current_info <- function(x) {
@@ -32,6 +46,14 @@ current_info <- function() {
   cur_info_env %||% stop("Variable context not set", call. = FALSE)
 }
 
+#' Identify the type of the variable.
+#'
+#' Can only be used inside the [steps] specifications to find
+#' variables by type.
+#'
+#' @param match A list of types to match.
+#'
+#' @family Selectors
 #' @export
 has_type <- function(match = "float32") {
   info <- current_info()
@@ -51,11 +73,23 @@ terms_select <- function(feature_names, feature_types, terms) {
   sel
 }
 
+#' Speciy all numeric variables.
+#'
+#' Find all the variables with the following types:
+#' "float16", "float32", "float64", "int16", "int32", "int64",
+#' "half", "double".
+#'
+#' @family Selectors
 #' @export
 all_numeric <- function() {
   has_type(c("float16", "float32", "float64", "int16", "int32", "int64", "half", "double"))
 }
 
+#' Find all nominal variables.
+#'
+#' Currently we only consider "string" type as nominal.
+#'
+#' @family Selectors
 #' @export
 all_nominal <- function() {
   has_type(c("string"))
@@ -905,6 +939,9 @@ dataset_use_spec <- function(dataset, spec) {
 #' * [step_bucketized_column()]
 #' * [step_crossed_column()]
 #' * [step_shared_embeddings_column()]
+#'
+#' @seealso
+#' * [selectors] for a list of selectors that can be used to specify variables.
 #'
 #' @name steps
 #' @rdname steps

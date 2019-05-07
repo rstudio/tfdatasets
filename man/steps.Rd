@@ -23,6 +23,10 @@ List of steps that can be used to specify columns in the \code{feature_spec} int
 }
 
 \seealso{
+\itemize{
+\item \link{selectors} for a list of selectors that can be used to specify variables.
+}
+
 Other Feature Spec Functions: \code{\link{dataset_use_spec}},
   \code{\link{feature_spec}}, \code{\link{fit.FeatureSpec}}
 }
