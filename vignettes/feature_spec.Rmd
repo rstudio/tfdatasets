@@ -1,5 +1,5 @@
 ---
-title: "Recipes interface"
+title: "Feature Spec interface"
 output: 
   rmarkdown::html_vignette: default
 vignette: >
@@ -10,12 +10,12 @@ type: docs
 repo: https://github.com/rstudio/tfdatasets
 menu:
   main:
-    name: "Using Datasets"
-    identifier: "tools-tfdatasets-using"
+    name: "Feature Spec interface"
+    identifier: "feature-spec"
     parent: "tfdatasets-top"
     weight: 10
 aliases:
-  - /tools/tfdatasets/
+  - /tools/tfdatasets/feature-spec
 ---
 
 ```{r setup, include=FALSE}
@@ -24,10 +24,10 @@ knitr::opts_chunk$set(eval = TRUE)
 
 ## Overview
 
-In this document we will demonstrate the basic usage of the `recipes` interface
+In this document we will demonstrate the basic usage of the `feature_spec` interface
 in `tfdatasets`.
 
-The `recipes` interface is a user friendly interface to [`feature_columns`](https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/feature_column).
+The `feature_spec` interface is a user friendly interface to [`feature_columns`](https://www.tensorflow.org/versions/r2.0/api_docs/python/tf/feature_column).
 It allows us to specify columns transformations and representations when working with
 structured data.
 
@@ -63,19 +63,19 @@ dataset_test <- testing(split) %>%
   dataset_batch(32)
 ```
 
-Now let's start creating our Recipe. 
+Now let's start creating our feature specification: 
 
 ```{r}
-rec <- recipe(dataset_train, target ~ .)
+spec <- feature_spec(dataset_train, target ~ .)
 ```
 
-The first thing we need to do after creating the recipe is 
+The first thing we need to do after creating the feature_spec is 
 to define how you want to treat your variables as categorical or numeric.
 
-You can do this by adding steps to the recipe.
+You can do this by adding steps to the `spec` object.
 
 ```{r}
-rec <- rec %>% 
+spec <- spec %>% 
   step_numeric_column(
     all_numeric(), -cp, -restecg, -exang, -sex, -fbs,
     normalizer_fn = scaler_standard()
@@ -110,14 +110,14 @@ You can also use selectors like:
 Now we can print the Recipe:
 
 ```{r}
-rec
+spec
 ```
 
 After specifying the types of the columns you can add transformation steps. 
 For example you may want to bucketize a numeric column:
 
 ```{r}
-rec <- rec %>% 
+spec <- spec %>% 
   step_bucketized_column(age, boundaries = c(18, 25, 30, 35, 40, 45, 50, 55, 60, 65))
 ```
 
@@ -125,7 +125,7 @@ You can also specify the kind of numeric representation that you want to use for
 your categorical variables.
 
 ```{r}
-rec <- rec %>% 
+spec <- spec %>% 
   step_indicator_column(thal) %>% 
   step_embedding_column(thal, dimension = 2)
 ```
@@ -134,7 +134,7 @@ Another common transformation is to add interactions between variables using cro
 columns. 
 
 ```{r}
-rec <- rec %>% 
+spec <- spec %>% 
   step_crossed_column(thal_and_age = c(thal, bucketized_age), hash_bucket_size = 1000) %>% 
   step_indicator_column(thal_and_age)
 ```
@@ -148,7 +148,7 @@ With the above code we have created our recipe. Note we can also define the
 recipe by chaining a sequence of methods:
 
 ```{r} 
-rec <- recipe(dataset_train, target ~ .) %>% 
+spec <- feature_spec(dataset_train, target ~ .) %>% 
   step_numeric_column(
     all_numeric(), -cp, -restecg, -exang, -sex, -fbs,
     normalizer_fn = scaler_standard()
@@ -161,22 +161,22 @@ rec <- recipe(dataset_train, target ~ .) %>%
   step_indicator_column(crossed_thal_bucketized_age)
 ```
 
-After defining the recipe we need to `prep` it. It's when preparing that we compute the vocabulary
+After defining the recipe we need to `fit` it. It's when fitting that we compute the vocabulary
 list for categorical variables or find the mean and standard deviation for the normalizing functions.
-Preparation involves evaluatig the full dataset, so If you have provided the vocabulary list and 
-your columns are already normalized you can skip the preparation step (TODO).
+Fitting involves evaluatig the full dataset, so If you have provided the vocabulary list and 
+your columns are already normalized you can skip the fitting step (TODO).
 
-In our case, we will prepare the recipe, since we didn't specify the vocabulary list
+In our case, we will fit the feature soec, since we didn't specify the vocabulary list
 for the categorical variables.
 
 ```{r}
-rec_prep <- prep(rec)
+spec_prep <- fit(spec)
 ```
 
 After preparing we can see the list of dense features that were defined:
 
 ```{r}
-str(rec_prep$dense_features())
+str(spec_prep$dense_features())
 ```
 
 Now we are ready to define our model in Keras. We will use a specialized `layer_dense_features` that
@@ -185,7 +185,7 @@ knows what to do with the feature columns specification.
 ```{r}
 library(keras)
 
-dense_features <- layer_dense_features(feature_columns = rec_prep$dense_features())
+dense_features <- layer_dense_features(feature_columns = spec_prep$dense_features())
 
 model <- keras_model_sequential(layers = list(
   dense_features,
@@ -201,9 +201,9 @@ model %>% compile(loss = loss_binary_crossentropy,
 We can finaly train the model in the dataset:
 
 ```{r, warning=FALSE}
-dataset_train <- juice(rec_prep)
+dataset_train <- dataset_train %>% dataset_use_spec(spec_prep)
 
-dataset_test <- bake(rec_prep, dataset_test)
+dataset_test <- dataset_test %>% dataset_use_spec(spec_prep)
 
 history <- model %>% 
   fit(dataset_train, epochs = 10, validation_data = dataset_test)

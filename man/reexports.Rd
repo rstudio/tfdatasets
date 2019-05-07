@@ -6,6 +6,7 @@
 \alias{tf}
 \alias{shape}
 \alias{install_tensorflow}
+\alias{fit}
 \title{Objects exported from other packages}
 \keyword{internal}
 \description{
@@ -13,6 +14,8 @@ These objects are imported from other packages. Follow the links
 below to see their documentation.
 
 \describe{
+  \item{generics}{\code{\link[generics]{fit}}}
+
   \item{tensorflow}{\code{\link[tensorflow]{tf}}, \code{\link[tensorflow]{shape}}, \code{\link[tensorflow]{install_tensorflow}}}
 }}
 
