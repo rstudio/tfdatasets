@@ -61,10 +61,10 @@ all_nominal <- function() {
   has_type(c("string"))
 }
 
-# Recipe ------------------------------------------------------------------
+# FeatureSpec ------------------------------------------------------------------
 
-Recipe <- R6::R6Class(
-  "Recipe",
+FeatureSpec <- R6::R6Class(
+  "FeatureSpec",
   public = list(
     steps = list(),
     formula = NULL,
@@ -100,7 +100,7 @@ Recipe <- R6::R6Class(
     fit = function() {
 
       if (self$fitted)
-        stop("Recipe is already fitted.")
+        stop("FeatureSpec is already fitted.")
 
       if (tf$executing_eagerly()) {
         ds <- reticulate::as_iterator(self$dataset)
@@ -144,7 +144,7 @@ Recipe <- R6::R6Class(
     features = function() {
 
       if (!self$fitted)
-        stop("Only available after fitting the recipe.")
+        stop("Only available after fitting the feature_spec.")
 
       feats <- NULL
       for (i in seq_along(self$steps)) {
@@ -160,7 +160,7 @@ Recipe <- R6::R6Class(
     dense_features = function() {
 
       if (!self$fitted)
-        stop("Only available after fitting the recipe.")
+        stop("Only available after fitting the feature_spec.")
 
       Filter(is_dense_column, self$features())
     },
@@ -193,12 +193,12 @@ Recipe <- R6::R6Class(
     },
 
     print = function() {
-      cat(cli::style_bold(paste("A recipe with", length(self$steps), "steps.\n")))
+      cat(cli::style_bold(paste("A feature_spec with", length(self$steps), "steps.\n")))
 
       cat("Prepared:", self$fitted, "\n")
 
       if (self$fitted)
-        cat("The recipe has", length(self$dense_features), "dense features.\n")
+        cat("The feature_spec has", length(self$dense_features), "dense features.\n")
 
       if (length(self$steps) > 0) {
         step_types <- sapply(self$steps, function(x) class(x)[1])
@@ -760,97 +760,85 @@ StepSharedEmbeddings <- R6::R6Class(
 # Wrappers ----------------------------------------------------------------
 
 #' @export
-recipe <- function(dataset, x, y = NULL) {
+feature_spec <- function(dataset, x, y = NULL) {
   en_x <- rlang::enquo(x)
   en_y <- rlang::enquo(y)
-  rec <- Recipe$new(dataset, x = !!en_x, y = !!en_y)
-  rec
+  spec <- FeatureSpec$new(dataset, x = !!en_x, y = !!en_y)
+  spec
 }
 
 #' @export
-prep <- function(rec, dataset=NULL) {
-  rec <- rec$clone(deep = TRUE)
+fit.FeatureSpec <- function(spec, dataset=NULL, ...) {
+  spec <- spec$clone(deep = TRUE)
 
   if (!is.null(dataset))
-    rec$set_dataset(dataset)
+    spec$set_dataset(dataset)
 
-  rec$fit()
-  rec
+  spec$fit()
+  spec
 }
 
 #' @export
-juice <- function(rec) {
-  if (reticulate::py_is_null_xptr(rec$prepared_dataset))
-    stop("The tensorflow dataset was not found. Please use `bake` instead.")
-
-  if (!rec$fitted)
-    stop("Recipe must be prepared before juicing.")
-
-  rec$prepared_dataset %>%
-    dataset_map(function(x) reticulate::tuple(x$x, x$y))
-}
-
-#' @export
-bake <- function(rec, dataset) {
+dataset_use_spec <- function(dataset, spec) {
 
   if (!inherits(dataset, "tensorflow.python.data.ops.dataset_ops.DatasetV2"))
     stop("`dataset` must be a TensorFlow dataset.")
 
-  if (!rec$fitted)
-    stop("Recipe must be prepared before juicing.")
+  if (!spec$fitted)
+    stop("FeatureSpec must be prepared before juicing.")
 
-  rec <- rec$clone(deep = TRUE)
-  rec$set_dataset(dataset)
-  rec$prepared_dataset %>%
+  spec <- spec$clone(deep = TRUE)
+  spec$set_dataset(dataset)
+  spec$prepared_dataset %>%
     dataset_map(function(x) reticulate::tuple(x$x, x$y))
 }
 
 
 #' @export
-step_numeric_column <- function(rec, ..., shape = 1L, default_value = NULL,
+step_numeric_column <- function(spec, ..., shape = 1L, default_value = NULL,
                                 dtype = tf$float32, normalizer_fn = NULL) {
 
-  rec <- rec$clone(deep = TRUE)
+  spec <- spec$clone(deep = TRUE)
   quos_ <- quos(...)
 
-  variables <- terms_select(rec$feature_names(), rec$feature_types(), quos_)
+  variables <- terms_select(spec$feature_names(), spec$feature_types(), quos_)
   for (var in variables) {
     stp <- StepNumericColumn$new(var, shape, default_value, dtype, normalizer_fn,
                                  name = var)
-    rec$add_step(stp)
+    spec$add_step(stp)
   }
 
-  rec
+  spec
 }
 
 #' @export
-step_categorical_column_with_vocabulary_list <- function(rec, ..., vocabulary_list = NULL,
+step_categorical_column_with_vocabulary_list <- function(spec, ..., vocabulary_list = NULL,
                                                          dtype = NULL, default_value = -1L,
                                                          num_oov_buckets = 0L) {
-  rec <- rec$clone(deep = TRUE)
+  spec <- spec$clone(deep = TRUE)
   quos_ <- quos(...)
 
-  variables <- terms_select(rec$feature_names(), rec$feature_types(), quos_)
+  variables <- terms_select(spec$feature_names(), spec$feature_types(), quos_)
   for (var in variables) {
     stp <- StepCategoricalColumnWithVocabularyList$new(
       var, vocabulary_list, dtype,
       default_value, num_oov_buckets,
       name = var
     )
-    rec$add_step(stp)
+    spec$add_step(stp)
   }
 
-  rec
+  spec
 }
 
 #' @export
-step_categorical_column_with_hash_bucket <- function(rec, ..., hash_bucket_size,
+step_categorical_column_with_hash_bucket <- function(spec, ..., hash_bucket_size,
                                                      dtype = tf$string) {
 
-  rec <- rec$clone(deep = TRUE)
+  spec <- spec$clone(deep = TRUE)
   quos_ <- quos(...)
 
-  variables <- terms_select(rec$feature_names(), rec$feature_types(), quos_)
+  variables <- terms_select(spec$feature_names(), spec$feature_types(), quos_)
   for (var in variables) {
     stp <- StepCategoricalColumnWithHashBucket$new(
       var,
@@ -858,20 +846,20 @@ step_categorical_column_with_hash_bucket <- function(rec, ..., hash_bucket_size,
       dtype = dtype,
       name = var
     )
-    rec$add_step(stp)
+    spec$add_step(stp)
   }
 
-  rec
+  spec
 }
 
 #' @export
-step_categorical_column_with_identity <- function(rec, ..., num_buckets,
+step_categorical_column_with_identity <- function(spec, ..., num_buckets,
                                                      default_value = NULL) {
 
-  rec <- rec$clone(deep = TRUE)
+  spec <- spec$clone(deep = TRUE)
   quos_ <- quos(...)
 
-  variables <- terms_select(rec$feature_names(), rec$feature_types(), quos_)
+  variables <- terms_select(spec$feature_names(), spec$feature_types(), quos_)
   for (var in variables) {
     stp <- StepCategoricalColumnWithIdentity$new(
       key = var,
@@ -879,22 +867,22 @@ step_categorical_column_with_identity <- function(rec, ..., num_buckets,
       default_value = default_value,
       name = var
     )
-    rec$add_step(stp)
+    spec$add_step(stp)
   }
 
-  rec
+  spec
 }
 
 #' @export
-step_categorical_column_with_vocabulary_file <- function(rec, ..., vocabulary_file,
+step_categorical_column_with_vocabulary_file <- function(spec, ..., vocabulary_file,
                                                          vocabulary_size = NULL,
                                                          dtype = tf$string,
                                                          default_value = NULL,
                                                          num_oov_buckets = 0L) {
-  rec <- rec$clone(deep = TRUE)
+  spec <- spec$clone(deep = TRUE)
   quos_ <- quos(...)
 
-  variables <- terms_select(rec$feature_names(), rec$feature_types(), quos_)
+  variables <- terms_select(spec$feature_names(), spec$feature_types(), quos_)
   for (var in variables) {
     stp <- StepCategoricalColumnWithVocabularyFile$new(
       key = var,
@@ -905,10 +893,10 @@ step_categorical_column_with_vocabulary_file <- function(rec, ..., vocabulary_fi
       num_oov_buckets = num_oov_buckets,
       name = var
     )
-    rec$add_step(stp)
+    spec$add_step(stp)
   }
 
-  rec
+  spec
 }
 
 make_step_name <- function(quosure, variable, step) {
@@ -922,12 +910,12 @@ make_step_name <- function(quosure, variable, step) {
   }
 }
 
-step_ <- function(rec, ..., step, args, prefix) {
+step_ <- function(spec, ..., step, args, prefix) {
 
-  rec <- rec$clone(deep = TRUE)
+  spec <- spec$clone(deep = TRUE)
 
   quosures <- quos(...)
-  variables <- terms_select(rec$feature_names(), rec$feature_types(), quosures)
+  variables <- terms_select(spec$feature_names(), spec$feature_types(), quosures)
   nms <- names(quosures)
 
   if ( !is.null(nms) && any(nms != "") && length(nms) != length(variables) )
@@ -945,20 +933,20 @@ step_ <- function(rec, ..., step, args, prefix) {
 
     stp <- do.call(step, args_)
 
-    rec$add_step(stp)
+    spec$add_step(stp)
   }
 
 
-  rec
+  spec
 }
 
 #' @export
-step_indicator_column <- function(rec, ...) {
-  step_(rec, ..., step = StepIndicatorColumn$new, args = list(), prefix = "indicator")
+step_indicator_column <- function(spec, ...) {
+  step_(spec, ..., step = StepIndicatorColumn$new, args = list(), prefix = "indicator")
 }
 
 #' @export
-step_embedding_column <- function(rec, ..., dimension, combiner = "mean",
+step_embedding_column <- function(spec, ..., dimension, combiner = "mean",
                                   initializer = NULL, ckpt_to_load_from = NULL,
                                   tensor_name_in_ckpt = NULL, max_norm = NULL,
                                   trainable = TRUE) {
@@ -974,16 +962,16 @@ step_embedding_column <- function(rec, ..., dimension, combiner = "mean",
     trainable = trainable
   )
 
-  step_(rec, ..., step = StepEmbeddingColumn$new, args = args, prefix = "embedding")
+  step_(spec, ..., step = StepEmbeddingColumn$new, args = args, prefix = "embedding")
 }
 
 #' @export
-step_bucketized_column <- function(rec, ..., boundaries) {
+step_bucketized_column <- function(spec, ..., boundaries) {
   args <- list(
     boundaries = boundaries
   )
 
-  step_(rec, ..., step = StepBucketizedColumn$new, args = args, prefix = "bucketized")
+  step_(spec, ..., step = StepBucketizedColumn$new, args = args, prefix = "bucketized")
 }
 
 make_multiple_columns_step_name <- function(quosure, variables, step) {
@@ -995,15 +983,15 @@ make_multiple_columns_step_name <- function(quosure, variables, step) {
   }
 }
 
-step_multiple_ <- function(rec, ..., step, args, prefix) {
+step_multiple_ <- function(spec, ..., step, args, prefix) {
 
-  rec <- rec$clone(deep = TRUE)
+  spec <- spec$clone(deep = TRUE)
   quosures <- quos(...)
 
 
   for (i in seq_along(quosures)) {
 
-    variables <- terms_select(rec$feature_names(), rec$feature_types(), quosures[i])
+    variables <- terms_select(spec$feature_names(), spec$feature_types(), quosures[i])
     args_ <- append(
       list(
         variables,
@@ -1014,27 +1002,27 @@ step_multiple_ <- function(rec, ..., step, args, prefix) {
 
     stp <- do.call(step, args_)
 
-    rec$add_step(stp)
+    spec$add_step(stp)
   }
 
-  rec
+  spec
 
 
 }
 
 #' @export
-step_crossed_column <- function(rec, ..., hash_bucket_size, hash_key = NULL) {
+step_crossed_column <- function(spec, ..., hash_bucket_size, hash_key = NULL) {
 
   args <- list(
     hash_bucket_size = hash_bucket_size,
     hash_key = hash_key
   )
 
-  step_multiple_(rec, ..., step = StepCrossedColumn$new, args = args, prefix = "crossed")
+  step_multiple_(spec, ..., step = StepCrossedColumn$new, args = args, prefix = "crossed")
 }
 
 #' @export
-step_shared_embeddings_column <- function(rec, ..., dimension, combiner = "mean",
+step_shared_embeddings_column <- function(spec, ..., dimension, combiner = "mean",
                                           initializer = NULL, shared_embedding_collection_name = NULL,
                                           ckpt_to_load_from = NULL, tensor_name_in_ckpt = NULL,
                                           max_norm = NULL, trainable = TRUE) {
@@ -1051,7 +1039,7 @@ step_shared_embeddings_column <- function(rec, ..., dimension, combiner = "mean"
   )
 
   step_multiple_(
-    rec, ...,
+    spec, ...,
     step = StepSharedEmbeddings$new,
     args = args,
     prefix = "shared_embeddings"

@@ -28,12 +28,13 @@ LazyData: true
 Depends:
     R (>= 3.1)
 Imports:
-    reticulate (>= 1.10), 
+    reticulate (>= 1.10),
     tensorflow (>= 1.13.1),
     magrittr,
     rlang,
     tidyselect,
-    stats
+    stats,
+    generics
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1
 Suggests:
