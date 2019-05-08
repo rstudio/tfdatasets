@@ -905,7 +905,7 @@ fit.FeatureSpec <- function(spec, dataset=NULL, ...) {
 #'   step_numeric_column(age)
 #'
 #' spec_fit <- fit(spec)
-#' final_dataset <- hearts %>% dataset_use_spec(hearts, spec_fit)
+#' final_dataset <- hearts %>% dataset_use_spec(spec_fit)
 #' }
 #' @family Feature Spec Functions
 #' @export
@@ -931,9 +931,12 @@ dataset_use_spec <- function(dataset, spec) {
 #'
 #' * [step_numeric_column()] to define numeric columns.
 #' * [step_categorical_column_with_vocabulary_list()] to define categorical columns.
-#' * [step_categorical_column_with_hash_bucket()]
-#' * [step_categorical_column_with_identity()]
-#' * [step_categorical_column_with_vocabulary_file()]
+#' * [step_categorical_column_with_hash_bucket()] to define categorical columns
+#'   where ids are set by hashing.
+#' * [step_categorical_column_with_identity()] to define categorical columns
+#'   represented by integers in the range `[0-num_buckets)`.
+#' * [step_categorical_column_with_vocabulary_file()] to define categorical columns
+#'   when their vocabulary is available in a file.
 #' * [step_indicator_column()]
 #' * [step_embedding_column()]
 #' * [step_bucketized_column()]
@@ -948,6 +951,50 @@ dataset_use_spec <- function(dataset, spec) {
 #' @family Feature Spec Functions
 NULL
 
+
+#' Creates a numeric column specification
+#'
+#' `step_numeric_column` creates a numeric column specification. It can also be
+#' used to normalize numeric columns.
+#'
+#' @param spec A feature specification created with [feature_spec()].
+#' @param ... Comma separated list of variable names to apply the step. [selectors] can also be used.
+#' @param shape An iterable of integers specifies the shape of the Tensor. An integer can be given
+#'   which means a single dimension Tensor with given width. The Tensor representing the column will
+#'   have the shape of `batch_size` + `shape`.
+#' @param default_value A single value compatible with `dtype` or an iterable of values compatible
+#'   with `dtype` which the column takes on during `tf.Example` parsing if data is missing. A
+#'   default value of `NULL` will cause `tf.parse_example` to fail if an example does not contain
+#'   this column. If a single value is provided, the same value will be applied as
+#'   the default value for every item. If an iterable of values is provided, the shape
+#'   of the default_value should be equal to the given shape.
+#' @param dtype defines the type of values. Default value is `tf$float32`. Must be a non-quantized,
+#'   real integer or floating point type.
+#' @param normalizer_fn If not `NULL`, a function that can be used to normalize the value
+#'   of the tensor after default_value is applied for parsing. Normalizer function takes the
+#'   input Tensor as its argument, and returns the output Tensor. (e.g. `function(x) (x - 3.0) / 4.2)`.
+#'   Please note that even though the most common use case of this function is normalization, it
+#'   can be used for any kind of Tensorflow transformations. You can also a pre-made [normalizer], in
+#'   this case a function will be created after [fit.FeatureSpec] is called on the feature specification.
+#'
+#' @return a `FeatureSpec` object.
+#'
+#' @examples
+#' \dontrun{
+#' library(tfdatasets)
+#' data(hearts)
+#' hearts <- tensor_slices_dataset(hearts) %>% dataset_batch(32)
+#'
+#' # use the formula interface
+#' spec <- feature_spec(hearts, target ~ age) %>%
+#'   step_numeric_column(age, normalizer_fn = standard_scaler())
+#'
+#' spec_fit <- fit(spec)
+#' final_dataset <- hearts %>% dataset_use_spec(spec_fit)
+#' }
+#'
+#' @seealso [steps] for a complete list of allowed steps.
+#'
 #' @family Feature Spec Functions
 #' @export
 step_numeric_column <- function(spec, ..., shape = 1L, default_value = NULL,
@@ -966,6 +1013,42 @@ step_numeric_column <- function(spec, ..., shape = 1L, default_value = NULL,
   spec
 }
 
+#' Creates a categorical column specification
+#'
+#' @inheritParams step_numeric_column
+#' @param vocabulary_list An ordered iterable defining the vocabulary. Each
+#'   feature is mapped to the index of its value (if present) in vocabulary_list.
+#'   Must be castable to `dtype`. If `NULL` the vocabulary will be defined as
+#'   all unique values in the dataset provided when fitting the specification.
+#' @param dtype The type of features. Only string and integer types are supported.
+#'   If `NULL`, it will be inferred from `vocabulary_list`.
+#' @param default_value The integer ID value to return for out-of-vocabulary feature
+#'   values, defaults to `-1`. This can not be specified with a positive
+#'   num_oov_buckets.
+#' @param num_oov_buckets Non-negative integer, the number of out-of-vocabulary buckets.
+#'   All out-of-vocabulary inputs will be assigned IDs in the range
+#'   `[lenght(vocabulary_list), length(vocabulary_list)+num_oov_buckets)` based on a hash of
+#'   the input value. A positive num_oov_buckets can not be specified with
+#'   default_value.
+#'
+#' @examples
+#' \dontrun{
+#' library(tfdatasets)
+#' data(hearts)
+#' hearts <- tensor_slices_dataset(hearts) %>% dataset_batch(32)
+#'
+#' # use the formula interface
+#' spec <- feature_spec(hearts, target ~ thal) %>%
+#'   step_categorical_column_with_vocabulary_list(thal)
+#'
+#' spec_fit <- fit(spec)
+#' final_dataset <- hearts %>% dataset_use_spec(spec_fit)
+#' }
+#'
+#' @return a `FeatureSpec` object.
+#' @seealso [steps] for a complete list of allowed steps.
+#'
+#' @family Feature Spec Functions
 #' @export
 step_categorical_column_with_vocabulary_list <- function(spec, ..., vocabulary_list = NULL,
                                                          dtype = NULL, default_value = -1L,
@@ -986,6 +1069,32 @@ step_categorical_column_with_vocabulary_list <- function(spec, ..., vocabulary_l
   spec
 }
 
+#' Creates a categorical column with hash buckets specification
+#'
+#' Represents sparse feature where ids are set by hashing.
+#'
+#' @inheritParams step_numeric_column
+#' @param hash_bucket_size An int > 1. The number of buckets.
+#' @param dtype The type of features. Only string and integer types are supported.
+#'
+#' @examples
+#' \dontrun{
+#' library(tfdatasets)
+#' data(hearts)
+#' hearts <- tensor_slices_dataset(hearts) %>% dataset_batch(32)
+#'
+#' # use the formula interface
+#' spec <- feature_spec(hearts, target ~ thal) %>%
+#'   step_categorical_column_with_hash_bucket(thal, hash_bucket_size = 3)
+#'
+#' spec_fit <- fit(spec)
+#' final_dataset <- hearts %>% dataset_use_spec(spec_fit)
+#' }
+#'
+#' @return a `FeatureSpec` object.
+#' @seealso [steps] for a complete list of allowed steps.
+#'
+#' @family Feature Spec Functions
 #' @export
 step_categorical_column_with_hash_bucket <- function(spec, ..., hash_bucket_size,
                                                      dtype = tf$string) {
@@ -1007,6 +1116,37 @@ step_categorical_column_with_hash_bucket <- function(spec, ..., hash_bucket_size
   spec
 }
 
+#' Create a categorical column with identity
+#'
+#' Use this when your inputs are integers in the range `[0-num_buckets)`.
+#'
+#' @inheritParams step_numeric_column
+#' @param num_buckets Range of inputs and outputs is `[0, num_buckets)`.
+#' @param default_value If `NULL`, this column's graph operations will fail
+#'   for out-of-range inputs. Otherwise, this value must be in the range
+#'   `[0, num_buckets)`, and will replace inputs in that range.
+#'
+#' @examples
+#' \dontrun{
+#' library(tfdatasets)
+#' data(hearts)
+#'
+#' hearts$thal <- as.integer(as.factor(hearts$thal)) - 1L
+#'
+#' hearts <- tensor_slices_dataset(hearts) %>% dataset_batch(32)
+#'
+#' # use the formula interface
+#' spec <- feature_spec(hearts, target ~ thal) %>%
+#'   step_categorical_column_with_identity(thal, num_buckets = 5)
+#'
+#' spec_fit <- fit(spec)
+#' final_dataset <- hearts %>% dataset_use_spec(spec_fit)
+#' }
+#'
+#' @return a `FeatureSpec` object.
+#' @seealso [steps] for a complete list of allowed steps.
+#'
+#' @family Feature Spec Functions
 #' @export
 step_categorical_column_with_identity <- function(spec, ..., num_buckets,
                                                      default_value = NULL) {
@@ -1028,6 +1168,48 @@ step_categorical_column_with_identity <- function(spec, ..., num_buckets,
   spec
 }
 
+#' Creates a categorical column with vocabulary file
+#'
+#' Use this function when the vocabulary of a categorical variable
+#' is written to a file.
+#'
+#' @inheritParams step_numeric_column
+#' @param vocabulary_file The vocabulary file name.
+#' @param vocabulary_size Number of the elements in the vocabulary. This
+#'   must be no greater than length of `vocabulary_file`, if less than
+#'   length, later values are ignored. If None, it is set to the length of
+#'   `vocabulary_file`.
+#' @param dtype The type of features. Only string and integer types are
+#'   supported.
+#' @param default_value The integer ID value to return for out-of-vocabulary
+#'   feature values, defaults to `-1`. This can not be specified with a
+#'   positive `num_oov_buckets`.
+#' @param num_oov_buckets Non-negative integer, the number of out-of-vocabulary
+#'   buckets. All out-of-vocabulary inputs will be assigned IDs in the range
+#'   `[vocabulary_size, vocabulary_size+num_oov_buckets)` based on a hash of
+#'   the input value. A positive `num_oov_buckets` can not be specified with
+#'   default_value.
+#'
+#' @examples
+#' \dontrun{
+#' library(tfdatasets)
+#' data(hearts)
+#' file <- tempfile()
+#' writeLines(unique(hearts$thal), file)
+#' hearts <- tensor_slices_dataset(hearts) %>% dataset_batch(32)
+#'
+#' # use the formula interface
+#' spec <- feature_spec(hearts, target ~ thal) %>%
+#'   step_categorical_column_with_vocabulary_file(thal, vocabulary_file = file)
+#'
+#' spec_fit <- fit(spec)
+#' final_dataset <- hearts %>% dataset_use_spec(spec_fit)
+#' }
+#'
+#' @return a `FeatureSpec` object.
+#' @seealso [steps] for a complete list of allowed steps.
+#'
+#' @family Feature Spec Functions
 #' @export
 step_categorical_column_with_vocabulary_file <- function(spec, ..., vocabulary_file,
                                                          vocabulary_size = NULL,

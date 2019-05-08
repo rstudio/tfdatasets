@@ -45,6 +45,11 @@ spec_fit
 }
 
 Other Feature Spec Functions: \code{\link{dataset_use_spec}},
-  \code{\link{feature_spec}}, \code{\link{steps}}
+  \code{\link{feature_spec}},
+  \code{\link{step_categorical_column_with_hash_bucket}},
+  \code{\link{step_categorical_column_with_identity}},
+  \code{\link{step_categorical_column_with_vocabulary_file}},
+  \code{\link{step_categorical_column_with_vocabulary_list}},
+  \code{\link{step_numeric_column}}, \code{\link{steps}}
 }
 \concept{Feature Spec Functions}
