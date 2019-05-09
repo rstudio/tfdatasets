@@ -41,7 +41,8 @@ Suggests:
     testthat,
     knitr,
     tfestimators,
-    keras
+    keras,
+    rsample
 Remotes:
     rstudio/keras
 VignetteBuilder: knitr

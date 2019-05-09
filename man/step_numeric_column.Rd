@@ -30,7 +30,7 @@ real integer or floating point type.}
 of the tensor after default_value is applied for parsing. Normalizer function takes the
 input Tensor as its argument, and returns the output Tensor. (e.g. \code{function(x) (x - 3.0) / 4.2)}.
 Please note that even though the most common use case of this function is normalization, it
-can be used for any kind of Tensorflow transformations. You can also a pre-made \link{normalizer}, in
+can be used for any kind of Tensorflow transformations. You can also a pre-made \link{scaler}, in
 this case a function will be created after \link{fit.FeatureSpec} is called on the feature specification.}
 }
 \value{
@@ -61,10 +61,15 @@ final_dataset <- hearts \%>\% dataset_use_spec(spec_fit)
 Other Feature Spec Functions: \code{\link{dataset_use_spec}},
   \code{\link{feature_spec}},
   \code{\link{fit.FeatureSpec}},
+  \code{\link{step_bucketized_column}},
   \code{\link{step_categorical_column_with_hash_bucket}},
   \code{\link{step_categorical_column_with_identity}},
   \code{\link{step_categorical_column_with_vocabulary_file}},
   \code{\link{step_categorical_column_with_vocabulary_list}},
+  \code{\link{step_crossed_column}},
+  \code{\link{step_embedding_column}},
+  \code{\link{step_indicator_column}},
+  \code{\link{step_shared_embeddings_column}},
   \code{\link{steps}}
 }
 \concept{Feature Spec Functions}

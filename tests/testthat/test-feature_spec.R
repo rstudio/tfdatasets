@@ -204,7 +204,7 @@ test_that("Using with layer_dense_features", {
   expect_equal(x$shape$as_list(), c(2, 2 + 2*26))
 })
 
-test_that("Recipes are corspectly cloned/imutable", {
+test_that("Recipes are correctly cloned/imutable", {
   skip_if_not_eager_and_tf()
 
   spec <- feature_spec(dataset, y ~ a+b+c+d) %>%
@@ -249,7 +249,7 @@ test_that("Recipes column types", {
   )
 })
 
-test_that("Bake feature_spec", {
+test_that("Fit feature_spec", {
   skip_if_not_eager_and_tf()
 
   spec <- feature_spec(dataset, y ~ a + b + c + d) %>%

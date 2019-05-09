@@ -28,6 +28,12 @@ dtype_chr <- function(x) {
 #' * [has_type()]
 #' * [all_numeric()]
 #' * [all_nominal()]
+#' * [starts_with()]
+#' * [ends_with()]
+#' * [one_of()]
+#' * [matches()]
+#' * [contains()]
+#' * [everything()]
 #'
 #' @name selectors
 #' @rdname selectors
@@ -57,7 +63,7 @@ current_info <- function() {
 #' @export
 has_type <- function(match = "float32") {
   info <- current_info()
-  lgl_matches <- purrr::map_lgl(info$feature_types, ~any(.x %in% match))
+  lgl_matches <- sapply(info$feature_types, function(x) any(x %in% match))
   info$feature_names[which(lgl_matches)]
 }
 
@@ -94,6 +100,34 @@ all_numeric <- function() {
 all_nominal <- function() {
   has_type(c("string"))
 }
+
+#' @importFrom tidyselect starts_with
+#' @export
+tidyselect::starts_with
+
+#' @importFrom tidyselect ends_with
+#' @export
+tidyselect::ends_with
+
+#' @importFrom tidyselect contains
+#' @export
+tidyselect::contains
+
+#' @importFrom tidyselect everything
+#' @export
+tidyselect::everything
+
+#' @importFrom tidyselect matches
+#' @export
+tidyselect::matches
+
+#' @importFrom tidyselect num_range
+#' @export
+tidyselect::num_range
+
+#' @importFrom tidyselect one_of
+#' @export
+tidyselect::one_of
 
 # FeatureSpec ------------------------------------------------------------------
 
@@ -304,8 +338,8 @@ DerivedStep <- R6::R6Class(
 
 # Scalers -----------------------------------------------------------------
 
-Normalizer <- R6::R6Class(
-  "Normalizer",
+Scaler <- R6::R6Class(
+  "Scaler",
   public = list(
     fit_batch = function(batch) {
 
@@ -321,7 +355,7 @@ Normalizer <- R6::R6Class(
 
 StandardScaler <- R6::R6Class(
   "StandardScaler",
-  inherit = Normalizer,
+  inherit = Scaler,
   public = list(
     sum = 0,
     sum_2 = 0,
@@ -352,14 +386,9 @@ StandardScaler <- R6::R6Class(
   )
 )
 
-#' @export
-standard_scaler <- function() {
-  StandardScaler$new()
-}
-
 MinMaxScaler <- R6::R6Class(
   "MinMaxScaler",
-  inherit = Normalizer,
+  inherit = Scaler,
   public = list(
     min = Inf,
     max = -Inf,
@@ -382,11 +411,35 @@ MinMaxScaler <- R6::R6Class(
   )
 )
 
+#' List of pre-made scaler
+#'
+#' * [scaler_standard]: mean and standard deviation normalizer.
+#' * [scaler_min_max]: min max normalizer
+#'
+#' @seealso [step_numeric_column]
+#' @name scaler
+#' @rdname scaler
+NULL
+
+#' Creates an instance of a standard scaler
+#'
+#' This scaler will learn the mean and the standard deviation
+#' and use this to create a `normalizer_fn`.
+#'
+#' @seealso [scaler] to a complete list of normalizers
+#' @family scaler
 #' @export
 scaler_standard <- function() {
   StandardScaler$new()
 }
 
+#' Creates an instance of a min max scaler
+#'
+#' This scaler will learn the min and max of the numeric variable
+#' and use this to create a `normalizer_fn`.
+#'
+#' @seealso [scaler] to a complete list of normalizers
+#' @family scaler
 #' @export
 scaler_min_max <- function() {
   MinMaxScaler$new()
@@ -414,12 +467,12 @@ StepNumericColumn <- R6::R6Class(
       self$column_type = dtype_chr(dtype)
     },
     fit_batch = function(batch) {
-      if (inherits(self$normalizer_fn, "Normalizer")) {
+      if (inherits(self$normalizer_fn, "Scaler")) {
         self$normalizer_fn$fit_batch(as.numeric(batch[[self$key]]))
       }
     },
     fit_resume = function() {
-      if (inherits(self$normalizer_fn, "Normalizer")) {
+      if (inherits(self$normalizer_fn, "Scaler")) {
         self$normalizer_fn$fit_resume()
         self$normalizer_fn <- self$normalizer_fn$fun()
       }
@@ -842,7 +895,7 @@ feature_spec <- function(dataset, x, y = NULL) {
 #' for example, the levels of categorical features, normalization
 #' constants, etc.
 #'
-#' @param spec A feature specification created with [feature_spec()].
+#' @param object A feature specification created with [feature_spec()].
 #' @param dataset (Optional) A TensorFlow dataset. If `NULL` it will use
 #'   the dataset provided when initilializing the `feature_spec`.
 #' @param ... (unused)
@@ -869,8 +922,8 @@ feature_spec <- function(dataset, x, y = NULL) {
 #' }
 #' @family Feature Spec Functions
 #' @export
-fit.FeatureSpec <- function(spec, dataset=NULL, ...) {
-  spec <- spec$clone(deep = TRUE)
+fit.FeatureSpec <- function(object, dataset=NULL, ...) {
+  spec <- object$clone(deep = TRUE)
 
   if (!is.null(dataset))
     spec$set_dataset(dataset)
@@ -937,11 +990,12 @@ dataset_use_spec <- function(dataset, spec) {
 #'   represented by integers in the range `[0-num_buckets)`.
 #' * [step_categorical_column_with_vocabulary_file()] to define categorical columns
 #'   when their vocabulary is available in a file.
-#' * [step_indicator_column()]
-#' * [step_embedding_column()]
-#' * [step_bucketized_column()]
-#' * [step_crossed_column()]
-#' * [step_shared_embeddings_column()]
+#' * [step_indicator_column()] to create indicator columns from categorical columns.
+#' * [step_embedding_column()] to create embeddings columns from categorical columns.
+#' * [step_bucketized_column()] to create bucketized columns from numeric columns.
+#' * [step_crossed_column()] to perform crosses of categorical columns.
+#' * [step_shared_embeddings_column()] to share embeddings between a list of
+#'   categorical columns.
 #'
 #' @seealso
 #' * [selectors] for a list of selectors that can be used to specify variables.
@@ -974,7 +1028,7 @@ NULL
 #'   of the tensor after default_value is applied for parsing. Normalizer function takes the
 #'   input Tensor as its argument, and returns the output Tensor. (e.g. `function(x) (x - 3.0) / 4.2)`.
 #'   Please note that even though the most common use case of this function is normalization, it
-#'   can be used for any kind of Tensorflow transformations. You can also a pre-made [normalizer], in
+#'   can be used for any kind of Tensorflow transformations. You can also a pre-made [scaler], in
 #'   this case a function will be created after [fit.FeatureSpec] is called on the feature specification.
 #'
 #' @return a `FeatureSpec` object.
@@ -1277,11 +1331,79 @@ step_ <- function(spec, ..., step, args, prefix) {
   spec
 }
 
+#' Creates Indicator Columns
+#'
+#' Use this step to create indicator columns from categorical columns.
+#'
+#' @inheritParams step_numeric_column
+#'
+#' @examples
+#' \dontrun{
+#' library(tfdatasets)
+#' data(hearts)
+#' file <- tempfile()
+#' writeLines(unique(hearts$thal), file)
+#' hearts <- tensor_slices_dataset(hearts) %>% dataset_batch(32)
+#'
+#' # use the formula interface
+#' spec <- feature_spec(hearts, target ~ thal) %>%
+#'   step_categorical_column_with_vocabulary_list(thal) %>%
+#'   step_indicator_column(thal)
+#' spec_fit <- fit(spec)
+#' final_dataset <- hearts %>% dataset_use_spec(spec_fit)
+#' }
+#' @return a `FeatureSpec` object.
+#' @seealso [steps] for a complete list of allowed steps.
+#'
+#' @family Feature Spec Functions
 #' @export
 step_indicator_column <- function(spec, ...) {
   step_(spec, ..., step = StepIndicatorColumn$new, args = list(), prefix = "indicator")
 }
 
+#' Creates embeddings columns
+#'
+#' Use this step to create ambeddings columns from categorical
+#' columns.
+#'
+#' @inheritParams step_numeric_column
+#' @param dimension An integer specifying dimension of the embedding, must be > 0.
+#' @param combiner A string specifying how to reduce if there are multiple entries in
+#'   a single row. Currently 'mean', 'sqrtn' and 'sum' are supported, with 'mean' the
+#'   default. 'sqrtn' often achieves good accuracy, in particular with bag-of-words
+#'   columns. Each of this can be thought as example level normalizations on
+#'   the column. For more information, see `tf.embedding_lookup_sparse`.
+#' @param initializer A variable initializer function to be used in embedding
+#'   variable initialization. If not specified, defaults to
+#'   `tf.truncated_normal_initializer` with mean `0.0` and standard deviation
+#'   `1/sqrt(dimension)`.
+#' @param ckpt_to_load_from String representing checkpoint name/pattern from
+#'   which to restore column weights. Required if `tensor_name_in_ckpt` is
+#'   not `NULL`.
+#' @param tensor_name_in_ckpt Name of the Tensor in ckpt_to_load_from from which to
+#'   restore the column weights. Required if `ckpt_to_load_from` is not `NULL`.
+#' @param max_norm If not `NULL`, embedding values are l2-normalized to this value.
+#' @param trainable Whether or not the embedding is trainable. Default is `TRUE`.
+#'
+#' @examples
+#' \dontrun{
+#' library(tfdatasets)
+#' data(hearts)
+#' file <- tempfile()
+#' writeLines(unique(hearts$thal), file)
+#' hearts <- tensor_slices_dataset(hearts) %>% dataset_batch(32)
+#'
+#' # use the formula interface
+#' spec <- feature_spec(hearts, target ~ thal) %>%
+#'   step_categorical_column_with_vocabulary_list(thal) %>%
+#'   step_embedding_column(thal, dimension = 3)
+#' spec_fit <- fit(spec)
+#' final_dataset <- hearts %>% dataset_use_spec(spec_fit)
+#' }
+#' @return a `FeatureSpec` object.
+#' @seealso [steps] for a complete list of allowed steps.
+#'
+#' @family Feature Spec Functions
 #' @export
 step_embedding_column <- function(spec, ..., dimension, combiner = "mean",
                                   initializer = NULL, ckpt_to_load_from = NULL,
@@ -1302,6 +1424,32 @@ step_embedding_column <- function(spec, ..., dimension, combiner = "mean",
   step_(spec, ..., step = StepEmbeddingColumn$new, args = args, prefix = "embedding")
 }
 
+#' Creates bucketized columns
+#'
+#' Use this step to create bucketized columns from numeric columns.
+#'
+#' @inheritParams step_numeric_column
+#' @param boundaries A sorted list or tuple of floats specifying the boundaries.
+#'
+#' @examples
+#' \dontrun{
+#' library(tfdatasets)
+#' data(hearts)
+#' file <- tempfile()
+#' writeLines(unique(hearts$thal), file)
+#' hearts <- tensor_slices_dataset(hearts) %>% dataset_batch(32)
+#'
+#' # use the formula interface
+#' spec <- feature_spec(hearts, target ~ age) %>%
+#'   step_numeric_column(age) %>%
+#'   step_bucketized_column(age, boundaries = c(10, 20, 30))
+#' spec_fit <- fit(spec)
+#' final_dataset <- hearts %>% dataset_use_spec(spec_fit)
+#' }
+#' @return a `FeatureSpec` object.
+#' @seealso [steps] for a complete list of allowed steps.
+#'
+#' @family Feature Spec Functions
 #' @export
 step_bucketized_column <- function(spec, ..., boundaries) {
   args <- list(
@@ -1347,6 +1495,35 @@ step_multiple_ <- function(spec, ..., step, args, prefix) {
 
 }
 
+#' Creates crosses of categorical columns
+#'
+#' Use this step to create crosses between categorical columns.
+#'
+#' @inheritParams step_numeric_column
+#' @param hash_bucket_size An int > 1. The number of buckets.
+#' @param hash_key (optional) Specify the hash_key that will be used by the
+#'   FingerprintCat64 function to combine the crosses fingerprints on
+#'   SparseCrossOp.
+#'
+#' @examples
+#' \dontrun{
+#' library(tfdatasets)
+#' data(hearts)
+#' file <- tempfile()
+#' writeLines(unique(hearts$thal), file)
+#' hearts <- tensor_slices_dataset(hearts) %>% dataset_batch(32)
+#'
+#' # use the formula interface
+#' spec <- feature_spec(hearts, target ~ age) %>%
+#'   step_numeric_column(age) %>%
+#'   step_bucketized_column(age, boundaries = c(10, 20, 30))
+#' spec_fit <- fit(spec)
+#' final_dataset <- hearts %>% dataset_use_spec(spec_fit)
+#' }
+#' @return a `FeatureSpec` object.
+#' @seealso [steps] for a complete list of allowed steps.
+#'
+#' @family Feature Spec Functions
 #' @export
 step_crossed_column <- function(spec, ..., hash_bucket_size, hash_key = NULL) {
 
@@ -1358,6 +1535,22 @@ step_crossed_column <- function(spec, ..., hash_bucket_size, hash_key = NULL) {
   step_multiple_(spec, ..., step = StepCrossedColumn$new, args = args, prefix = "crossed")
 }
 
+#' Creates shared embeddings for categorical columns
+#'
+#' This is similar to [step_embedding_column], except that it produces a list of
+#' embedding columns that share the same embedding weights.
+#'
+#' @inheritParams step_embedding_column
+#' @param shared_embedding_collection_name Optional collective name of
+#'   these columns. If not given, a reasonable name will be chosen based on
+#'   the names of categorical_columns.
+#'
+#' @note Does not work in the eager mode.
+#'
+#' @return a `FeatureSpec` object.
+#' @seealso [steps] for a complete list of allowed steps.
+#'
+#' @family Feature Spec Functions
 #' @export
 step_shared_embeddings_column <- function(spec, ..., dimension, combiner = "mean",
                                           initializer = NULL, shared_embedding_collection_name = NULL,

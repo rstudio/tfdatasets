@@ -19,6 +19,12 @@ steps.
 \item \code{\link[=has_type]{has_type()}}
 \item \code{\link[=all_numeric]{all_numeric()}}
 \item \code{\link[=all_nominal]{all_nominal()}}
+\item \code{\link[=starts_with]{starts_with()}}
+\item \code{\link[=ends_with]{ends_with()}}
+\item \code{\link[=one_of]{one_of()}}
+\item \code{\link[=matches]{matches()}}
+\item \code{\link[=contains]{contains()}}
+\item \code{\link[=everything]{everything()}}
 }
 }
 

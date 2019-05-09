@@ -4,10 +4,10 @@
 \alias{fit.FeatureSpec}
 \title{Fits a feature specification.}
 \usage{
-\method{fit}{FeatureSpec}(spec, dataset = NULL, ...)
+\method{fit}{FeatureSpec}(object, dataset = NULL, ...)
 }
 \arguments{
-\item{spec}{A feature specification created with \code{\link[=feature_spec]{feature_spec()}}.}
+\item{object}{A feature specification created with \code{\link[=feature_spec]{feature_spec()}}.}
 
 \item{dataset}{(Optional) A TensorFlow dataset. If \code{NULL} it will use
 the dataset provided when initilializing the \code{feature_spec}.}
@@ -46,10 +46,16 @@ spec_fit
 
 Other Feature Spec Functions: \code{\link{dataset_use_spec}},
   \code{\link{feature_spec}},
+  \code{\link{step_bucketized_column}},
   \code{\link{step_categorical_column_with_hash_bucket}},
   \code{\link{step_categorical_column_with_identity}},
   \code{\link{step_categorical_column_with_vocabulary_file}},
   \code{\link{step_categorical_column_with_vocabulary_list}},
-  \code{\link{step_numeric_column}}, \code{\link{steps}}
+  \code{\link{step_crossed_column}},
+  \code{\link{step_embedding_column}},
+  \code{\link{step_indicator_column}},
+  \code{\link{step_numeric_column}},
+  \code{\link{step_shared_embeddings_column}},
+  \code{\link{steps}}
 }
 \concept{Feature Spec Functions}

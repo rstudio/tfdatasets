@@ -3,7 +3,7 @@ title: "Feature Spec interface"
 output: 
   rmarkdown::html_vignette: default
 vignette: >
-  %\VignetteIndexEntry{Introduction}
+  %\VignetteIndexEntry{Feature Spec Interface}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 type: docs
