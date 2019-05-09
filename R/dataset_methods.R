@@ -1,5 +1,4 @@
 
-
 #' Repeats a dataset count times.
 #'
 #' @param dataset A dataset
@@ -157,7 +156,8 @@ dataset_take <- function(dataset, count) {
 #' @param dataset A dataset
 #' @param map_func A function mapping a nested structure of tensors (having
 #'   shapes and types defined by [output_shapes()] and [output_types()] to
-#'   another nested structure of tensors.
+#'   another nested structure of tensors. It also supports `purrr` style
+#'   lambda functions powered by [rlang::as_function()].
 #' @param num_parallel_calls (Optional) An integer, representing the
 #'   number of elements to process in parallel If not specified, elements will
 #'   be processed sequentially.
@@ -169,7 +169,7 @@ dataset_take <- function(dataset, count) {
 #' @export
 dataset_map <- function(dataset, map_func, num_parallel_calls = NULL) {
   as_tf_dataset(dataset$map(
-    map_func = map_func,
+    map_func = rlang::as_function(map_func),
     num_parallel_calls = as_integer_tensor(num_parallel_calls, tf$int32)
   ))
 }
@@ -200,7 +200,7 @@ dataset_map_and_batch <- function(dataset,
   validate_tf_version("1.8", "dataset_map_and_batch")
   as_tf_dataset(dataset$apply(
     tfd_map_and_batch(
-      map_func,
+      rlang::as_function(map_func),
       as.integer(batch_size),
       as_integer_tensor(num_parallel_batches),
       drop_remainder,
@@ -634,6 +634,32 @@ as_tf_dataset <- function(dataset) {
 }
 
 
+#' Combines input elements into a dataset of windows.
+#'
+#' @param dataset A dataset
+#' @param size representing the number of elements of the input dataset to
+#'    combine into a window.
+#' @param shift epresenting the forward shift of the sliding window in each
+#'    iteration. Defaults to `size`.
+#' @param stride representing the stride of the input elements in the sliding
+#'    window.
+#' @param drop_remainder representing whether a window should be dropped in
+#'    case its size is smaller `than window_size`.
+#'
+#' @family dataset methods
+#'
+#' @export
+dataset_window <- function(dataset, size, shift = NULL, stride = 1,
+                           drop_remainder = FALSE) {
+  as_tf_dataset(
+    dataset$window(
+      size = as_integer_tensor(size),
+      shift = as_integer_tensor(shift),
+      stride = as_integer_tensor(stride),
+      drop_remainder = drop_remainder
+    )
+  )
+}
 
 
 

@@ -11,7 +11,8 @@ dataset_map(dataset, map_func, num_parallel_calls = NULL)
 
 \item{map_func}{A function mapping a nested structure of tensors (having
 shapes and types defined by \code{\link[=output_shapes]{output_shapes()}} and \code{\link[=output_types]{output_types()}} to
-another nested structure of tensors.}
+another nested structure of tensors. It also supports \code{purrr} style
+lambda functions powered by \code{\link[rlang:as_function]{rlang::as_function()}}.}
 
 \item{num_parallel_calls}{(Optional) An integer, representing the
 number of elements to process in parallel If not specified, elements will
@@ -37,6 +38,7 @@ Other dataset methods: \code{\link{dataset_batch}},
   \code{\link{dataset_repeat}},
   \code{\link{dataset_shuffle_and_repeat}},
   \code{\link{dataset_shuffle}},
-  \code{\link{dataset_skip}}, \code{\link{dataset_take}}
+  \code{\link{dataset_skip}}, \code{\link{dataset_take}},
+  \code{\link{dataset_window}}
 }
 \concept{dataset methods}
