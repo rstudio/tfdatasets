@@ -45,5 +45,5 @@ Suggests:
     rsample,
     rmarkdown
 Remotes:
-    rstudio/keras
+    rstudio/keras#751
 VignetteBuilder: knitr
