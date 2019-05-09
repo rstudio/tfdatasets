@@ -42,7 +42,8 @@ Suggests:
     knitr,
     tfestimators,
     keras,
-    rsample
+    rsample,
+    rmarkdown
 Remotes:
     rstudio/keras
 VignetteBuilder: knitr
