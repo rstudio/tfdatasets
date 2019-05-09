@@ -63,6 +63,17 @@ test_succeeds("dataset_map handles threads correctly and returns a dataset", {
   dataset <- tensors_dataset(tf$constant(1:100)) %>%
     dataset_map(function(x) { gc(); tf$negative(x) }, num_parallel_calls = 8) %>%
     dataset_prefetch(1)
+
+  dataset <- tensors_dataset(tf$constant(1:100)) %>%
+    dataset_map(~tf$negative(.x), num_parallel_calls = 8) %>%
+    dataset_prefetch(1)
+
+  if (tensorflow::tf_version() >= "2.0") {
+    expect_equal(
+      as.numeric(reticulate::iter_next(reticulate::as_iterator(dataset))),
+      -(1:100)
+    )
+  }
 })
 
 test_succeeds("dataset_map_and_batch returns a dataset", {
@@ -71,10 +82,28 @@ test_succeeds("dataset_map_and_batch returns a dataset", {
       function(x) { x }
     ) %>%
     dataset_prefetch(1)
+
+  dataset <- range_dataset(1, 100) %>%
+    dataset_map_and_batch(batch_size = 32, drop_remainder = TRUE, ~ -.x) %>%
+    dataset_prefetch(1)
+
+  if (tensorflow::tf_version() >= "2.0") {
+    expect_equal(
+      as.numeric(reticulate::iter_next(reticulate::as_iterator(dataset))),
+      -(1:32)
+    )
+  }
 })
 
 
 test_succeeds("dataset_prefetch_to_device returns a dataset", {
+  dataset <- tensors_dataset(tf$constant(1:100)) %>%
+    dataset_map_and_batch(batch_size = 32, drop_remainder = TRUE,
+                          function(x) { x }
+    ) %>%
+    dataset_prefetch_to_device("/cpu:0", 1)
+
+
   dataset <- tensors_dataset(tf$constant(1:100)) %>%
     dataset_map_and_batch(batch_size = 32, drop_remainder = TRUE,
                           function(x) { x }
@@ -149,6 +178,11 @@ test_succeeds("dataset_padded_batch returns a dataset", {
 
 test_succeeds("zip_datasets returns a dataset", {
   zip_datasets(list(tensors_dataset(tf$constant(1:100)), tensors_dataset(tf$constant(101:200))))
+})
+
+test_succeeds("dataset_windows ombines input elements into a dataset of windows", {
+  d <- range_dataset(1, 100) %>%
+    dataset_window(size = 5)
 })
 
 
