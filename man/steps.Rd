@@ -23,6 +23,7 @@ when their vocabulary is available in a file.
 \item \code{\link[=step_crossed_column]{step_crossed_column()}} to perform crosses of categorical columns.
 \item \code{\link[=step_shared_embeddings_column]{step_shared_embeddings_column()}} to share embeddings between a list of
 categorical columns.
+\item \code{\link[=step_remove_column]{step_remove_column()}} to remove columns from the specification.
 }
 }
 
@@ -43,6 +44,7 @@ Other Feature Spec Functions: \code{\link{dataset_use_spec}},
   \code{\link{step_embedding_column}},
   \code{\link{step_indicator_column}},
   \code{\link{step_numeric_column}},
+  \code{\link{step_remove_column}},
   \code{\link{step_shared_embeddings_column}}
 }
 \concept{Feature Spec Functions}

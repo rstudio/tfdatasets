@@ -66,6 +66,7 @@ Other Feature Spec Functions: \code{\link{dataset_use_spec}},
   \code{\link{step_crossed_column}},
   \code{\link{step_embedding_column}},
   \code{\link{step_indicator_column}},
-  \code{\link{step_numeric_column}}, \code{\link{steps}}
+  \code{\link{step_numeric_column}},
+  \code{\link{step_remove_column}}, \code{\link{steps}}
 }
 \concept{Feature Spec Functions}

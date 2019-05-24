@@ -1017,6 +1017,7 @@ dataset_use_spec <- function(dataset, spec) {
 #' * [step_crossed_column()] to perform crosses of categorical columns.
 #' * [step_shared_embeddings_column()] to share embeddings between a list of
 #'   categorical columns.
+#' * [step_remove_column()] to remove columns from the specification.
 #'
 #' @seealso
 #' * [selectors] for a list of selectors that can be used to specify variables.

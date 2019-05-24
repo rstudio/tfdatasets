@@ -53,6 +53,7 @@ Other Feature Spec Functions: \code{\link{dataset_use_spec}},
   \code{\link{step_embedding_column}},
   \code{\link{step_indicator_column}},
   \code{\link{step_numeric_column}},
+  \code{\link{step_remove_column}},
   \code{\link{step_shared_embeddings_column}},
   \code{\link{steps}}
 }
