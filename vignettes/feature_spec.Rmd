@@ -157,7 +157,7 @@ spec <- feature_spec(dataset_train, target ~ .) %>%
   step_bucketized_column(age, boundaries = c(18, 25, 30, 35, 40, 45, 50, 55, 60, 65)) %>% 
   step_indicator_column(thal) %>% 
   step_embedding_column(thal, dimension = 2) %>% 
-  step_crossed_column(c(thal, bucketized_age), hash_bucket_size = 1000) %>%
+  step_crossed_column(c(thal, bucketized_age), hash_bucket_size = 10) %>%
   step_indicator_column(crossed_thal_bucketized_age)
 ```
 
@@ -206,7 +206,7 @@ dataset_train <- dataset_train %>% dataset_use_spec(spec_prep)
 dataset_test <- dataset_test %>% dataset_use_spec(spec_prep)
 
 history <- model %>% 
-  fit(dataset_train, epochs = 10, validation_data = dataset_test)
+  fit(dataset_train, epochs = 15, validation_data = dataset_test)
 
 plot(history)
 ```
