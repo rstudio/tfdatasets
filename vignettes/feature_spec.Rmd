@@ -179,32 +179,38 @@ After preparing we can see the list of dense features that were defined:
 str(spec_prep$dense_features())
 ```
 
+We can now prepare our training a testing dataset using:
+
+```{r}
+dataset_train <- dataset_train %>% dataset_use_spec(spec_prep)
+dataset_test <- dataset_test %>% dataset_use_spec(spec_prep)
+```
+
 Now we are ready to define our model in Keras. We will use a specialized `layer_dense_features` that
 knows what to do with the feature columns specification.
 
 ```{r}
 library(keras)
 
-dense_features <- layer_dense_features(feature_columns = spec_prep$dense_features())
+input <- layer_input_from_dataset(dataset_train)
 
-model <- keras_model_sequential(layers = list(
-  dense_features,
-  layer_dense(units = 32, activation = "relu"),
+output <- input %>% 
+  layer_dense_features(spec_prep$dense_features()) %>% 
+  layer_dense(units = 32, activation = "relu") %>% 
   layer_dense(units = 1, activation = "sigmoid")
-))
 
-model %>% compile(loss = loss_binary_crossentropy, 
-                  optimizer = "adam", 
-                  metrics = "binary_accuracy")
+model <- keras_model(input, output)
+
+model %>% compile(
+  loss = loss_binary_crossentropy, 
+  optimizer = "adam", 
+  metrics = "binary_accuracy"
+)
 ```
 
 We can finaly train the model in the dataset:
 
 ```{r, warning=FALSE}
-dataset_train <- dataset_train %>% dataset_use_spec(spec_prep)
-
-dataset_test <- dataset_test %>% dataset_use_spec(spec_prep)
-
 history <- model %>% 
   fit(dataset_train, epochs = 15, validation_data = dataset_test)
 

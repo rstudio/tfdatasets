@@ -1689,6 +1689,7 @@ layer_input_from_dataset <- function(dataset) {
   for (i in seq_along(col_names)) {
 
     x <- list(keras::layer_input(
+      name = col_names[i],
       batch_shape = col_shapes[[i]]$as_list(),
       dtype = col_types[[i]]$name
     ))
