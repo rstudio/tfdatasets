@@ -276,7 +276,14 @@ FeatureSpec <- R6::R6Class(
       if (length(self$steps) > 0) {
         step_types <- sapply(self$steps, function(x) class(x)[1])
         for (step_type in sort(unique(step_types))) {
-          cat(paste0(cli::style_bold(step_type), ":"), paste(names(step_types[step_types == step_type]), collapse = ", "), "\n")
+          cat(
+            paste0(cli::style_bold(step_type), ":"),
+            paste(
+              names(step_types[step_types == step_type]),
+              collapse = ", "
+            ),
+            "\n"
+          )
         }
       }
     }
@@ -347,6 +354,7 @@ RemoveStep <- R6::R6Class(
 
     initialize = function(var) {
       self$var <- var
+      self$name <- var
     }
 
   )
