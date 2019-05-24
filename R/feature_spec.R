@@ -1640,3 +1640,56 @@ step_shared_embeddings_column <- function(spec, ..., dimension, combiner = "mean
     prefix = "shared_embeddings"
   )
 }
+
+# Input from spec ---------------------------------------------------------
+
+#' Creates a list of inputs from a dataset
+#'
+#' Create a list ok Keras input layers that can be used together
+#' with [layer_dense_features()].
+#'
+#' @param dataset a TensorFlow dataset returned by
+#' @return a list of Keras input layers
+#'
+#' @examples
+#' \dontrun{
+#' library(tfdatasets)
+#' data(hearts)
+#' hearts <- tensor_slices_dataset(hearts) %>% dataset_batch(32)
+#'
+#' # use the formula interface
+#' spec <- feature_spec(hearts, target ~ age + slope) %>%
+#'   step_numeric_column(age, slope) %>%
+#'   step_bucketized_column(age, boundaries = c(10, 20, 30))
+#'
+#' spec <- fit(spec)
+#' dataset <- hearts %>% dataset_use_spec(spec)
+#'
+#' input <- layer_input_from_dataset(dataset)
+#' }
+#'
+#' @export
+layer_input_from_dataset <- function(dataset) {
+
+  dataset <- dataset_map(dataset, ~.x)
+
+  col_names <- column_names(dataset)
+  col_types <- output_types(dataset)
+  col_shapes <- output_shapes(dataset)
+
+  inputs <- list()
+  for (i in seq_along(col_names)) {
+
+    x <- list(keras::layer_input(
+      batch_shape = col_shapes[[i]]$as_list(),
+      dtype = col_types[[i]]$name
+    ))
+    names(x) <- col_names[i]
+    inputs <- append(inputs, x)
+
+  }
+
+  inputs
+}
+
+

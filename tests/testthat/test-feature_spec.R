@@ -385,3 +385,25 @@ test_that("Can use a scaler_min_max", {
   expect_equal(as.numeric(value[,1]), normalized_b[1:2], tol = 1e-6)
 })
 
+test_that("Can use layer_input_from_dataset", {
+
+  skip_if_not_eager_and_tf()
+
+  spec <- feature_spec(dataset, y ~ a + b + c + d) %>%
+    step_numeric_column(all_numeric(), normalizer_fn = scaler_min_max())
+
+  spec <- fit(spec)
+
+  ds <- dataset_use_spec(dataset, spec)
+  input <- layer_input_from_dataset(ds)
+
+  output <- input %>%
+    keras::layer_dense_features(spec$dense_features())
+
+  model <- keras::keras_model(input = input, output = output)
+
+
+  expect_length(input, 4)
+  expect_equal(dim(as.matrix(model(next_batch(ds)[[1]]))), c(2,2))
+})
+
