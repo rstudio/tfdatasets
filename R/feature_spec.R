@@ -217,9 +217,14 @@ FeatureSpec <- R6::R6Class(
       feats <- NULL
       for (i in seq_along(self$steps)) {
         stp <- self$steps[i]
-        feature <- lapply(stp, function(x) x$feature(feats))
-        feats <- append(feats, feature)
-        feats <- unlist(feats)
+
+        if (inherits(stp[[1]], "RemoveStep")) {
+          feats <- feats[-which(names(feats) == stp[[1]]$var)]
+        } else {
+          feature <- lapply(stp, function(x) x$feature(feats)) # keep list names
+          feats <- append(feats, feature)
+          feats <- unlist(feats)
+        }
       }
 
       feats
@@ -329,6 +334,22 @@ Step <- R6::R6Class(
 CategoricalStep <- R6::R6Class(
   classname = "CategoricalStep",
   inherit = Step
+)
+
+
+RemoveStep <- R6::R6Class(
+  "RemoveStep",
+  inherit = Step,
+
+  public = list(
+
+    var = NULL,
+
+    initialize = function(var) {
+      self$var <- var
+    }
+
+  )
 )
 
 DerivedStep <- R6::R6Class(
@@ -1061,6 +1082,49 @@ step_numeric_column <- function(spec, ..., shape = 1L, default_value = NULL,
   for (var in variables) {
     stp <- StepNumericColumn$new(var, shape, default_value, dtype, normalizer_fn,
                                  name = var)
+    spec$add_step(stp)
+  }
+
+  spec
+}
+
+#' Creates a step that can remove columns
+#'
+#' Removes features of the feature specification.
+#'
+#' @inheritParams step_numeric_column
+#'
+#' @return a `FeatureSpec` object.
+#'
+#' @examples
+#' \dontrun{
+#' library(tfdatasets)
+#' data(hearts)
+#' hearts <- tensor_slices_dataset(hearts) %>% dataset_batch(32)
+#'
+#' # use the formula interface
+#' spec <- feature_spec(hearts, target ~ age) %>%
+#'   step_numeric_column(age, normalizer_fn = scaler_standard()) %>%
+#'   step_bucketized_column(age, boundaries = c(20, 50)) %>%
+#'   step_remove_column(age)
+#'
+#' spec_fit <- fit(spec)
+#' final_dataset <- hearts %>% dataset_use_spec(spec_fit)
+#' }
+#'
+#' @seealso [steps] for a complete list of allowed steps.
+#' @family Feature Spec Functions
+#'
+#' @export
+step_remove_column <- function(spec, ...) {
+
+  spec <- spec$clone(deep = TRUE)
+  quos_ <- quos(...)
+
+  variables <- terms_select(spec$feature_names(), spec$feature_types(), quos_)
+
+  for (var in variables) {
+    stp <- RemoveStep$new(var)
     spec$add_step(stp)
   }
 

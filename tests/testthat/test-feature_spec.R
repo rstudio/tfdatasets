@@ -186,6 +186,19 @@ test_that("Can create bucketized columns", {
   expect_s3_class(spec$dense_features()$bucketized_b, "tensorflow.python.feature_column.feature_column_v2.BucketizedColumn")
 })
 
+test_that("Can remove columns", {
+  skip_if_not_eager_and_tf()
+
+  spec <- feature_spec(dataset, y ~ a+b+c+d) %>%
+    step_numeric_column(b) %>%
+    step_bucketized_column(b, boundaries = c(5, 10, 15)) %>%
+    step_remove_column(b)
+
+  spec$fit()
+
+  expect_length(spec$features(), 1)
+})
+
 test_that("Using with layer_dense_features", {
   skip_if_not_eager_and_tf()
 
