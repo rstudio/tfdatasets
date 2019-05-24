@@ -1646,7 +1646,7 @@ step_shared_embeddings_column <- function(spec, ..., dimension, combiner = "mean
 #' Creates a list of inputs from a dataset
 #'
 #' Create a list ok Keras input layers that can be used together
-#' with [layer_dense_features()].
+#' with [keras::layer_dense_features()].
 #'
 #' @param dataset a TensorFlow dataset returned by
 #' @return a list of Keras input layers

@@ -14,7 +14,7 @@ a list of Keras input layers
 }
 \description{
 Create a list ok Keras input layers that can be used together
-with \code{\link[=layer_dense_features]{layer_dense_features()}}.
+with \code{\link[keras:layer_dense_features]{keras::layer_dense_features()}}.
 }
 \examples{
 \dontrun{
