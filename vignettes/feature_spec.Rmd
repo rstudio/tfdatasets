@@ -195,7 +195,7 @@ library(keras)
 input <- layer_input_from_dataset(dataset_train)
 
 output <- input %>% 
-  layer_dense_features(spec_prep$dense_features()) %>% 
+  layer_dense_features(dense_features(spec_prep)) %>% 
   layer_dense(units = 32, activation = "relu") %>% 
   layer_dense(units = 1, activation = "sigmoid")
 

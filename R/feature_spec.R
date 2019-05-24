@@ -1701,4 +1701,15 @@ layer_input_from_dataset <- function(dataset) {
   inputs
 }
 
-
+#' Dense Features
+#'
+#' Retrives the Dense Features from a spec.
+#'
+#' @inheritParams step_numeric_column
+#'
+#' @return A list of feature columns.
+#'
+#' @export
+dense_features <- function(spec) {
+  spec$dense_features()
+}
