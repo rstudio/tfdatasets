@@ -1690,7 +1690,7 @@ layer_input_from_dataset <- function(dataset) {
 
     x <- list(keras::layer_input(
       name = col_names[i],
-      batch_shape = col_shapes[[i]]$as_list(),
+      shape = col_shapes[[i]]$as_list()[-1],
       dtype = col_types[[i]]$name
     ))
     names(x) <- col_names[i]
