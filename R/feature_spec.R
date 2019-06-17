@@ -266,9 +266,11 @@ FeatureSpec <- R6::R6Class(
     },
 
     print = function() {
+      cat(cli::rule(left = "Feature Spec"), "\n")
       cat(cli::style_bold(paste("A feature_spec with", length(self$steps), "steps.\n")))
 
-      cat("Prepared:", self$fitted, "\n")
+      cat(cli::style_bold("Fitted:"), self$fitted, "\n")
+      cat(cli::rule(left = "Steps"), "\n")
 
       if (self$fitted)
         cat("The feature_spec has", length(self$dense_features), "dense features.\n")
@@ -286,6 +288,16 @@ FeatureSpec <- R6::R6Class(
           )
         }
       }
+
+      cat(cli::rule(left = "Dense features"), "\n")
+      if (self$fitted) {
+
+
+
+      } else {
+        cat("Feature spec must be fitted before we can detect the dense features.\n")
+      }
+
     }
 
   ),
