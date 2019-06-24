@@ -156,7 +156,19 @@ test_that("Can create embedding columns", {
   spec$fit()
 
   expect_named(spec$dense_features(), c("emb_a"))
+
+  spec <- feature_spec(dataset, y ~ a+b+c+d) %>%
+    step_categorical_column_with_vocabulary_list(a, d) %>%
+    step_embedding_column(a, d)
+
+  spec$fit()
+
+  expect_length(spec$dense_features(), 2)
+  expect_named(spec$dense_features(), c("embedding_a", "embedding_d"))
+  expect_s3_class(spec$dense_features()[[1]], "tensorflow.python.feature_column.feature_column_v2.EmbeddingColumn")
 })
+
+
 
 test_that("Can create crossed columns", {
   skip_if_not_eager_and_tf()

@@ -725,7 +725,7 @@ StepEmbeddingColumn <- R6::R6Class(
     trainable = NULL,
     column_type = "float32",
 
-    initialize = function(categorical_column, dimension, combiner = "mean", initializer = NULL,
+    initialize = function(categorical_column, dimension = NULL, combiner = "mean", initializer = NULL,
                           ckpt_to_load_from = NULL, tensor_name_in_ckpt = NULL, max_norm = NULL,
                           trainable = TRUE, name) {
 
@@ -744,6 +744,10 @@ StepEmbeddingColumn <- R6::R6Class(
     feature = function(base_features) {
 
       categorical_column <- base_features[[self$categorical_column]]
+
+      if (is.null(self$dimension)) {
+        self$dimension <- as.integer(length(categorical_column$vocabulary_list)^0.25)
+      }
 
       tf$feature_column$embedding_column(
         categorical_column = categorical_column,
@@ -1490,7 +1494,7 @@ step_indicator_column <- function(spec, ...) {
 #'
 #' @family Feature Spec Functions
 #' @export
-step_embedding_column <- function(spec, ..., dimension, combiner = "mean",
+step_embedding_column <- function(spec, ..., dimension = NULL, combiner = "mean",
                                   initializer = NULL, ckpt_to_load_from = NULL,
                                   tensor_name_in_ckpt = NULL, max_norm = NULL,
                                   trainable = TRUE) {
