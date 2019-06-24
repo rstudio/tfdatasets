@@ -1680,7 +1680,7 @@ step_shared_embeddings_column <- function(spec, ..., dimension, combiner = "mean
 #' Create a list ok Keras input layers that can be used together
 #' with [keras::layer_dense_features()].
 #'
-#' @param dataset a TensorFlow dataset returned by
+#' @param dataset a TensorFlow dataset or a data.frame
 #' @return a list of Keras input layers
 #'
 #' @examples
@@ -1703,6 +1703,10 @@ step_shared_embeddings_column <- function(spec, ..., dimension, combiner = "mean
 #' @export
 layer_input_from_dataset <- function(dataset) {
 
+  # only needs the head to infer types, colnames and etc.
+  if (inherits(dataset, "data.frame") || inherits(dataset, "list"))
+    dataset <- tensor_slices_dataset(head(dataset))
+
   dataset <- dataset_map(dataset, ~.x)
 
   col_names <- column_names(dataset)
@@ -1724,6 +1728,7 @@ layer_input_from_dataset <- function(dataset) {
 
   inputs
 }
+
 
 #' Dense Features
 #'

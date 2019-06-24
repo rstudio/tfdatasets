@@ -397,7 +397,7 @@ test_that("Can use a scaler_min_max", {
   expect_equal(as.numeric(value[,1]), normalized_b[1:2], tol = 1e-6)
 })
 
-test_that("Can use layer_input_from_dataset", {
+test_that("Can use layer_input_from_dataset with TF datasets", {
 
   skip_if_not_eager_and_tf()
 
@@ -417,6 +417,28 @@ test_that("Can use layer_input_from_dataset", {
 
   expect_length(input, 4)
   expect_equal(dim(as.matrix(model(next_batch(ds)[[1]]))), c(2,2))
+})
+
+test_that("Can use layer_input_from_dataset with TF data frames", {
+
+  skip_if_not_eager_and_tf()
+
+  spec <- feature_spec(as.data.frame(df), y ~ a + b + c + d) %>%
+    step_numeric_column(all_numeric(), normalizer_fn = scaler_min_max())
+
+  spec <- fit(spec)
+
+  input <- layer_input_from_dataset(as.data.frame(df)[, 1:4])
+
+  output <- input %>%
+    keras::layer_dense_features(spec$dense_features()) %>%
+    keras::layer_dense(units = 1)
+
+  model <- keras::keras_model(input = input, output = output)
+  keras::compile(model, loss = "mse", optimizer = "adam")
+  hist <- keras::fit(model, x = df, y = df$y, verbose = 0)
+
+  expect_s3_class(hist, "keras_training_history")
 })
 
 test_that("Can use data.frames", {
