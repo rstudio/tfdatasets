@@ -419,3 +419,22 @@ test_that("Can use layer_input_from_dataset", {
   expect_equal(dim(as.matrix(model(next_batch(ds)[[1]]))), c(2,2))
 })
 
+test_that("Can use data.frames", {
+
+  skip_if_not_eager_and_tf()
+
+  spec <- feature_spec(hearts, target ~ .) %>%
+    step_numeric_column(
+      all_numeric(), -cp, -restecg, -exang, -sex, -fbs,
+      normalizer_fn = scaler_standard()
+    ) %>%
+    step_categorical_column_with_vocabulary_list(thal) %>%
+    step_bucketized_column(age, boundaries = c(18, 25, 30, 35, 40, 45, 50, 55, 60, 65)) %>%
+    step_indicator_column(thal) %>%
+    step_embedding_column(thal, dimension = 2) %>%
+    step_crossed_column(c(thal, bucketized_age), hash_bucket_size = 10) %>%
+    step_indicator_column(crossed_thal_bucketized_age) %>%
+    fit()
+
+  expect_length(spec$dense_features(), 11)
+})

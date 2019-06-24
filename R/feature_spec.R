@@ -145,6 +145,14 @@ FeatureSpec <- R6::R6Class(
     y = NULL,
 
     initialize = function(dataset, x, y = NULL) {
+
+      if (inherits(dataset, "data.frame")) {
+        dataset <- dataset_batch(
+          tensor_slices_dataset(dataset),
+          batch_size = nrow(dataset)
+        )
+      }
+
       self$formula <- formula
       self$x <- rlang::enquo(x)
       self$y <- rlang::enquo(y)
