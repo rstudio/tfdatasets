@@ -33,8 +33,7 @@ Value 2: flat, Value 3: downsloping}
 hearts
 }
 \description{
-A dataset containing the prices and other attributes of almost 54,000
-diamonds.
+Heart disease (angiographic disease status) dataset.
 }
 \references{
 The authors of the databases have requested that any publications resulting

@@ -19,7 +19,7 @@ a \code{formula} in the \code{x} argument.}
 a \code{FeatureSpec} object.
 }
 \description{
-Used to create initilialize a feature columns specification.
+Used to create initialize a feature columns specification.
 }
 \details{
 After creating the \code{feature_spec} object you can add steps using the

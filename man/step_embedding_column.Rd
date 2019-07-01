@@ -4,7 +4,7 @@
 \alias{step_embedding_column}
 \title{Creates embeddings columns}
 \usage{
-step_embedding_column(spec, ..., dimension, combiner = "mean",
+step_embedding_column(spec, ..., dimension = NULL, combiner = "mean",
   initializer = NULL, ckpt_to_load_from = NULL,
   tensor_name_in_ckpt = NULL, max_norm = NULL, trainable = TRUE)
 }
