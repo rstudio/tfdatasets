@@ -22,16 +22,15 @@ aliases:
 knitr::opts_chunk$set(eval = tensorflow::tf_version() >= "2.0")
 ```
 
-> This document is an adaptation of the [Feature Columns guide](https://www.tensorflow.org/guide/feature_columns) in the TensorFlow offcial
-> website.
+> This document is an adaptation of the official TensorFlow [Feature Columns guide](https://www.tensorflow.org/guide/feature_columns).
 
-This document detais feature columns and how they can be used as inputs to neural
+This document details feature columns and how they can be used as inputs to neural
 networks using TensorFlow. Feature columns are very rich, enabling you to transform 
 a diverse range of raw data into formats that neural networks can use, allowing 
 easy experimentation. 
 
 What kind of data can a deep neural network operate on? The answer is, of course, 
-numbers (for example, `tf.float32`). After all, every neuron in a neural network 
+numbers (for example, `tf$float32`). After all, every neuron in a neural network 
 performs multiplication and addition operations on weights and input data. Real-life 
 input data, however, often contains non-numerical (categorical) data. For example, 
 consider a `product_class` feature that can contain the following three non-numerical 
@@ -54,8 +53,8 @@ So, although raw data can be numerical or categorical, an ML model represents al
 features as numbers.
 
 This document explains nine of the feature columns available in tfdatasets. As the 
-following figure shows, all nine functions return either a Categorical-Column or a 
-Dense-Column object, except bucketized_column, which inherits from both classes:
+following figure shows, all nine functions return either a `categorical_column` or a 
+`dense_column` object, except `bucketized_column`, which inherits from both classes:
 
 ![Feature column methods fall into two main categories and one hybrid category.](img/some_constructors.jpg)
 
@@ -65,9 +64,6 @@ Let's look at these functions in more detail.
 
 We are going to use the `feature_spec` interface in the examples. The `feature_spec` 
 interface is an abstraction that makes it easier to define feature columns in R. 
-
-Even being useful, users may decide to use the `feature_columns` module directly
-using `tf$feature_column`.
 
 You can initialize a `feature_spec` with:
 
@@ -92,12 +88,12 @@ spec %>%
 By default, a numeric column creates a single value (scalar). Use the shape argument 
 to specify another shape. For example:
 
-```{r}
-# Represent a 10-element vector in which each cell contains a tf.float32.
+```{r, eval=FALSE}
+# Represent a 10-element vector in which each cell contains a tf$float32.
 spec %>% 
   step_numeric_column(bowling, shape = 10)
 
-# Represent a 10x5 matrix in which each cell contains a tf.float32.
+# Represent a 10x5 matrix in which each cell contains a tf$float32.
 spec %>% 
   step_numeric_column(my_matrix, shape = c(10, 5))
 ```
@@ -106,7 +102,7 @@ A nice feature of `step_numeric_column`is that you can also specify normalizer f
 When using a scaler, the scaling constants will be learned from data when fitting
 the `feature_spec`.
 
-```{r}
+```{r, eval=FALSE}
 # use a function that defines tensorflow ops.
 spec %>% 
   step_numeric_column(age, normalizer_fn = function(x) (x-10)/5)
@@ -125,8 +121,8 @@ house was built. Instead of representing that year as a scalar numeric column, w
 could split the year into the following four buckets:
 
 ![Dividing year data into four buckets.](img/bucketized_column.jpg)
-
-Why would you want to split a number—a perfectly valid input to your model—into a 
+ 
+Why would you want to split a number — a perfectly valid input to your model — into a 
 categorical value? Well, notice that the categorization splits a single input number 
 into a four-element vector. Therefore, the model now can learn four individual weights 
 rather than just one; four weights creates a richer model than one weight. More importantly,
@@ -152,7 +148,8 @@ Note that specifying a three-element boundaries vector creates a four-element bu
 
 # Categorical identity column
 
-Categorical identity columns can be seen as a special case of bucketized columns. 
+Categorical identity columns are to `tfdatasets` what `factors` are to R.
+Put differently, they can be seen as a special case of bucketized columns. 
 In traditional bucketized columns, each bucket represents a range of values 
 (for example, from 1960 to 1979). In a categorical identity column, each bucket 
 represents a single, unique integer. For example, let's say you want to represent 
@@ -172,7 +169,7 @@ the `product_class`, let's represent each class with a unique integer value. Tha
 Call `step_categorical_column_with_identity` to add a categorical identity column to
 the `feature_spec`. For example:
 
-```{r}
+```{r, eval=FALSE}
 # Create categorical output for an integer feature named "my_feature_b",
 # The values of my_feature_b must be >= 0 and < num_buckets
 spec <- spec %>% 
@@ -186,7 +183,7 @@ We cannot input strings directly to a model. Instead, we must first map strings 
 ![Mapping string values to vocabulary columns.](img/categorical_column_with_vocabulary.jpg)
 
 As you can see, categorical vocabulary columns are kind of an enum version of 
-categorical identity columns. tfdatasets provides two different functions to create
+categorical identity columns. `tfdatasets` provides two different functions to create
 categorical vocabulary columns:
 
 * `step_categorical_column_with_vocabulary_list`
@@ -205,10 +202,10 @@ spec <- spec %>%
 Note that the `vocabulary_list` argument is optional in R and the vocabulary will be
 discovered when fitting the `featture_spec` which saves us a lot of typing.
 
-You can also place the vocabulary in a separe file that should contain one line 
-for each vocabulary element. You can the use:
+You can also place the vocabulary in a separate file that should contain one line 
+for each vocabulary element. You can then use:
 
-```{r}
+```{r, eval=FALSE}
 spec <- spec %>% 
   step_categorical_column_with_vocabulary_file(thal, vocabulary_file = "thal.txt")
 ```
@@ -275,7 +272,7 @@ corners of the city in red text:
 For the solution, we used a combination of the bucketized_column we looked at earlier, 
 with the `step_crossed_column` function.
 
-```{r}
+```{r, eval=FALSE}
 spec <- feature_spec(dataset, target ~ latitute + longitude) %>% 
   step_numeric_column(latitude, longitude) %>% 
   step_bucketized_column(latitude, boundaries = c(latitude_edges)) %>% 
@@ -287,8 +284,8 @@ You may create a feature cross from either of the following:
 
 * Any categorical column, except `categorical_column_with_hash_bucket` (since crossed_column hashes the input).
 
-When the feature columns latitude_bucket_fc and longitude_bucket_fc are crossed, 
-TensorFlow will create (latitude_fc, longitude_fc) pairs for each example. This would 
+When the feature columns `latitude_bucket_fc` and `longitude_bucket_fc` are crossed, 
+TensorFlow will create `(latitude_fc, longitude_fc)` pairs for each example. This would 
 produce a full grid of possibilities as follows:
 
 ```
@@ -328,7 +325,7 @@ each category as an element in a one-hot vector, where the matching category has
 
 Here's how you create an indicator column:
 
-```{r}
+```{r, eval=FALSE}
 spec <- feature_spec(dataset, target ~ .) %>% 
   step_categorical_column_with_vocabulary_list(product_class) %>% 
   step_indicator_column(product_class)
@@ -358,7 +355,7 @@ In that case, the following figure illustrates the processing path for embedding
 
 ![An embedding column stores categorical data in a lower-dimensional vector than an indicator column. (We just placed random numbers into the embedding vectors; training determines the actual numbers.)](img/embedding_vs_indicator.jpg)
 
-When an example is processed, one of the categorical_column_with... functions maps the example string to a numerical categorical value. For example, a function maps "spoon" to [32]. (The 32 comes from our imagination—the actual values depend on the mapping function.) You may then represent these numerical categorical values in either of the following two ways:
+When an example is processed, one of the categorical_column_with_[...] functions maps the example string to a numerical categorical value. For example, a function maps "spoon" to [32]. (The 32 comes from our imagination — the actual values depend on the mapping function.) You may then represent these numerical categorical values in either of the following two ways:
 
 * As an indicator column. A function converts each numeric categorical value into an 81-element vector (because our palette consists of 81 words), placing a 1 in the index of the categorical value (0, 32, 79, 80) and a 0 in all the other positions.
 
@@ -386,7 +383,7 @@ number of dimensions is 3:
 Call `step_embedding_column` to create an embedding_column as suggested by the 
 following snippet:
 
-```{r}
+```{r, eval=FALSE}
 spec <- feature_spec(dataset, target ~ .) %>% 
   step_categorical_column_with_vocabulary_list(product_class) %>% 
   step_embedding_column(product_class, dimension = 3)

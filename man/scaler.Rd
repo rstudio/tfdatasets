@@ -2,7 +2,7 @@
 % Please edit documentation in R/feature_spec.R
 \name{scaler}
 \alias{scaler}
-\title{List of pre-made scaler}
+\title{List of pre-made scalers}
 \description{
 \itemize{
 \item \link{scaler_standard}: mean and standard deviation normalizer.

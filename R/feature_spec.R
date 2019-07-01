@@ -457,7 +457,7 @@ MinMaxScaler <- R6::R6Class(
   )
 )
 
-#' List of pre-made scaler
+#' List of pre-made scalers
 #'
 #' * [scaler_standard]: mean and standard deviation normalizer.
 #' * [scaler_min_max]: min max normalizer
@@ -898,7 +898,7 @@ StepSharedEmbeddings <- R6::R6Class(
 
 #' Creates a feature specification.
 #'
-#' Used to create initilialize a feature columns specification.
+#' Used to create initialize a feature columns specification.
 #'
 #' @param dataset A TensorFlow dataset.
 #' @param x Features to include can use [tidyselect::select_helpers()] or
