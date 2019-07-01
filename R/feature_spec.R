@@ -751,12 +751,14 @@ StepEmbeddingColumn <- R6::R6Class(
       categorical_column <- base_features[[self$categorical_column]]
 
       if (is.function(self$dimension)) {
-        self$dimension <- self$dimension(length(categorical_column$vocabulary_list))
+        dimension <- self$dimension(length(categorical_column$vocabulary_list))
+      } else {
+        dimension <- self$dimension
       }
 
       tf$feature_column$embedding_column(
         categorical_column = categorical_column,
-        dimension = self$dimension,
+        dimension = dimension,
         combiner = self$combiner,
         initializer = self$initializer,
         ckpt_to_load_from = self$ckpt_to_load_from,
