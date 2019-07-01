@@ -14,7 +14,8 @@ step_shared_embeddings_column(spec, ..., dimension, combiner = "mean",
 
 \item{...}{Comma separated list of variable names to apply the step. \link{selectors} can also be used.}
 
-\item{dimension}{An integer specifying dimension of the embedding, must be > 0.}
+\item{dimension}{An integer specifying dimension of the embedding, must be > 0.
+Can also be a function of the size of the vocabulary.}
 
 \item{combiner}{A string specifying how to reduce if there are multiple entries in
 a single row. Currently 'mean', 'sqrtn' and 'sum' are supported, with 'mean' the

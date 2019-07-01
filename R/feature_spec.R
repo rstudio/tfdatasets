@@ -147,10 +147,7 @@ FeatureSpec <- R6::R6Class(
     initialize = function(dataset, x, y = NULL) {
 
       if (inherits(dataset, "data.frame")) {
-        dataset <- dataset_batch(
-          tensor_slices_dataset(dataset),
-          batch_size = nrow(dataset)
-        )
+        dataset <- tensors_dataset(dataset)
       }
 
       self$formula <- formula
@@ -753,8 +750,8 @@ StepEmbeddingColumn <- R6::R6Class(
 
       categorical_column <- base_features[[self$categorical_column]]
 
-      if (is.null(self$dimension)) {
-        self$dimension <- as.integer(length(categorical_column$vocabulary_list)^0.25)
+      if (is.function(self$dimension)) {
+        self$dimension <- self$dimension(length(categorical_column$vocabulary_list))
       }
 
       tf$feature_column$embedding_column(
@@ -1465,6 +1462,7 @@ step_indicator_column <- function(spec, ...) {
 #'
 #' @inheritParams step_numeric_column
 #' @param dimension An integer specifying dimension of the embedding, must be > 0.
+#'   Can also be a function of the size of the vocabulary.
 #' @param combiner A string specifying how to reduce if there are multiple entries in
 #'   a single row. Currently 'mean', 'sqrtn' and 'sum' are supported, with 'mean' the
 #'   default. 'sqrtn' often achieves good accuracy, in particular with bag-of-words
@@ -1502,7 +1500,8 @@ step_indicator_column <- function(spec, ...) {
 #'
 #' @family Feature Spec Functions
 #' @export
-step_embedding_column <- function(spec, ..., dimension = NULL, combiner = "mean",
+step_embedding_column <- function(spec, ..., dimension = function(x) {as.integer(x^0.25)},
+                                  combiner = "mean",
                                   initializer = NULL, ckpt_to_load_from = NULL,
                                   tensor_name_in_ckpt = NULL, max_norm = NULL,
                                   trainable = TRUE) {

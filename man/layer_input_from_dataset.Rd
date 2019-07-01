@@ -7,7 +7,7 @@
 layer_input_from_dataset(dataset)
 }
 \arguments{
-\item{dataset}{a TensorFlow dataset returned by}
+\item{dataset}{a TensorFlow dataset or a data.frame}
 }
 \value{
 a list of Keras input layers

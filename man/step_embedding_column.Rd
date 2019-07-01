@@ -4,16 +4,18 @@
 \alias{step_embedding_column}
 \title{Creates embeddings columns}
 \usage{
-step_embedding_column(spec, ..., dimension, combiner = "mean",
-  initializer = NULL, ckpt_to_load_from = NULL,
-  tensor_name_in_ckpt = NULL, max_norm = NULL, trainable = TRUE)
+step_embedding_column(spec, ..., dimension = function(x) {    
+  as.integer(x^0.25) }, combiner = "mean", initializer = NULL,
+  ckpt_to_load_from = NULL, tensor_name_in_ckpt = NULL,
+  max_norm = NULL, trainable = TRUE)
 }
 \arguments{
 \item{spec}{A feature specification created with \code{\link[=feature_spec]{feature_spec()}}.}
 
 \item{...}{Comma separated list of variable names to apply the step. \link{selectors} can also be used.}
 
-\item{dimension}{An integer specifying dimension of the embedding, must be > 0.}
+\item{dimension}{An integer specifying dimension of the embedding, must be > 0.
+Can also be a function of the size of the vocabulary.}
 
 \item{combiner}{A string specifying how to reduce if there are multiple entries in
 a single row. Currently 'mean', 'sqrtn' and 'sum' are supported, with 'mean' the
