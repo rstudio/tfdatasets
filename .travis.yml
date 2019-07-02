@@ -12,20 +12,22 @@ cache:
 
 matrix:
   include:
-    - name: "tf-stable"
-      env: TENSORFLOW_VERSION="1.13.1"
     - name: "tf-1.12.0"
       env: TENSORFLOW_VERSION="1.12.0"
-    - name: "2.0.0-alpha0"
+    - name: "tf-1.13.1"
+      env: TENSORFLOW_VERSION="1.13.1"
+    - name: "tf-1.14.0"
+      env: TENSORFLOW_VERSION="1.14.0"
+    - name: "2.0.0b1"
       env:
-        - TENSORFLOW_VERSION="2.0.0-alpha0"
+        - TENSORFLOW_VERSION="2.0.0b1"
     - name: "nightly"
       env:
         - TENSORFLOW_VERSION="nightly"
   allow_failures:
-    - name: "2.0.0-alpha0"
+    - name: "2.0.0b1"
       env:
-        - TENSORFLOW_VERSION="2.0.0-alpha0"
+        - TENSORFLOW_VERSION="2.0.0b1"
     - name: "nightly"
       env:
         - TENSORFLOW_VERSION="nightly"
