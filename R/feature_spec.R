@@ -399,23 +399,30 @@ Scaler <- R6::R6Class(
   )
 )
 
+#' http://notmatthancock.github.io/2017/03/23/simple-batch-stat-updates.html
+#' batch updates for mean and variance.
 StandardScaler <- R6::R6Class(
   "StandardScaler",
   inherit = Scaler,
   public = list(
-    sum = 0,
-    sum_2 = 0,
-    n = 0,
-    sd = NULL,
-    mean = NULL,
+    m = 0,
+    sd = 0,
+    mean = 0,
     fit_batch = function (batch) {
-      self$sum <- self$sum + sum(batch)
-      self$sum_2 <- self$sum_2 + sum(batch^2)
-      self$n <- self$n + length(batch)
+      m <- self$m
+      mu_m <- self$mean
+      sd_m <- self$sd
+
+      n <- length(batch)
+      mu_n <- mean(batch)
+      sd_n <- sqrt(var(batch)*(n-1)/(n))
+
+      self$mean <- (m*mu_m + n*mu_n)/(n + m)
+      self$sd <- sqrt((m*(sd_m^2) + n*(sd_n^2))/(m+n) + m*n/((m+n)^2)*((mu_m - mu_n)^2))
+      self$m <- m + n
     },
     fit_resume = function() {
-      self$mean <- self$sum/self$n
-      self$sd <- sqrt((self$n/(self$n-1))*(self$sum_2/self$n - (self$sum/self$n)^2))
+      self$sd <- sqrt((self$sd^2)*self$m/(self$m -1))
     },
     fun = function() {
       mean_ <- self$mean
