@@ -4,9 +4,8 @@ context("feature_specs")
 
 source("utils.R")
 
-skip_if_not_eager_and_tf <- function() {
-  skip_if_no_tensorflow(required_version = "1.13.1")
-  skip_if_not_eager()
+skip_if_not_tf_v1.14 <- function() {
+  skip_if_no_tensorflow(required_version = "1.14.0")
 }
 
 df <- list(
@@ -22,22 +21,36 @@ dataset <-  df %>%
   dataset_batch(2)
 
 get_features <- function(df, feature_columns) {
-  example <- reticulate::iter_next(reticulate::as_iterator(df))
+
+  if (tensorflow::tf$executing_eagerly())
+    example <- reticulate::iter_next(reticulate::as_iterator(df))
+  else {
+    example <- make_iterator_one_shot(df)
+    example <- iterator_get_next(example)
+  }
+
   k <- keras::layer_dense_features(feature_columns = feature_columns)
-  k(example)
+
+  if (tensorflow::tf$executing_eagerly())
+    return(k(example))
+  else {
+    res <- k(example)
+    sess <- tf$Session()
+    return(sess$run(res))
+  }
 }
 
 # Tests -------------------------------------------------------------------
 
 
 test_that("Can create a feature_spec", {
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
   spec <- feature_spec(dataset, y ~ a+b+c+d)
   expect_equal(sort(spec$feature_names()), sort(names(df)[-which(names(df) == "y")]))
 })
 
 test_that("Can create numeric columns", {
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(dataset, y ~ a+b+c+d) %>%
     step_numeric_column(b, c)
@@ -51,7 +64,7 @@ test_that("Can create numeric columns", {
 })
 
 test_that("Can create categorical columns with vocabulary list", {
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(dataset, y ~ a + b + c + d) %>%
     step_categorical_column_with_vocabulary_list(a, d)
@@ -72,7 +85,7 @@ test_that("Can create categorical columns with vocabulary list", {
 })
 
 test_that("Can create categorical columns with hash_bucket", {
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(dataset, y ~ a + b + c + d) %>%
     step_categorical_column_with_hash_bucket(a, d, hash_bucket_size = 10)
@@ -86,7 +99,7 @@ test_that("Can create categorical columns with hash_bucket", {
 })
 
 test_that("Can create categorical columns with identity", {
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(dataset, y ~ a + b + c + d) %>%
     step_categorical_column_with_identity(a, num_buckets = 10)
@@ -99,7 +112,7 @@ test_that("Can create categorical columns with identity", {
 })
 
 test_that("Can create categorical columns with vocabulary file", {
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   tmp <- tempfile()
   writeLines(tmp, text = letters)
@@ -115,7 +128,7 @@ test_that("Can create categorical columns with vocabulary file", {
 })
 
 test_that("Can create indicator variables", {
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(dataset, y ~ a+b+c+d) %>%
     step_categorical_column_with_vocabulary_list(a, d) %>%
@@ -137,7 +150,7 @@ test_that("Can create indicator variables", {
 })
 
 test_that("Can create embedding columns", {
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(dataset, y ~ a+b+c+d) %>%
     step_categorical_column_with_vocabulary_list(a, d) %>%
@@ -171,7 +184,7 @@ test_that("Can create embedding columns", {
 
 
 test_that("Can create crossed columns", {
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(dataset, y ~ a+b+c+d) %>%
     step_categorical_column_with_vocabulary_list(a, d) %>%
@@ -187,7 +200,7 @@ test_that("Can create crossed columns", {
 })
 
 test_that("Can create bucketized columns", {
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(dataset, y ~ a+b+c+d) %>%
     step_numeric_column(b) %>%
@@ -199,7 +212,7 @@ test_that("Can create bucketized columns", {
 })
 
 test_that("Can remove columns", {
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(dataset, y ~ a+b+c+d) %>%
     step_numeric_column(b) %>%
@@ -212,7 +225,7 @@ test_that("Can remove columns", {
 })
 
 test_that("Using with layer_dense_features", {
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(dataset, y ~ a+b+c+d) %>%
     step_numeric_column(b, c) %>%
@@ -226,11 +239,14 @@ test_that("Using with layer_dense_features", {
   ds <- reticulate::as_iterator(dataset)
   x <- lyr(reticulate::iter_next(ds))
 
-  expect_equal(x$shape$as_list(), c(2, 2 + 2*26))
+  if (tensorflow::tf$executing_eagerly())
+    expect_equal(x$shape$as_list(), c(2, 2 + 2*26))
+  else
+    expect_equal(x$shape$as_list()[[2]], 2 + 2*26)
 })
 
 test_that("Recipes are correctly cloned/imutable", {
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(dataset, y ~ a+b+c+d) %>%
     step_numeric_column(b, c) %>%
@@ -261,7 +277,7 @@ test_that("Recipes are correctly cloned/imutable", {
 
 
 test_that("Recipes column types", {
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(dataset, y ~ a+b+c+d) %>%
     step_numeric_column(b) %>%
@@ -275,7 +291,7 @@ test_that("Recipes column types", {
 })
 
 test_that("Fit feature_spec", {
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(dataset, y ~ a + b + c + d) %>%
     step_numeric_column(b) %>%
@@ -289,7 +305,7 @@ test_that("Fit feature_spec", {
 })
 
 test_that("Prep with different dataset", {
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(dataset, y ~ a + b + c + d) %>%
     step_numeric_column(b) %>%
@@ -306,7 +322,7 @@ test_that("Prep with different dataset", {
 })
 
 test_that("Can select with has_type", {
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(dataset, y ~ a + b + c + d) %>%
     step_numeric_column(has_type("float32")) %>%
@@ -332,7 +348,7 @@ test_that("Can select with has_type", {
 })
 
 test_that("Can remove variables using -", {
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(dataset, y ~ a + b + c + d) %>%
     step_numeric_column(all_numeric(), - b) %>%
@@ -357,7 +373,7 @@ test_that("StandardScaler works as expected", {
 })
 
 test_that("Can use a scaler_standard", {
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(dataset, y ~ a + b + c + d) %>%
     step_numeric_column(all_numeric(), normalizer_fn = scaler_standard())
@@ -383,7 +399,7 @@ test_that("MinMaxScaler works as expected", {
 })
 
 test_that("Can use a scaler_min_max", {
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(dataset, y ~ a + b + c + d) %>%
     step_numeric_column(all_numeric(), normalizer_fn = scaler_min_max())
@@ -399,7 +415,7 @@ test_that("Can use a scaler_min_max", {
 
 test_that("Can use layer_input_from_dataset with TF datasets", {
 
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(dataset, y ~ a + b + c + d) %>%
     step_numeric_column(all_numeric(), normalizer_fn = scaler_min_max())
@@ -416,12 +432,13 @@ test_that("Can use layer_input_from_dataset with TF datasets", {
 
 
   expect_length(input, 4)
-  expect_equal(dim(as.matrix(model(next_batch(ds)[[1]]))), c(2,2))
+  if (tf$executing_eagerly())
+    expect_equal(dim(as.matrix(model(next_batch(ds)[[1]]))), c(2,2))
 })
 
 test_that("Can use layer_input_from_dataset with TF data frames", {
 
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(as.data.frame(df), y ~ a + b + c + d) %>%
     step_numeric_column(all_numeric(), normalizer_fn = scaler_min_max())
@@ -443,7 +460,7 @@ test_that("Can use layer_input_from_dataset with TF data frames", {
 
 test_that("Can use data.frames", {
 
-  skip_if_not_eager_and_tf()
+  skip_if_not_tf_v1.14()
 
   spec <- feature_spec(hearts, target ~ .) %>%
     step_numeric_column(
