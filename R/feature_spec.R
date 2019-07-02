@@ -941,6 +941,10 @@ StepSharedEmbeddings <- R6::R6Class(
 #' @family Feature Spec Functions
 #' @export
 feature_spec <- function(dataset, x, y = NULL) {
+  # currently due to a bug in TF we are only using feature columns api with TF
+  # >= 2.0. see https://github.com/tensorflow/tensorflow/issues/30307
+  if (tensorflow::tf_version() < "2.0")
+    stop("Feature spec is only available with TensorFlow >= 2.0", call. = FALSE)
   en_x <- rlang::enquo(x)
   en_y <- rlang::enquo(y)
   spec <- FeatureSpec$new(dataset, x = !!en_x, y = !!en_y)
