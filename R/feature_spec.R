@@ -572,10 +572,15 @@ StepCategoricalColumnWithVocabularyList <- R6::R6Class(
 
     fit_batch = function(batch) {
 
-
-
       if (is.null(self$vocabulary_list)) {
         values <- batch[[self$key]]
+
+        # add shape to tensor with no shape
+        if (identical(values$shape$as_list(), list()))
+          values <- tf$constant(values, shape = 1L)
+
+        # get unique values before converting to R.
+        values <- tensorflow::tf$unique(values)$y
 
         if (!is.atomic(values))
           values <- values$numpy()
