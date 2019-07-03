@@ -477,3 +477,26 @@ test_that("Can use data.frames", {
 
   expect_length(spec$dense_features(), 11)
 })
+
+test_that("Correctly creates indicator vars", {
+
+  x <- data.frame(
+    y = runif(5),
+    x = c("a", "aã", "b", "c", "d"),
+    b = runif(5),
+    stringsAsFactors = FALSE
+  )
+
+  spec <- feature_spec(x, y ~ x) %>%
+    step_categorical_column_with_vocabulary_list(x) %>%
+    step_indicator_column(x)
+
+  spec <- fit(spec)
+
+  k <- keras::layer_dense_features(feature_columns = spec$dense_features())
+  res <- as.matrix(k(list(x = x$x)))
+  expect_equal(
+    res,
+    diag(nrow(res))
+  )
+})

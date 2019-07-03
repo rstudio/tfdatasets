@@ -572,11 +572,21 @@ StepCategoricalColumnWithVocabularyList <- R6::R6Class(
 
     fit_batch = function(batch) {
 
+
+
       if (is.null(self$vocabulary_list)) {
         values <- batch[[self$key]]
 
         if (!is.atomic(values))
           values <- values$numpy()
+
+        # converts from bytes to an R string. Need in python >= 3.6
+        # special case when values is a single value of type string
+        if (inherits(values, "python.builtin.bytes"))
+          values <- values$decode()
+
+        if (inherits(values[[1]], "python.builtin.bytes"))
+          values <- sapply(values, function(x) x$decode())
 
         unq <- unique(values)
         self$vocabulary_list_aux <- sort(unique(c(self$vocabulary_list_aux, unq)))
