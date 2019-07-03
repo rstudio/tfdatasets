@@ -479,6 +479,7 @@ test_that("Can use data.frames", {
 })
 
 test_that("Correctly creates indicator vars", {
+  skip_if_not_tf()
 
   x <- data.frame(
     y = runif(5),
