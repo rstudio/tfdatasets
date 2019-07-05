@@ -46,27 +46,18 @@ We want to train a model to predict the `target` variable using Keras but, befor
 that we need to prepare the data. We need to transform the categorical variables
 into some form of dense variable, we usually want to normalize all numeric columns too.
 
-The recipes interface works with a TensorFlow dataset which can be created from an R
-`data.frame` using:
+The feature spec interface works with `data.frame`s or TensorFlow datasets objects.
 
 ```{r}
-library(rsample)
-split <- initial_split(hearts)
-
-dataset_train <- training(split) %>% 
-  tensor_slices_dataset() %>% 
-  dataset_shuffle(nrow(hearts)) %>% 
-  dataset_batch(32)
-
-dataset_test <- testing(split) %>% 
-  tensor_slices_dataset() %>% 
-  dataset_batch(32)
+ids_train <- sample.int(nrow(hearts), size = 0.75*nrow(hearts))
+hearts_train <- hearts[ids_train,]
+hearts_test <- hearts[-ids_train,]
 ```
 
 Now let's start creating our feature specification: 
 
 ```{r}
-spec <- feature_spec(dataset_train, target ~ .)
+spec <- feature_spec(hearts_train, target ~ .)
 ```
 
 The first thing we need to do after creating the feature_spec is decide on the variables' types.
@@ -147,7 +138,7 @@ With the above code we have created our recipe. Note we can also define the
 recipe by chaining a sequence of methods:
 
 ```{r} 
-spec <- feature_spec(dataset_train, target ~ .) %>% 
+spec <- feature_spec(hearts_train, target ~ .) %>% 
   step_numeric_column(
     all_numeric(), -cp, -restecg, -exang, -sex, -fbs,
     normalizer_fn = scaler_standard()
@@ -178,20 +169,15 @@ After preparing we can see the list of dense features that were defined:
 str(spec_prep$dense_features())
 ```
 
-We can now prepare our training and testing datasets using:
-
-```{r}
-dataset_train <- dataset_train %>% dataset_use_spec(spec_prep)
-dataset_test <- dataset_test %>% dataset_use_spec(spec_prep)
-```
-
 Now we are ready to define our model in Keras. We will use a specialized `layer_dense_features` that
 knows what to do with the feature columns specification.
+
+We also use a new `layer_input_from_dataset` that is useful to create a Keras input object copying the structure from a `data.frame` or TensorFlow dataset.
 
 ```{r}
 library(keras)
 
-input <- layer_input_from_dataset(dataset_train)
+input <- layer_input_from_dataset(hearts_train %>% select(-target))
 
 output <- input %>% 
   layer_dense_features(dense_features(spec_prep)) %>% 
@@ -211,7 +197,22 @@ We can finally train the model on the dataset:
 
 ```{r, warning=FALSE}
 history <- model %>% 
-  fit(dataset_train, epochs = 15, validation_data = dataset_test)
+  fit(
+    x = hearts_train %>% select(-target),
+    y = hearts_train$target, 
+    epochs = 15, 
+    validation_split = 0.2
+  )
 
 plot(history)
 ```
+
+Finally we can make predictions in the test set and calculate performance 
+metrics like the AUC of the ROC curve:
+
+```{r}
+hearts_test$pred <- predict(model, hearts_test)
+Metrics::auc(hearts_test$target, hearts_test$pred)
+```
+
+
