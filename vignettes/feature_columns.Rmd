@@ -392,6 +392,53 @@ spec <- feature_spec(dataset, target ~ .) %>%
 Embeddings is a significant topic within machine learning. This information was just 
 to get you started using them as feature columns.
 
+# Passing feature columns to Keras
+
+After creating and fitting a `feature_spec` object you can use the `dense_features`
+to get the Dense features from the specifications. You can then use the `layer_dense_features`
+function from Keras to create a layer that will automatically initialize values.
+
+Here is an an example of how it would work:
+
+```{r}
+spec <- feature_spec(hearts, target ~ .) %>% 
+  step_numeric_column(
+    all_numeric(), -cp, -restecg, -exang, -sex, -fbs,
+    normalizer_fn = scaler_standard()
+  ) %>% 
+  step_categorical_column_with_vocabulary_list(thal) %>% 
+  step_bucketized_column(age, boundaries = c(18, 25, 30, 35, 40, 45, 50, 55, 60, 65)) %>% 
+  step_indicator_column(thal) %>% 
+  step_embedding_column(thal, dimension = 2) %>% 
+  step_crossed_column(c(thal, bucketized_age), hash_bucket_size = 10) %>%
+  step_indicator_column(crossed_thal_bucketized_age)
+
+spec <- fit(spec)
+
+input <- layer_input_from_dataset(hearts %>% select(-target))
+output <- input %>% 
+  layer_dense_features(feature_columns = dense_features(spec)) %>% 
+  layer_dense(units = 1, activation = "sigmoid")
+
+model <- keras_model(input, output)
+
+model %>% 
+  compile(
+    loss = "binary_crossentropy", 
+    optimizer = "adam",
+    metrics = "accuracy"
+    )
+
+model %>% 
+  fit(
+    x = hearts %>% select(-target), y = hearts$target,
+    validation_split = 0.2
+  )
+```
+
+
+
+
 
 
 
