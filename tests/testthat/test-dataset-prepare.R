@@ -81,7 +81,7 @@ test_succeeds("dataset_prepare can provide keras input tensors", {
   # stream batches from dataset
   train_batch <- next_batch(dataset)
 
-  if (tensorflow::tf_version() >= "2.0") {
+  if (tensorflow::tf_version() >= "1.14" && tensorflow::tf$executing_eagerly()) {
 
     # You should not pass an EagerTensor to `Input`.
     # For example, instead of creating an InputLayer, you should instantiate your model and directly

@@ -21,6 +21,18 @@ test_succeeds("sparse_tensor_slices_dataset creates a dataset", {
   ))
 })
 
+test_succeeds("tensor slices works with data.frames", {
+  tensor_slices_dataset(mtcars)
+})
+
+test_succeeds("tensor slices works with unamed lists", {
+  tensor_slices_dataset(list(1:3, 1:3, 1:3))
+})
+
+test_succeeds("tensor slices works with mixed named/unnamed lists", {
+  # TODO is this the expected behavior?
+  tensor_slices_dataset(list(1:3, a = 1:3, 1:3))
+})
 
 
 

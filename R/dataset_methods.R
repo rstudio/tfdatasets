@@ -505,11 +505,6 @@ dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features =
   if (!is_dataset(dataset))
     stop("Provided dataset is not a TensorFlow Dataset")
 
-  # get tidyselect_data for overscope
-  tidyselect <- asNamespace("tidyselect")
-  exports <- getNamespaceExports(tidyselect)
-  tidyselect_data <- mget(exports, tidyselect, inherits = TRUE)
-
   # default to null response_col
   response_col <- NULL
 
@@ -523,8 +518,14 @@ dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features =
     tidyselect::vars_select(col_names, !! eq_features)
   },
   error = function(e) {
+    x <- get_expr(eq_features)
     if (is_formula(x)) {
-      parsed <- parse_formula(x)
+
+      data <- lapply(column_names(dataset), function(x) "")
+      names(data) <- column_names(dataset)
+      data <- as.data.frame(data)
+
+      parsed <- parse_formula(x, data)
       if (!is.null(parsed$response))
         response_col <<- match(parsed$response, col_names)
       parsed$features
