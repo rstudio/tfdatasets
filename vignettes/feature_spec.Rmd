@@ -13,7 +13,7 @@ menu:
     name: "Feature Spec interface"
     identifier: "feature-spec"
     parent: "tfdatasets-top"
-    weight: 10
+    weight: 20
 aliases:
   - /tools/tfdatasets/feature-spec
 ---
@@ -35,6 +35,7 @@ We will use the `hearts` dataset and it can be loaded with `data(hearts)`.
 
 ```{r}
 library(tfdatasets)
+library(dplyr)
 data(hearts)
 ```
 
