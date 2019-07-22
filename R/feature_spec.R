@@ -1753,7 +1753,7 @@ layer_input_from_dataset <- function(dataset) {
 
   }
 
-  inputs
+  reticulate::dict(inputs)
 }
 
 
