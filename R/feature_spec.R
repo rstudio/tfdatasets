@@ -917,6 +917,37 @@ StepSharedEmbeddings <- R6::R6Class(
   )
 )
 
+# StepTextEmbedding -----------------------------------------------------
+
+StepTextEmbeddingColumn <- R6::R6Class(
+  "StepTextEmbeddingColumn",
+  inherit = Step,
+
+  public = list(
+
+    key = NULL,
+    module_spec = NULL,
+    trainable = NULL,
+    name = NULL,
+
+    initialize = function(key, module_spec, trainable = FALSE, name) {
+      self$key <- key
+      self$module_spec <- module_spec
+      self$trainable <- trainable
+      self$name <- name
+    },
+
+    feature = function(base_features) {
+      tfhub::hub_text_embedding_column(
+        key = self$key,
+        module_spec = self$module_spec,
+        trainable = self$trainable
+      )
+    }
+
+  )
+)
+
 
 # Wrappers ----------------------------------------------------------------
 
@@ -1698,6 +1729,26 @@ step_shared_embeddings_column <- function(spec, ..., dimension, combiner = "mean
     args = args,
     prefix = "shared_embeddings"
   )
+}
+
+#' Creates text embeddings columns
+#'
+#' Use this step to create text embeddings columns from string columns.
+#'
+#' @inheritParams step_numeric_column
+#' @param module_spec A string handle or a _ModuleSpec identifying the module.
+#' @param trainable Whether or not the Module is trainable. `FALSE` by default,
+#'  meaning the pre-trained weights are frozen. This is different from
+#'  the ordinary.
+#'
+#' @export
+step_text_embedding_column <- function(spec, ..., module_spec, trainable = FALSE) {
+  args <- list(
+    module_spec = module_spec,
+    trainable = trainable
+  )
+
+  step_(spec, ..., step = StepTextEmbeddingColumn$new, args = args, prefix = "text_embedding")
 }
 
 # Input from spec ---------------------------------------------------------
