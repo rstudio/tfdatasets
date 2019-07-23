@@ -25,9 +25,6 @@ matrix:
       env:
         - TENSORFLOW_VERSION="nightly"
   allow_failures:
-    - name: "2.0.0b1"
-      env:
-        - TENSORFLOW_VERSION="2.0.0b1"
     - name: "nightly"
       env:
         - TENSORFLOW_VERSION="nightly"
