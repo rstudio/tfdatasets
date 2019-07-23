@@ -43,7 +43,8 @@ Suggests:
     tfestimators,
     keras,
     rsample,
-    rmarkdown
+    rmarkdown,
+    Metrics
 Remotes:
     rstudio/keras
 VignetteBuilder: knitr
