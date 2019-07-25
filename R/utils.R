@@ -80,5 +80,12 @@ is_eager_tensor <- function(x) {
   inherits(x, "tensorflow.python.framework.ops.EagerTensor")
 }
 
+as_py_function <- function(x) {
+  if (inherits(x, "python.builtin.function")) {
+    x
+  } else {
+    rlang::as_function(x)
+  }
+}
 
 
