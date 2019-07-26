@@ -169,7 +169,7 @@ dataset_take <- function(dataset, count) {
 #' @export
 dataset_map <- function(dataset, map_func, num_parallel_calls = NULL) {
   as_tf_dataset(dataset$map(
-    map_func = rlang::as_function(map_func),
+    map_func = as_py_function(map_func),
     num_parallel_calls = as_integer_tensor(num_parallel_calls, tf$int32)
   ))
 }
@@ -200,7 +200,7 @@ dataset_map_and_batch <- function(dataset,
   validate_tf_version("1.8", "dataset_map_and_batch")
   as_tf_dataset(dataset$apply(
     tfd_map_and_batch(
-      rlang::as_function(map_func),
+      as_py_function(map_func),
       as.integer(batch_size),
       as_integer_tensor(num_parallel_batches),
       drop_remainder,
@@ -306,7 +306,7 @@ dataset_prefetch_to_device <- function(dataset, device, buffer_size = NULL) {
 #'
 #' @export
 dataset_filter <- function(dataset, predicate) {
-  as_tf_dataset(dataset$filter(predicate))
+  as_tf_dataset(dataset$filter(as_py_function(predicate)))
 }
 
 
@@ -377,7 +377,7 @@ dataset_skip <- function(dataset, count) {
 #' @export
 dataset_interleave <- function(dataset, map_func, cycle_length, block_length = 1) {
   as_tf_dataset(dataset$interleave(
-    map_func = map_func,
+    map_func = as_py_function(map_func),
     cycle_length = as_integer_tensor(cycle_length),
     block_length = as_integer_tensor(block_length)
   ))
