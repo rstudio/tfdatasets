@@ -44,6 +44,7 @@ Suggests:
     keras,
     rsample,
     rmarkdown,
+    Metrics,
     reticulate
 Remotes:
     rstudio/keras,
