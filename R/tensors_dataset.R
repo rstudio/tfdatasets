@@ -1,5 +1,16 @@
 
+resolve_tensors <- function(tensors) {
+  # convert unnamed list into tuple
+  if (is.list(tensors) && is.null(names(tensors)))
+    tensors <- tuple(tensors)
 
+  # covert data frame to dict
+  if (is.data.frame(tensors)) {
+    tensors <- as.list(tensors)
+  }
+
+  tensors
+}
 
 #' Creates a dataset with a single element, comprising the given tensors.
 #'
@@ -12,8 +23,9 @@
 #' @export
 tensors_dataset <- function(tensors) {
   validate_tf_version()
+
   as_tf_dataset(
-    tf$data$Dataset$from_tensors(tensors = tensors)
+    tf$data$Dataset$from_tensors(tensors = resolve_tensors(tensors))
   )
 }
 
@@ -31,17 +43,8 @@ tensor_slices_dataset <-function(tensors) {
 
   validate_tf_version()
 
-  # convert unnamed list into tuple
-  if (is.list(tensors) && is.null(names(tensors)))
-    tensors <- tuple(tensors)
-
-  # covert data frame to dict
-  if (is.data.frame(tensors)) {
-    tensors <- as.list(tensors)
-  }
-
   as_tf_dataset(
-    tf$data$Dataset$from_tensor_slices(tensors = tensors)
+    tf$data$Dataset$from_tensor_slices(tensors = resolve_tensors(tensors))
   )
 }
 
