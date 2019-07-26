@@ -44,7 +44,9 @@ Suggests:
     keras,
     rsample,
     rmarkdown,
-    Metrics
+    Metrics,
+    reticulate
 Remotes:
-    rstudio/keras
+    rstudio/keras,
+    rstudio/reticulate
 VignetteBuilder: knitr
