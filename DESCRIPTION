@@ -46,6 +46,6 @@ Suggests:
     rmarkdown,
     reticulate
 Remotes:
-    rstudio/keras
+    rstudio/keras,
     rstudio/reticulate
 VignetteBuilder: knitr
