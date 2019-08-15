@@ -28,7 +28,11 @@ test_that("make_iterator_initializable works", {
 
   with_session(function(sess) {
 
-    max_value <- tf$placeholder(tf$int64, shape = shape())
+    if (tensorflow::tf_version() < "1.14")
+      max_value <- tf$placeholder(tf$int64, shape = shape())
+    else
+      max_value <- tf$compat$v1$placeholder(tf$int64, shape = shape())
+
     range_ds <- range_dataset(from = 1, to = max_value)
 
     iterator <- range_ds %>%
@@ -127,7 +131,10 @@ test_succeeds("make_iterator_from_string_handle works", {
 
     validation_dataset = range_dataset(from = 1, to = 50)
 
-    handle <- tf$placeholder(tf$string, shape = shape())
+    if (tensorflow::tf_version() < "1.14")
+      handle <- tf$placeholder(tf$string, shape = shape())
+    else
+      handle <- tf$compat$v1$placeholder(tf$string, shape = shape())
 
     iterator <- make_iterator_from_string_handle(
       handle,
