@@ -121,7 +121,7 @@ test_succeeds("make_iterator_from_string_handle works", {
 
     training_dataset <- range_dataset(from = 1, to = 100) %>%
       dataset_map(function(x) {
-        x + tf$random_uniform(shape(), -10L, 10L, tf$int64)
+        x + tfr_random_uniform(shape(), -10L, 10L, tf$int64)
       }) %>%
       dataset_repeat()
 
