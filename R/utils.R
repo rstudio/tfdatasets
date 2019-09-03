@@ -27,10 +27,17 @@ as_tensor_shapes <- function(x) {
 }
 
 with_session <- function(f, session = NULL) {
-  if (is.null(session))
-    session <- tf$get_default_session()
   if (is.null(session)) {
-    session <- tf$Session()
+    if (tensorflow::tf_version() >= "1.14")
+      session <- tensorflow::tf$compat$v1$get_default_session()
+  } else {
+    session <- tf$get_default_session()
+  }
+  if (is.null(session)) {
+    if (tensorflow::tf_version() >= "1.14")
+      session <- tf$compat$v1$Session()
+    else
+      session <- tf$Session()
     on.exit(session$close(), add = TRUE)
   }
   f(session)
