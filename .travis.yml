@@ -18,9 +18,9 @@ matrix:
       env: TENSORFLOW_VERSION="1.13.1"
     - name: "tf-1.14.0"
       env: TENSORFLOW_VERSION="1.14.0"
-    - name: "2.0.0b1"
+    - name: "2.0.0rc0"
       env:
-        - TENSORFLOW_VERSION="2.0.0b1"
+        - TENSORFLOW_VERSION="2.0.0-rc0"
     - name: "nightly"
       env:
         - TENSORFLOW_VERSION="nightly"
