@@ -780,7 +780,7 @@ StepEmbeddingColumn <- R6::R6Class(
 
       tf$feature_column$embedding_column(
         categorical_column = categorical_column,
-        dimension = dimension,
+        dimension = as.integer(dimension),
         combiner = self$combiner,
         initializer = self$initializer,
         ckpt_to_load_from = self$ckpt_to_load_from,
