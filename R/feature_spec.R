@@ -1732,7 +1732,7 @@ layer_input_from_dataset <- function(dataset) {
 
   # only needs the head to infer types, colnames and etc.
   if (inherits(dataset, "data.frame") || inherits(dataset, "list"))
-    dataset <- tensor_slices_dataset(head(dataset))
+    dataset <- tensor_slices_dataset(utils::head(dataset))
 
   dataset <- dataset_map(dataset, ~.x)
 
