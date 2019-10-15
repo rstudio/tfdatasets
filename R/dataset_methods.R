@@ -518,6 +518,8 @@ dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features =
     tidyselect::vars_select(col_names, !! eq_features)
   },
   error = function(e) {
+
+
     x <- get_expr(eq_features)
     if (is_formula(x)) {
 
@@ -537,6 +539,7 @@ dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features =
   # get column indexes
   feature_cols <- match(feature_col_names, col_names)
 
+
   # get response if specified
   if (!missing(y) && is.null(response_col)) {
     eq_response <- rlang::enquo(y)
@@ -550,6 +553,11 @@ dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features =
 
   # mapping function
   map_func <- function(record) {
+
+    # `make_csv_dataset` returns an ordered dict instead of a `dict`
+    # which in turn doesn't get automatically converted by reticulate.
+    if (inherits(record, "python.builtin.dict"))
+      record <- reticulate::py_to_r(record)
 
     # select features
     record_features <- record[feature_cols]

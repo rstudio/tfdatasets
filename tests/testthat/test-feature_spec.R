@@ -501,3 +501,21 @@ test_that("Correctly creates indicator vars", {
     diag(nrow(res))
   )
 })
+
+test_that("feature_spec works with make_csv_dataset", {
+  skip_if_not_tf()
+
+  TRAIN_DATA_URL <- "https://storage.googleapis.com/tf-datasets/titanic/train.csv"
+
+  train_file_path <- keras::get_file("train_csv", TRAIN_DATA_URL)
+  train_dataset <- make_csv_dataset(
+    train_file_path,
+    field_delim = ",",
+    batch_size = 5,
+    num_epochs = 1
+  )
+
+  spec <- feature_spec(train_dataset, survived ~ .)
+
+  expect_s3_class(spec, class = "FeatureSpec")
+})
