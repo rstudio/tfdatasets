@@ -26,17 +26,29 @@ dataset_repeat <- function(dataset, count = NULL) {
 #'   dataset from which the new dataset will sample.
 #' @param seed (Optional) An integer, representing the random seed that will be
 #'   used to create the distribution.
-#'
+#' @param reshuffle_each_iteration (Optional) A boolean, which if true indicates
+#'   that the dataset should be pseudorandomly reshuffled each time it is iterated
+#'   over. (Defaults to `TRUE`). Not used if TF version < 1.15
 #' @return A dataset
 #'
 #' @family dataset methods
 #'
 #' @export
-dataset_shuffle <- function(dataset, buffer_size, seed = NULL) {
-  as_tf_dataset(dataset$shuffle(
+dataset_shuffle <- function(dataset, buffer_size, seed = NULL, reshuffle_each_iteration = NULL) {
+
+  if (!is.null(reshuffle_each_iteration) && tensorflow::tf_version() < "1.15")
+    warning("reshuffle_each_iteration is only used with TF >= 1.15", call. = FALSE)
+
+  args <- list(
     buffer_size = as_integer_tensor(buffer_size),
     seed = as_integer_tensor(seed)
-  ))
+  )
+
+  if (tensorflow::tf_version() >= "1.15")
+    args[["reshuffle_each_iteration"]] <- reshuffle_each_iteration
+
+
+  as_tf_dataset(do.call(dataset$shuffle, args))
 }
 
 

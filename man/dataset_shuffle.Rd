@@ -4,7 +4,8 @@
 \alias{dataset_shuffle}
 \title{Randomly shuffles the elements of this dataset.}
 \usage{
-dataset_shuffle(dataset, buffer_size, seed = NULL)
+dataset_shuffle(dataset, buffer_size, seed = NULL,
+  reshuffle_each_iteration = NULL)
 }
 \arguments{
 \item{dataset}{A dataset}
@@ -14,6 +15,10 @@ dataset from which the new dataset will sample.}
 
 \item{seed}{(Optional) An integer, representing the random seed that will be
 used to create the distribution.}
+
+\item{reshuffle_each_iteration}{(Optional) A boolean, which if true indicates
+that the dataset should be pseudorandomly reshuffled each time it is iterated
+over. (Defaults to \code{TRUE}). Not used if TF version < 1.15}
 }
 \value{
 A dataset
