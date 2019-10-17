@@ -34,13 +34,13 @@ Imports:
     rlang,
     tidyselect,
     stats,
-    generics
+    generics,
+    tfestimators
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 6.1.1
 Suggests:
     testthat,
     knitr,
-    tfestimators,
     keras,
     rsample,
     rmarkdown,
