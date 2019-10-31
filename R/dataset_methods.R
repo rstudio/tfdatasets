@@ -669,5 +669,35 @@ dataset_window <- function(dataset, size, shift = NULL, stride = 1,
   )
 }
 
+#' Collects a dataset
+#'
+#' Iterates throught the dataset collecting every element into a list.
+#' It's useful for looking at the full result of the dataset.
+#' Note: You may run out of memory if your dataset is too big.
+#'
+#' @param dataset A dataset
+#' @param iter_max Maximum number of iterations. `Inf` until the end of the
+#'  dataset
+#'
+#' @family dataset methods
+#'
+#' @export
+dataset_collect <- function(dataset, iter_max = Inf) {
 
+  if (tensorflow::tf_version() < "2.0")
+    stop("dataset_collect requires TF 2.0", call.=FALSE)
+
+  it <- reticulate::as_iterator(dataset)
+
+  out <- list()
+  i <- 0
+
+  while(!is.null(x <- reticulate::iter_next(it))) {
+    i <- i + 1
+    out[[i]] <- x
+    if (i >= iter_max) break
+  }
+
+  out
+}
 
