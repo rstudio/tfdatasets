@@ -40,6 +40,7 @@ fusing the two transformations together, the implementation can be more efficien
 \seealso{
 Other dataset methods: \code{\link{dataset_batch}},
   \code{\link{dataset_cache}},
+  \code{\link{dataset_collect}},
   \code{\link{dataset_concatenate}},
   \code{\link{dataset_decode_delim}},
   \code{\link{dataset_filter}},
