@@ -67,6 +67,9 @@ test_succeeds("dataset_prepare can use names from unquoting", {
 
 test_succeeds("dataset_prepare can provide keras input tensors", {
 
+  if (tensorflow::tf_version() < "1.13")
+    skip("dataset_prepare required TF >= 1.13")
+
   # create dataset
   dataset <- csv_dataset("data/iris.csv") %>%
     dataset_map(function(record) {
