@@ -5,7 +5,7 @@
 \alias{input_fn}
 \title{Construct a tfestimators input function from a dataset}
 \usage{
-input_fn.tf_dataset(dataset, features, response = NULL)
+\method{input_fn}{tf_dataset}(dataset, features, response = NULL)
 }
 \arguments{
 \item{dataset}{A dataset}
