@@ -185,7 +185,18 @@ test_succeeds("dataset_windows ombines input elements into a dataset of windows"
     dataset_window(size = 5)
 })
 
+test_succeeds("dataset_collect works", {
 
+  if (tensorflow::tf_version() < "2.0")
+    skip("dataset_collect requires tf 2.0")
+
+  dataset <- tensor_slices_dataset(1:100)
+
+  expect_length(dataset_collect(dataset), 100)
+  expect_length(dataset_collect(dataset, 1), 1)
+  expect_length(dataset_collect(dataset, 10), 10)
+
+})
 
 
 
