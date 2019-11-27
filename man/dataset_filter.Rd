@@ -22,20 +22,20 @@ Filter a dataset by a predicate
 \details{
 Note that the functions used inside the predicate must be
 tensor operations (e.g. \code{tf$not_equal}, \code{tf$less}, etc.). R
-generic methods for relational operators (e.g. \code{<}, \code{>}, \code{<=},
-etc.) and logical operators (e.g. \code{!}, \code{&}, \code{|}, etc.) are
+generic methods for relational operators (e.g. \verb{<}, \verb{>}, \verb{<=},
+etc.) and logical operators (e.g. \verb{!}, \verb{&}, \verb{|}, etc.) are
 provided so you can use shorthand syntax for most common
 comparisions (this is illustrated by the example below).
 }
 \examples{
 \dontrun{
 
-dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) \%>\%
+dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
   dataset_filter(function(record) {
     record$mpg >= 20
 })
 
-dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) \%>\%
+dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
   dataset_filter(function(record) {
     record$mpg >= 20 & record$cyl >= 6L
   })
@@ -44,21 +44,23 @@ dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) \%>\%
 
 }
 \seealso{
-Other dataset methods: \code{\link{dataset_batch}},
-  \code{\link{dataset_cache}},
-  \code{\link{dataset_collect}},
-  \code{\link{dataset_concatenate}},
-  \code{\link{dataset_decode_delim}},
-  \code{\link{dataset_interleave}},
-  \code{\link{dataset_map_and_batch}},
-  \code{\link{dataset_map}},
-  \code{\link{dataset_padded_batch}},
-  \code{\link{dataset_prefetch_to_device}},
-  \code{\link{dataset_prefetch}},
-  \code{\link{dataset_repeat}},
-  \code{\link{dataset_shuffle_and_repeat}},
-  \code{\link{dataset_shuffle}},
-  \code{\link{dataset_skip}}, \code{\link{dataset_take}},
-  \code{\link{dataset_window}}
+Other dataset methods: 
+\code{\link{dataset_batch}()},
+\code{\link{dataset_cache}()},
+\code{\link{dataset_collect}()},
+\code{\link{dataset_concatenate}()},
+\code{\link{dataset_decode_delim}()},
+\code{\link{dataset_interleave}()},
+\code{\link{dataset_map_and_batch}()},
+\code{\link{dataset_map}()},
+\code{\link{dataset_padded_batch}()},
+\code{\link{dataset_prefetch_to_device}()},
+\code{\link{dataset_prefetch}()},
+\code{\link{dataset_repeat}()},
+\code{\link{dataset_shuffle_and_repeat}()},
+\code{\link{dataset_shuffle}()},
+\code{\link{dataset_skip}()},
+\code{\link{dataset_take}()},
+\code{\link{dataset_window}()}
 }
 \concept{dataset methods}

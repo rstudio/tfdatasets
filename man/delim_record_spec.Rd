@@ -6,14 +6,30 @@
 \alias{tsv_record_spec}
 \title{Specification for reading a record from a text file with delimited values}
 \usage{
-delim_record_spec(example_file, delim = ",", skip = 0, names = NULL,
-  types = NULL, defaults = NULL)
+delim_record_spec(
+  example_file,
+  delim = ",",
+  skip = 0,
+  names = NULL,
+  types = NULL,
+  defaults = NULL
+)
 
-csv_record_spec(example_file, skip = 0, names = NULL, types = NULL,
-  defaults = NULL)
+csv_record_spec(
+  example_file,
+  skip = 0,
+  names = NULL,
+  types = NULL,
+  defaults = NULL
+)
 
-tsv_record_spec(example_file, skip = 0, names = NULL, types = NULL,
-  defaults = NULL)
+tsv_record_spec(
+  example_file,
+  skip = 0,
+  names = NULL,
+  types = NULL,
+  defaults = NULL
+)
 }
 \arguments{
 \item{example_file}{File that provides an example of the records to be read.
@@ -46,14 +62,14 @@ imputed from the first 1000 rows of the \code{example_file}. This is convenient
 the correct types yourself.
 
 Types can be explicitliy specified in a character vector as "integer",
-"double", and "character" (e.g. \code{col_types = c("double", "double", "integer"}).
+"double", and "character" (e.g. \verb{col_types = c("double", "double", "integer"}).
 
 Alternatively, you can use a compact string representation where each
 character represents one column: c = character, i = integer, d = double
-(e.g. \code{types = }ddi`).}
+(e.g. \verb{types = }ddi`).}
 
 \item{defaults}{List of default values which are used when data is
-missing from a record (e.g. \code{list(0, 0, 0L}). If \code{NULL} then defaults will
+missing from a record (e.g. \verb{list(0, 0, 0L}). If \code{NULL} then defaults will
 be automatically provided based on \code{types} (\code{0} for numeric columns and
 \code{""} for character columns).}
 }

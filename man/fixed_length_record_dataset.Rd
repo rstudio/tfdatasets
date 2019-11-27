@@ -4,8 +4,13 @@
 \alias{fixed_length_record_dataset}
 \title{A dataset of fixed-length records from one or more binary files.}
 \usage{
-fixed_length_record_dataset(filenames, record_bytes, header_bytes = NULL,
-  footer_bytes = NULL, buffer_size = NULL)
+fixed_length_record_dataset(
+  filenames,
+  record_bytes,
+  header_bytes = NULL,
+  footer_bytes = NULL,
+  buffer_size = NULL
+)
 }
 \arguments{
 \item{filenames}{A string tensor containing one or more filenames.}

@@ -4,8 +4,12 @@
 \alias{tfrecord_dataset}
 \title{A dataset comprising records from one or more TFRecord files.}
 \usage{
-tfrecord_dataset(filenames, compression_type = NULL,
-  buffer_size = NULL, num_parallel_reads = NULL)
+tfrecord_dataset(
+  filenames,
+  compression_type = NULL,
+  buffer_size = NULL,
+  num_parallel_reads = NULL
+)
 }
 \arguments{
 \item{filenames}{String(s) specifying one or more filenames}
@@ -32,7 +36,7 @@ into named records using the \code{\link[=dataset_map]{dataset_map()}} function 
 # Creates a dataset that reads all of the examples from two files, and extracts
 # the image and label features.
 filenames <- c("/var/data/file1.tfrecord", "/var/data/file2.tfrecord")
-dataset <- tfrecord_dataset(filenames) \%>\%
+dataset <- tfrecord_dataset(filenames) %>%
   dataset_map(function(example_proto) {
     features <- list(
       image = tf$FixedLenFeature(shape(), tf$string, default_value = ""),

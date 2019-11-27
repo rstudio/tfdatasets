@@ -10,7 +10,8 @@ all_nominal()
 Currently we only consider "string" type as nominal.
 }
 \seealso{
-Other Selectors: \code{\link{all_numeric}},
-  \code{\link{has_type}}
+Other Selectors: 
+\code{\link{all_numeric}()},
+\code{\link{has_type}()}
 }
 \concept{Selectors}

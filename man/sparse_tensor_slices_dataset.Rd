@@ -16,7 +16,8 @@ A dataset of rank-(N-1) sparse tensors.
 Splits each rank-N \code{tf$SparseTensor} in this dataset row-wise.
 }
 \seealso{
-Other tensor datasets: \code{\link{tensor_slices_dataset}},
-  \code{\link{tensors_dataset}}
+Other tensor datasets: 
+\code{\link{tensor_slices_dataset}()},
+\code{\link{tensors_dataset}()}
 }
 \concept{tensor datasets}

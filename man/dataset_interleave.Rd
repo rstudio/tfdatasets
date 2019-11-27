@@ -34,9 +34,9 @@ it reaches the end of an iterator.
 \examples{
 \dontrun{
 
-dataset <- tensor_slices_dataset(c(1,2,3,4,5)) \%>\%
+dataset <- tensor_slices_dataset(c(1,2,3,4,5)) %>%
  dataset_interleave(cycle_length = 2, block_length = 4, function(x) {
-   tensors_dataset(x) \%>\%
+   tensors_dataset(x) %>%
      dataset_repeat(6)
  })
 
@@ -57,21 +57,23 @@ c(1, 1, 1, 1,
 
 }
 \seealso{
-Other dataset methods: \code{\link{dataset_batch}},
-  \code{\link{dataset_cache}},
-  \code{\link{dataset_collect}},
-  \code{\link{dataset_concatenate}},
-  \code{\link{dataset_decode_delim}},
-  \code{\link{dataset_filter}},
-  \code{\link{dataset_map_and_batch}},
-  \code{\link{dataset_map}},
-  \code{\link{dataset_padded_batch}},
-  \code{\link{dataset_prefetch_to_device}},
-  \code{\link{dataset_prefetch}},
-  \code{\link{dataset_repeat}},
-  \code{\link{dataset_shuffle_and_repeat}},
-  \code{\link{dataset_shuffle}},
-  \code{\link{dataset_skip}}, \code{\link{dataset_take}},
-  \code{\link{dataset_window}}
+Other dataset methods: 
+\code{\link{dataset_batch}()},
+\code{\link{dataset_cache}()},
+\code{\link{dataset_collect}()},
+\code{\link{dataset_concatenate}()},
+\code{\link{dataset_decode_delim}()},
+\code{\link{dataset_filter}()},
+\code{\link{dataset_map_and_batch}()},
+\code{\link{dataset_map}()},
+\code{\link{dataset_padded_batch}()},
+\code{\link{dataset_prefetch_to_device}()},
+\code{\link{dataset_prefetch}()},
+\code{\link{dataset_repeat}()},
+\code{\link{dataset_shuffle_and_repeat}()},
+\code{\link{dataset_shuffle}()},
+\code{\link{dataset_skip}()},
+\code{\link{dataset_take}()},
+\code{\link{dataset_window}()}
 }
 \concept{dataset methods}

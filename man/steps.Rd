@@ -14,7 +14,7 @@ List of steps that can be used to specify columns in the \code{feature_spec} int
 \item \code{\link[=step_categorical_column_with_hash_bucket]{step_categorical_column_with_hash_bucket()}} to define categorical columns
 where ids are set by hashing.
 \item \code{\link[=step_categorical_column_with_identity]{step_categorical_column_with_identity()}} to define categorical columns
-represented by integers in the range \code{[0-num_buckets)}.
+represented by integers in the range \verb{[0-num_buckets)}.
 \item \code{\link[=step_categorical_column_with_vocabulary_file]{step_categorical_column_with_vocabulary_file()}} to define categorical columns
 when their vocabulary is available in a file.
 \item \code{\link[=step_indicator_column]{step_indicator_column()}} to create indicator columns from categorical columns.
@@ -32,19 +32,20 @@ categorical columns.
 \item \link{selectors} for a list of selectors that can be used to specify variables.
 }
 
-Other Feature Spec Functions: \code{\link{dataset_use_spec}},
-  \code{\link{feature_spec}},
-  \code{\link{fit.FeatureSpec}},
-  \code{\link{step_bucketized_column}},
-  \code{\link{step_categorical_column_with_hash_bucket}},
-  \code{\link{step_categorical_column_with_identity}},
-  \code{\link{step_categorical_column_with_vocabulary_file}},
-  \code{\link{step_categorical_column_with_vocabulary_list}},
-  \code{\link{step_crossed_column}},
-  \code{\link{step_embedding_column}},
-  \code{\link{step_indicator_column}},
-  \code{\link{step_numeric_column}},
-  \code{\link{step_remove_column}},
-  \code{\link{step_shared_embeddings_column}}
+Other Feature Spec Functions: 
+\code{\link{dataset_use_spec}()},
+\code{\link{feature_spec}()},
+\code{\link{fit.FeatureSpec}()},
+\code{\link{step_bucketized_column}()},
+\code{\link{step_categorical_column_with_hash_bucket}()},
+\code{\link{step_categorical_column_with_identity}()},
+\code{\link{step_categorical_column_with_vocabulary_file}()},
+\code{\link{step_categorical_column_with_vocabulary_list}()},
+\code{\link{step_crossed_column}()},
+\code{\link{step_embedding_column}()},
+\code{\link{step_indicator_column}()},
+\code{\link{step_numeric_column}()},
+\code{\link{step_remove_column}()},
+\code{\link{step_shared_embeddings_column}()}
 }
 \concept{Feature Spec Functions}

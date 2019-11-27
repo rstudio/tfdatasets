@@ -4,9 +4,17 @@
 \alias{dataset_prepare}
 \title{Prepare a dataset for analysis}
 \usage{
-dataset_prepare(dataset, x, y = NULL, named = TRUE,
-  named_features = FALSE, parallel_records = NULL, batch_size = NULL,
-  num_parallel_batches = NULL, drop_remainder = FALSE)
+dataset_prepare(
+  dataset,
+  x,
+  y = NULL,
+  named = TRUE,
+  named_features = FALSE,
+  parallel_records = NULL,
+  batch_size = NULL,
+  num_parallel_batches = NULL,
+  drop_remainder = FALSE
+)
 }
 \arguments{
 \item{dataset}{A dataset}
@@ -46,7 +54,7 @@ A dataset. The dataset will have a structure of either:
 \itemize{
 \item When \code{named_features} is \code{TRUE}: \code{list(x = list(feature_name = feature_values, ...), y = response_values)}
 \item When \code{named_features} is \code{FALSE}: \code{list(x = features_array, y = response_values)},
-where \code{features_array} is a Rank 2 array of \code{(batch_size, num_features)}.
+where \code{features_array} is a Rank 2 array of \verb{(batch_size, num_features)}.
 }
 
 Note that the \code{y} element will be omitted when \code{y} is \code{NULL}.

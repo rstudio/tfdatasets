@@ -4,9 +4,14 @@
 \alias{step_categorical_column_with_vocabulary_list}
 \title{Creates a categorical column specification}
 \usage{
-step_categorical_column_with_vocabulary_list(spec, ...,
-  vocabulary_list = NULL, dtype = NULL, default_value = -1L,
-  num_oov_buckets = 0L)
+step_categorical_column_with_vocabulary_list(
+  spec,
+  ...,
+  vocabulary_list = NULL,
+  dtype = NULL,
+  default_value = -1L,
+  num_oov_buckets = 0L
+)
 }
 \arguments{
 \item{spec}{A feature specification created with \code{\link[=feature_spec]{feature_spec()}}.}
@@ -27,7 +32,7 @@ num_oov_buckets.}
 
 \item{num_oov_buckets}{Non-negative integer, the number of out-of-vocabulary buckets.
 All out-of-vocabulary inputs will be assigned IDs in the range
-\code{[lenght(vocabulary_list), length(vocabulary_list)+num_oov_buckets)} based on a hash of
+\verb{[lenght(vocabulary_list), length(vocabulary_list)+num_oov_buckets)} based on a hash of
 the input value. A positive num_oov_buckets can not be specified with
 default_value.}
 }
@@ -41,33 +46,34 @@ Creates a categorical column specification
 \dontrun{
 library(tfdatasets)
 data(hearts)
-hearts <- tensor_slices_dataset(hearts) \%>\% dataset_batch(32)
+hearts <- tensor_slices_dataset(hearts) %>% dataset_batch(32)
 
 # use the formula interface
-spec <- feature_spec(hearts, target ~ thal) \%>\%
+spec <- feature_spec(hearts, target ~ thal) %>%
   step_categorical_column_with_vocabulary_list(thal)
 
 spec_fit <- fit(spec)
-final_dataset <- hearts \%>\% dataset_use_spec(spec_fit)
+final_dataset <- hearts %>% dataset_use_spec(spec_fit)
 }
 
 }
 \seealso{
 \link{steps} for a complete list of allowed steps.
 
-Other Feature Spec Functions: \code{\link{dataset_use_spec}},
-  \code{\link{feature_spec}},
-  \code{\link{fit.FeatureSpec}},
-  \code{\link{step_bucketized_column}},
-  \code{\link{step_categorical_column_with_hash_bucket}},
-  \code{\link{step_categorical_column_with_identity}},
-  \code{\link{step_categorical_column_with_vocabulary_file}},
-  \code{\link{step_crossed_column}},
-  \code{\link{step_embedding_column}},
-  \code{\link{step_indicator_column}},
-  \code{\link{step_numeric_column}},
-  \code{\link{step_remove_column}},
-  \code{\link{step_shared_embeddings_column}},
-  \code{\link{steps}}
+Other Feature Spec Functions: 
+\code{\link{dataset_use_spec}()},
+\code{\link{feature_spec}()},
+\code{\link{fit.FeatureSpec}()},
+\code{\link{step_bucketized_column}()},
+\code{\link{step_categorical_column_with_hash_bucket}()},
+\code{\link{step_categorical_column_with_identity}()},
+\code{\link{step_categorical_column_with_vocabulary_file}()},
+\code{\link{step_crossed_column}()},
+\code{\link{step_embedding_column}()},
+\code{\link{step_indicator_column}()},
+\code{\link{step_numeric_column}()},
+\code{\link{step_remove_column}()},
+\code{\link{step_shared_embeddings_column}()},
+\code{\link{steps}}
 }
 \concept{Feature Spec Functions}
