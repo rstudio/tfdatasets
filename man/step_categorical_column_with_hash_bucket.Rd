@@ -30,14 +30,14 @@ Represents sparse feature where ids are set by hashing.
 \dontrun{
 library(tfdatasets)
 data(hearts)
-hearts <- tensor_slices_dataset(hearts) %>% dataset_batch(32)
+hearts <- tensor_slices_dataset(hearts) \%>\% dataset_batch(32)
 
 # use the formula interface
-spec <- feature_spec(hearts, target ~ thal) %>%
+spec <- feature_spec(hearts, target ~ thal) \%>\%
   step_categorical_column_with_hash_bucket(thal, hash_bucket_size = 3)
 
 spec_fit <- fit(spec)
-final_dataset <- hearts %>% dataset_use_spec(spec_fit)
+final_dataset <- hearts \%>\% dataset_use_spec(spec_fit)
 }
 
 }

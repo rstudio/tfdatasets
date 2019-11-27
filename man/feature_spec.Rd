@@ -29,7 +29,7 @@ After creating the \code{feature_spec} object you can add steps using the
 \dontrun{
 library(tfdatasets)
 data(hearts)
-hearts <- tensor_slices_dataset(hearts) %>% dataset_batch(32)
+hearts <- tensor_slices_dataset(hearts) \%>\% dataset_batch(32)
 
 # use the formula interface
 spec <- feature_spec(hearts, target ~ .)

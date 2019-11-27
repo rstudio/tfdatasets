@@ -22,20 +22,20 @@ Filter a dataset by a predicate
 \details{
 Note that the functions used inside the predicate must be
 tensor operations (e.g. \code{tf$not_equal}, \code{tf$less}, etc.). R
-generic methods for relational operators (e.g. \verb{<}, \verb{>}, \verb{<=},
-etc.) and logical operators (e.g. \verb{!}, \verb{&}, \verb{|}, etc.) are
+generic methods for relational operators (e.g. \code{<}, \code{>}, \code{<=},
+etc.) and logical operators (e.g. \code{!}, \code{&}, \code{|}, etc.) are
 provided so you can use shorthand syntax for most common
 comparisions (this is illustrated by the example below).
 }
 \examples{
 \dontrun{
 
-dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
+dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) \%>\%
   dataset_filter(function(record) {
     record$mpg >= 20
 })
 
-dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
+dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) \%>\%
   dataset_filter(function(record) {
     record$mpg >= 20 & record$cyl >= 6L
   })
