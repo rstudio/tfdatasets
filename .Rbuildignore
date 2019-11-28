@@ -9,3 +9,5 @@
 ^issues$
 ^appveyor\.yml$
 ^\.travis\.yml$
+^doc$
+^Meta$
