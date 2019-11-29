@@ -34,18 +34,18 @@ Imports:
     rlang,
     tidyselect,
     stats,
-    generics
+    generics,
+    tfestimators
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.0.1
 Suggests:
     testthat,
     knitr,
-    tfestimators,
     keras,
     rsample,
     rmarkdown,
     Metrics,
-    reticulate
+    dplyr
 Remotes:
     rstudio/keras,
     rstudio/reticulate

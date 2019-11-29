@@ -432,7 +432,7 @@ StandardScaler <- R6::R6Class(
         if (!x$dtype$is_floating)
           x <- tf$cast(x, tf$float32)
 
-        (x - mean_)/sd_
+        (x - tf$cast(mean_, x$dtype))/tf$cast(sd_, x$dtype)
 
       }
     }
@@ -457,7 +457,7 @@ MinMaxScaler <- R6::R6Class(
         if (!x$dtype$is_floating)
           x <- tf$cast(x, tf$float32)
 
-        (x - min_)/(max_ - min_)
+        (x - tf$cast(min_, x$dtype))/(tf$cast(max_, x$dtype) - tf$cast(min_, x$dtype))
 
       }
     }
@@ -780,7 +780,7 @@ StepEmbeddingColumn <- R6::R6Class(
 
       tf$feature_column$embedding_column(
         categorical_column = categorical_column,
-        dimension = dimension,
+        dimension = as.integer(dimension),
         combiner = self$combiner,
         initializer = self$initializer,
         ckpt_to_load_from = self$ckpt_to_load_from,
@@ -1828,7 +1828,7 @@ layer_input_from_dataset <- function(dataset) {
 
   # only needs the head to infer types, colnames and etc.
   if (inherits(dataset, "data.frame") || inherits(dataset, "list"))
-    dataset <- tensor_slices_dataset(head(dataset))
+    dataset <- tensor_slices_dataset(utils::head(dataset))
 
   dataset <- dataset_map(dataset, ~.x)
 

@@ -29,6 +29,7 @@ final dataset in the input pipeline.
 Other dataset methods: 
 \code{\link{dataset_batch}()},
 \code{\link{dataset_cache}()},
+\code{\link{dataset_collect}()},
 \code{\link{dataset_concatenate}()},
 \code{\link{dataset_decode_delim}()},
 \code{\link{dataset_filter}()},

@@ -26,17 +26,29 @@ dataset_repeat <- function(dataset, count = NULL) {
 #'   dataset from which the new dataset will sample.
 #' @param seed (Optional) An integer, representing the random seed that will be
 #'   used to create the distribution.
-#'
+#' @param reshuffle_each_iteration (Optional) A boolean, which if true indicates
+#'   that the dataset should be pseudorandomly reshuffled each time it is iterated
+#'   over. (Defaults to `TRUE`). Not used if TF version < 1.15
 #' @return A dataset
 #'
 #' @family dataset methods
 #'
 #' @export
-dataset_shuffle <- function(dataset, buffer_size, seed = NULL) {
-  as_tf_dataset(dataset$shuffle(
+dataset_shuffle <- function(dataset, buffer_size, seed = NULL, reshuffle_each_iteration = NULL) {
+
+  if (!is.null(reshuffle_each_iteration) && tensorflow::tf_version() < "1.15")
+    warning("reshuffle_each_iteration is only used with TF >= 1.15", call. = FALSE)
+
+  args <- list(
     buffer_size = as_integer_tensor(buffer_size),
     seed = as_integer_tensor(seed)
-  ))
+  )
+
+  if (tensorflow::tf_version() >= "1.15")
+    args[["reshuffle_each_iteration"]] <- reshuffle_each_iteration
+
+
+  as_tf_dataset(do.call(dataset$shuffle, args))
 }
 
 
@@ -518,6 +530,8 @@ dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features =
     tidyselect::vars_select(col_names, !! eq_features)
   },
   error = function(e) {
+
+
     x <- get_expr(eq_features)
     if (is_formula(x)) {
 
@@ -537,6 +551,7 @@ dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features =
   # get column indexes
   feature_cols <- match(feature_col_names, col_names)
 
+
   # get response if specified
   if (!missing(y) && is.null(response_col)) {
     eq_response <- rlang::enquo(y)
@@ -550,6 +565,11 @@ dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features =
 
   # mapping function
   map_func <- function(record) {
+
+    # `make_csv_dataset` returns an ordered dict instead of a `dict`
+    # which in turn doesn't get automatically converted by reticulate.
+    if (inherits(record, "python.builtin.dict"))
+      record <- reticulate::py_to_r(record)
 
     # select features
     record_features <- record[feature_cols]
@@ -661,5 +681,35 @@ dataset_window <- function(dataset, size, shift = NULL, stride = 1,
   )
 }
 
+#' Collects a dataset
+#'
+#' Iterates throught the dataset collecting every element into a list.
+#' It's useful for looking at the full result of the dataset.
+#' Note: You may run out of memory if your dataset is too big.
+#'
+#' @param dataset A dataset
+#' @param iter_max Maximum number of iterations. `Inf` until the end of the
+#'  dataset
+#'
+#' @family dataset methods
+#'
+#' @export
+dataset_collect <- function(dataset, iter_max = Inf) {
 
+  if (tensorflow::tf_version() < "2.0")
+    stop("dataset_collect requires TF 2.0", call.=FALSE)
+
+  it <- reticulate::as_iterator(dataset)
+
+  out <- list()
+  i <- 0
+
+  while(!is.null(x <- reticulate::iter_next(it))) {
+    i <- i + 1
+    out[[i]] <- x
+    if (i >= iter_max) break
+  }
+
+  out
+}
 
