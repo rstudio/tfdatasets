@@ -4,9 +4,14 @@
 \alias{dataset_map_and_batch}
 \title{Fused implementation of dataset_map() and dataset_batch()}
 \usage{
-dataset_map_and_batch(dataset, map_func, batch_size,
-  num_parallel_batches = NULL, drop_remainder = FALSE,
-  num_parallel_calls = NULL)
+dataset_map_and_batch(
+  dataset,
+  map_func,
+  batch_size,
+  num_parallel_batches = NULL,
+  drop_remainder = FALSE,
+  num_parallel_calls = NULL
+)
 }
 \arguments{
 \item{dataset}{A dataset}
@@ -38,20 +43,22 @@ them into a batch. Functionally, it is equivalent to map followed by batch. Howe
 fusing the two transformations together, the implementation can be more efficient.
 }
 \seealso{
-Other dataset methods: \code{\link{dataset_batch}},
-  \code{\link{dataset_cache}},
-  \code{\link{dataset_concatenate}},
-  \code{\link{dataset_decode_delim}},
-  \code{\link{dataset_filter}},
-  \code{\link{dataset_interleave}},
-  \code{\link{dataset_map}},
-  \code{\link{dataset_padded_batch}},
-  \code{\link{dataset_prefetch_to_device}},
-  \code{\link{dataset_prefetch}},
-  \code{\link{dataset_repeat}},
-  \code{\link{dataset_shuffle_and_repeat}},
-  \code{\link{dataset_shuffle}},
-  \code{\link{dataset_skip}}, \code{\link{dataset_take}},
-  \code{\link{dataset_window}}
+Other dataset methods: 
+\code{\link{dataset_batch}()},
+\code{\link{dataset_cache}()},
+\code{\link{dataset_concatenate}()},
+\code{\link{dataset_decode_delim}()},
+\code{\link{dataset_filter}()},
+\code{\link{dataset_interleave}()},
+\code{\link{dataset_map}()},
+\code{\link{dataset_padded_batch}()},
+\code{\link{dataset_prefetch_to_device}()},
+\code{\link{dataset_prefetch}()},
+\code{\link{dataset_repeat}()},
+\code{\link{dataset_shuffle_and_repeat}()},
+\code{\link{dataset_shuffle}()},
+\code{\link{dataset_skip}()},
+\code{\link{dataset_take}()},
+\code{\link{dataset_window}()}
 }
 \concept{dataset methods}

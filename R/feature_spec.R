@@ -949,6 +949,36 @@ StepTextEmbeddingColumn <- R6::R6Class(
 )
 
 
+# StepImageEmbedding -----------------------------------------------------
+
+StepImageEmbeddingColumn <- R6::R6Class(
+  "StepTextEmbeddingColumn",
+  inherit = Step,
+
+  public = list(
+
+    key = NULL,
+    module_spec = NULL,
+    trainable = NULL,
+    name = NULL,
+
+    initialize = function(key, module_spec, name) {
+      self$key <- key
+      self$module_spec <- module_spec
+      self$trainable <- trainable
+      self$name <- name
+    },
+
+    feature = function(base_features) {
+      tfhub::hub_image_embedding_column(
+        key = self$key,
+        module_spec = self$module_spec
+      )
+    }
+
+  )
+)
+
 # Wrappers ----------------------------------------------------------------
 
 #' Creates a feature specification.
@@ -1749,6 +1779,21 @@ step_text_embedding_column <- function(spec, ..., module_spec, trainable = FALSE
   )
 
   step_(spec, ..., step = StepTextEmbeddingColumn$new, args = args, prefix = "text_embedding")
+}
+
+#' Creates Image embeddings columns
+#'
+#' Use this step to create image embeddings columns from image columns.
+#'
+#' @inheritParams step_text_embedding_model
+#'
+#' @export
+step_image_embedding_column <- function(spec, ..., module_spec) {
+  args <- list(
+    module_spec = module_spec
+  )
+
+  step_(spec, ..., step = StepImageEmbeddingColumn$new, args = args, prefix = "image_embedding")
 }
 
 # Input from spec ---------------------------------------------------------

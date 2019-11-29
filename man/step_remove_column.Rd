@@ -37,19 +37,20 @@ final_dataset <- hearts \%>\% dataset_use_spec(spec_fit)
 \seealso{
 \link{steps} for a complete list of allowed steps.
 
-Other Feature Spec Functions: \code{\link{dataset_use_spec}},
-  \code{\link{feature_spec}},
-  \code{\link{fit.FeatureSpec}},
-  \code{\link{step_bucketized_column}},
-  \code{\link{step_categorical_column_with_hash_bucket}},
-  \code{\link{step_categorical_column_with_identity}},
-  \code{\link{step_categorical_column_with_vocabulary_file}},
-  \code{\link{step_categorical_column_with_vocabulary_list}},
-  \code{\link{step_crossed_column}},
-  \code{\link{step_embedding_column}},
-  \code{\link{step_indicator_column}},
-  \code{\link{step_numeric_column}},
-  \code{\link{step_shared_embeddings_column}},
-  \code{\link{steps}}
+Other Feature Spec Functions: 
+\code{\link{dataset_use_spec}()},
+\code{\link{feature_spec}()},
+\code{\link{fit.FeatureSpec}()},
+\code{\link{step_bucketized_column}()},
+\code{\link{step_categorical_column_with_hash_bucket}()},
+\code{\link{step_categorical_column_with_identity}()},
+\code{\link{step_categorical_column_with_vocabulary_file}()},
+\code{\link{step_categorical_column_with_vocabulary_list}()},
+\code{\link{step_crossed_column}()},
+\code{\link{step_embedding_column}()},
+\code{\link{step_indicator_column}()},
+\code{\link{step_numeric_column}()},
+\code{\link{step_shared_embeddings_column}()},
+\code{\link{steps}}
 }
 \concept{Feature Spec Functions}

@@ -12,7 +12,8 @@ Find all the variables with the following types:
 "half", "double".
 }
 \seealso{
-Other Selectors: \code{\link{all_nominal}},
-  \code{\link{has_type}}
+Other Selectors: 
+\code{\link{all_nominal}()},
+\code{\link{has_type}()}
 }
 \concept{Selectors}

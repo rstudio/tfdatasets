@@ -4,8 +4,13 @@
 \alias{dataset_padded_batch}
 \title{Combines consecutive elements of this dataset into padded batches}
 \usage{
-dataset_padded_batch(dataset, batch_size, padded_shapes,
-  padding_values = NULL, drop_remainder = FALSE)
+dataset_padded_batch(
+  dataset,
+  batch_size,
+  padded_shapes,
+  padding_values = NULL,
+  drop_remainder = FALSE
+)
 }
 \arguments{
 \item{dataset}{A dataset}
@@ -39,20 +44,22 @@ resulting element have an additional outer dimension, and are padded to the
 respective shape in \code{padded_shapes}.
 }
 \seealso{
-Other dataset methods: \code{\link{dataset_batch}},
-  \code{\link{dataset_cache}},
-  \code{\link{dataset_concatenate}},
-  \code{\link{dataset_decode_delim}},
-  \code{\link{dataset_filter}},
-  \code{\link{dataset_interleave}},
-  \code{\link{dataset_map_and_batch}},
-  \code{\link{dataset_map}},
-  \code{\link{dataset_prefetch_to_device}},
-  \code{\link{dataset_prefetch}},
-  \code{\link{dataset_repeat}},
-  \code{\link{dataset_shuffle_and_repeat}},
-  \code{\link{dataset_shuffle}},
-  \code{\link{dataset_skip}}, \code{\link{dataset_take}},
-  \code{\link{dataset_window}}
+Other dataset methods: 
+\code{\link{dataset_batch}()},
+\code{\link{dataset_cache}()},
+\code{\link{dataset_concatenate}()},
+\code{\link{dataset_decode_delim}()},
+\code{\link{dataset_filter}()},
+\code{\link{dataset_interleave}()},
+\code{\link{dataset_map_and_batch}()},
+\code{\link{dataset_map}()},
+\code{\link{dataset_prefetch_to_device}()},
+\code{\link{dataset_prefetch}()},
+\code{\link{dataset_repeat}()},
+\code{\link{dataset_shuffle_and_repeat}()},
+\code{\link{dataset_shuffle}()},
+\code{\link{dataset_skip}()},
+\code{\link{dataset_take}()},
+\code{\link{dataset_window}()}
 }
 \concept{dataset methods}

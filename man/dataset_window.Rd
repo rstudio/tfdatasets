@@ -4,8 +4,7 @@
 \alias{dataset_window}
 \title{Combines input elements into a dataset of windows.}
 \usage{
-dataset_window(dataset, size, shift = NULL, stride = 1,
-  drop_remainder = FALSE)
+dataset_window(dataset, size, shift = NULL, stride = 1, drop_remainder = FALSE)
 }
 \arguments{
 \item{dataset}{A dataset}
@@ -20,26 +19,28 @@ iteration. Defaults to \code{size}.}
 window.}
 
 \item{drop_remainder}{representing whether a window should be dropped in
-case its size is smaller \code{than window_size}.}
+case its size is smaller \verb{than window_size}.}
 }
 \description{
 Combines input elements into a dataset of windows.
 }
 \seealso{
-Other dataset methods: \code{\link{dataset_batch}},
-  \code{\link{dataset_cache}},
-  \code{\link{dataset_concatenate}},
-  \code{\link{dataset_decode_delim}},
-  \code{\link{dataset_filter}},
-  \code{\link{dataset_interleave}},
-  \code{\link{dataset_map_and_batch}},
-  \code{\link{dataset_map}},
-  \code{\link{dataset_padded_batch}},
-  \code{\link{dataset_prefetch_to_device}},
-  \code{\link{dataset_prefetch}},
-  \code{\link{dataset_repeat}},
-  \code{\link{dataset_shuffle_and_repeat}},
-  \code{\link{dataset_shuffle}},
-  \code{\link{dataset_skip}}, \code{\link{dataset_take}}
+Other dataset methods: 
+\code{\link{dataset_batch}()},
+\code{\link{dataset_cache}()},
+\code{\link{dataset_concatenate}()},
+\code{\link{dataset_decode_delim}()},
+\code{\link{dataset_filter}()},
+\code{\link{dataset_interleave}()},
+\code{\link{dataset_map_and_batch}()},
+\code{\link{dataset_map}()},
+\code{\link{dataset_padded_batch}()},
+\code{\link{dataset_prefetch_to_device}()},
+\code{\link{dataset_prefetch}()},
+\code{\link{dataset_repeat}()},
+\code{\link{dataset_shuffle_and_repeat}()},
+\code{\link{dataset_shuffle}()},
+\code{\link{dataset_skip}()},
+\code{\link{dataset_take}()}
 }
 \concept{dataset methods}

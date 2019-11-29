@@ -4,8 +4,12 @@
 \alias{tfrecord_dataset}
 \title{A dataset comprising records from one or more TFRecord files.}
 \usage{
-tfrecord_dataset(filenames, compression_type = NULL,
-  buffer_size = NULL, num_parallel_reads = NULL)
+tfrecord_dataset(
+  filenames,
+  compression_type = NULL,
+  buffer_size = NULL,
+  num_parallel_reads = NULL
+)
 }
 \arguments{
 \item{filenames}{String(s) specifying one or more filenames}

@@ -4,8 +4,12 @@
 \alias{text_line_dataset}
 \title{A dataset comprising lines from one or more text files.}
 \usage{
-text_line_dataset(filenames, compression_type = NULL,
-  record_spec = NULL, parallel_records = NULL)
+text_line_dataset(
+  filenames,
+  compression_type = NULL,
+  record_spec = NULL,
+  parallel_records = NULL
+)
 }
 \arguments{
 \item{filenames}{String(s) specifying one or more filenames}
