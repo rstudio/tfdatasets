@@ -575,6 +575,9 @@ StepCategoricalColumnWithVocabularyList <- R6::R6Class(
       if (is.null(self$vocabulary_list)) {
         values <- batch[[self$key]]
 
+        if (is.list(values) && inherits(values, "python.builtin.bytes"))
+          values <- tf$constant(sapply(values, function(x) x$decode()), shape = 1L)
+
         # add shape to tensor with no shape
         if (identical(values$shape$as_list(), list()))
           values <- tf$constant(values, shape = 1L)
@@ -929,6 +932,7 @@ StepTextEmbeddingColumn <- R6::R6Class(
     module_spec = NULL,
     trainable = NULL,
     name = NULL,
+    column_type = "float32",
 
     initialize = function(key, module_spec, trainable = FALSE, name) {
       self$key <- key
@@ -952,7 +956,7 @@ StepTextEmbeddingColumn <- R6::R6Class(
 # StepImageEmbedding -----------------------------------------------------
 
 StepImageEmbeddingColumn <- R6::R6Class(
-  "StepTextEmbeddingColumn",
+  "StepImageEmbeddingColumn",
   inherit = Step,
 
   public = list(
@@ -961,11 +965,11 @@ StepImageEmbeddingColumn <- R6::R6Class(
     module_spec = NULL,
     trainable = NULL,
     name = NULL,
+    column_type = "float32",
 
     initialize = function(key, module_spec, name) {
       self$key <- key
       self$module_spec <- module_spec
-      self$trainable <- trainable
       self$name <- name
     },
 
