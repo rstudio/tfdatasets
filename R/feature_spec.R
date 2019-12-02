@@ -575,18 +575,17 @@ StepCategoricalColumnWithVocabularyList <- R6::R6Class(
       if (is.null(self$vocabulary_list)) {
         values <- batch[[self$key]]
 
-        if (is.list(values) && inherits(values, "python.builtin.bytes"))
-          values <- tf$constant(sapply(values, function(x) x$decode()), shape = 1L)
+        if (inherits(values, "tensorflow.tensor")) {
+          # add shape to tensor with no shape
+          if (identical(values$shape$as_list(), list()))
+            values <- tf$constant(values, shape = 1L)
 
-        # add shape to tensor with no shape
-        if (identical(values$shape$as_list(), list()))
-          values <- tf$constant(values, shape = 1L)
+          # get unique values before converting to R.
+          values <- tensorflow::tf$unique(values)$y
 
-        # get unique values before converting to R.
-        values <- tensorflow::tf$unique(values)$y
-
-        if (!is.atomic(values))
-          values <- values$numpy()
+          if (!is.atomic(values))
+            values <- values$numpy()
+        }
 
         # converts from bytes to an R string. Need in python >= 3.6
         # special case when values is a single value of type string
