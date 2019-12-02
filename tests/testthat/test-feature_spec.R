@@ -519,3 +519,45 @@ test_that("feature_spec works with make_csv_dataset", {
 
   expect_s3_class(spec, class = "FeatureSpec")
 })
+
+test_that("can create image embedding steps", {
+  skip_if_not_tf()
+
+  if (tensorflow::tf$executing_eagerly())
+    skip("Needs non-eager execution.")
+
+  df <- list(img = array(0, dim = c(1, 192, 192, 3)))
+  df <- tensor_slices_dataset(df)
+
+  spec <- feature_spec(df, x = c(img)) %>%
+    step_image_embedding_column(
+      img,
+      module_spec = "https://tfhub.dev/google/imagenet/mobilenet_v1_075_192/quantops/feature_vector/3"
+    )
+
+  spec <- spec %>% fit()
+
+  layer <- keras::layer_dense_features(feature_columns = spec$dense_features())
+  x <- layer(list(img = array(0, dim = c(1, 192, 192, 3))))
+
+  expect_equal(x$get_shape()$as_list(), c(1L, 768L))
+})
+
+test_that("can create text embedding columns", {
+
+  if (tensorflow::tf$executing_eagerly())
+    skip("Needs non-eager execution.")
+
+  df <- list(txt = c("hello world", "hello world"))
+  df <- tensor_slices_dataset(df)
+
+  spec <- feature_spec(df, x = c(txt)) %>%
+    step_text_embedding_column(txt, module_spec = "https://tfhub.dev/google/nnlm-en-dim50/1")
+
+  spec <- spec %>% fit()
+
+  layer <- keras::layer_dense_features(feature_columns = spec$dense_features())
+  x <- layer(list(txt = c("hello world", "hello world")))
+
+  expect_equal(x$get_shape()$as_list(), list(NULL, 50L))
+})
