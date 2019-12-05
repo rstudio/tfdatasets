@@ -544,6 +544,7 @@ test_that("can create image embedding steps", {
 })
 
 test_that("can create text embedding columns", {
+  skip_if_not_tf()
 
   if (tensorflow::tf$executing_eagerly())
     skip("Needs non-eager execution.")
