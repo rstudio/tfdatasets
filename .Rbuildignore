@@ -9,3 +9,4 @@
 ^issues$
 ^appveyor\.yml$
 ^\.travis\.yml$
+^\.github/workflows/R-CMD-check\.yaml$
