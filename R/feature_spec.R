@@ -432,7 +432,7 @@ StandardScaler <- R6::R6Class(
         if (!x$dtype$is_floating)
           x <- tf$cast(x, tf$float32)
 
-        (x - mean_)/sd_
+        (x - tf$cast(mean_, x$dtype))/tf$cast(sd_, x$dtype)
 
       }
     }
@@ -457,7 +457,7 @@ MinMaxScaler <- R6::R6Class(
         if (!x$dtype$is_floating)
           x <- tf$cast(x, tf$float32)
 
-        (x - min_)/(max_ - min_)
+        (x - tf$cast(min_, x$dtype))/(tf$cast(max_, x$dtype) - tf$cast(min_, x$dtype))
 
       }
     }
