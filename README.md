@@ -1,8 +1,9 @@
 
 ## R interface to TensorFlow Dataset API
 
-[![Travis-CI Build Status](https://travis-ci.org/rstudio/tfdatasets.svg?branch=master)](https://travis-ci.org/rstudio/tfdatasets) 
-[![AppVeyor Build Status](https://ci.appveyor.com/api/projects/status/github/rstudio/tfdatasets?branch=master&svg=true)](https://ci.appveyor.com/project/rstudio/tfdatasets)
+<!-- badges: start -->
+[![R build status](https://github.com/rstudio/tfdatasets/workflows/R-CMD-check/badge.svg)](https://github.com/rstudio/tfdatasets)
+<!-- badges: end -->
 
 The TensorFlow Dataset API provides various facilities for creating scalable input pipelines for TensorFlow models, including:
 

@@ -399,8 +399,8 @@ Scaler <- R6::R6Class(
   )
 )
 
-#' http://notmatthancock.github.io/2017/03/23/simple-batch-stat-updates.html
-#' batch updates for mean and variance.
+# http://notmatthancock.github.io/2017/03/23/simple-batch-stat-updates.html
+# batch updates for mean and variance.
 StandardScaler <- R6::R6Class(
   "StandardScaler",
   inherit = Scaler,

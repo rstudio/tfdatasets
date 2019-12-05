@@ -11,11 +11,12 @@ repo: https://github.com/rstudio/tfdatasets
 menu:
   main:
     name: "Using Datasets"
-    identifier: "tools-tfdatasets-using"
-    parent: "tfdatasets-top"
+    identifier: "data-using"
+    parent: "data-overview-top"
     weight: 10
 aliases:
   - /tools/tfdatasets/
+  - /tools/tfdatasets/articles/introduction.html
 ---
 
 ```{r setup, include=FALSE}

@@ -12,14 +12,17 @@ menu:
   main:
     name: "Feature columns"
     identifier: "feature-columns"
-    parent: "tfdatasets-top"
-    weight: 30
+    parent: "data-feature-spec-top"
+    weight: 20
 aliases:
   - /tools/tfdatasets/feature-spec
+  - /tools/tfdatasets/articles/feature_columns.html
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(eval = tensorflow::tf_version() >= "2.0")
+knitr::opts_chunk$set(
+  eval = (identical(Sys.getenv("EVAL_VIGNETTE", "false"), "true") || identical(Sys.getenv("CI"), "true")) && (tensorflow::tf_version() >= "2.0")
+) 
 ```
 
 > This document is an adaptation of the official TensorFlow [Feature Columns guide](https://www.tensorflow.org/guide/feature_columns).
