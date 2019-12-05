@@ -12,11 +12,17 @@ make_iterator_one_shot(dataset)
 
 make_iterator_initializable(dataset, shared_name = NULL)
 
-make_iterator_from_structure(output_types, output_shapes = NULL,
-  shared_name = NULL)
+make_iterator_from_structure(
+  output_types,
+  output_shapes = NULL,
+  shared_name = NULL
+)
 
-make_iterator_from_string_handle(string_handle, output_types,
-  output_shapes = NULL)
+make_iterator_from_string_handle(
+  string_handle,
+  output_types,
+  output_shapes = NULL
+)
 }
 \arguments{
 \item{dataset}{A dataset}
@@ -57,9 +63,10 @@ iterator, run the operation returned by \code{\link[=iterator_make_initializer]{
 }
 
 \seealso{
-Other iterator functions: \code{\link{iterator_get_next}},
-  \code{\link{iterator_initializer}},
-  \code{\link{iterator_make_initializer}},
-  \code{\link{iterator_string_handle}}
+Other iterator functions: 
+\code{\link{iterator_get_next}()},
+\code{\link{iterator_initializer}()},
+\code{\link{iterator_make_initializer}()},
+\code{\link{iterator_string_handle}()}
 }
 \concept{iterator functions}

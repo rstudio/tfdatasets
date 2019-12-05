@@ -13,9 +13,10 @@ iterator_initializer(iterator)
 An operation that should be run to initialize this iterator.
 }
 \seealso{
-Other iterator functions: \code{\link{iterator_get_next}},
-  \code{\link{iterator_make_initializer}},
-  \code{\link{iterator_string_handle}},
-  \code{\link{make-iterator}}
+Other iterator functions: 
+\code{\link{iterator_get_next}()},
+\code{\link{iterator_make_initializer}()},
+\code{\link{iterator_string_handle}()},
+\code{\link{make-iterator}}
 }
 \concept{iterator functions}

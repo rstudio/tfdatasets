@@ -14,7 +14,8 @@ Can only be used inside the \link{steps} specifications to find
 variables by type.
 }
 \seealso{
-Other Selectors: \code{\link{all_nominal}},
-  \code{\link{all_numeric}}
+Other Selectors: 
+\code{\link{all_nominal}()},
+\code{\link{all_numeric}()}
 }
 \concept{Selectors}

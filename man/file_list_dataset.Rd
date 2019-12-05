@@ -9,7 +9,7 @@ file_list_dataset(file_pattern, shuffle = NULL, seed = NULL)
 \arguments{
 \item{file_pattern}{A string, representing the filename pattern that will be matched.}
 
-\item{shuffle}{(Optional) If \code{TRUE``, the file names will be shuffled randomly. Defaults to }TRUE`}
+\item{shuffle}{(Optional) If \verb{TRUE``, the file names will be shuffled randomly. Defaults to }TRUE`}
 
 \item{seed}{(Optional) An integer, representing the random seed that
 will be used to create the distribution.}

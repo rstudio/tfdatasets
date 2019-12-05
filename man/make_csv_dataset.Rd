@@ -4,14 +4,27 @@
 \alias{make_csv_dataset}
 \title{Reads CSV files into a batched dataset}
 \usage{
-make_csv_dataset(file_pattern, batch_size, column_names = NULL,
-  column_defaults = NULL, label_name = NULL, select_columns = NULL,
-  field_delim = ",", use_quote_delim = TRUE, na_value = "",
-  header = TRUE, num_epochs = NULL, shuffle = TRUE,
-  shuffle_buffer_size = 10000, shuffle_seed = NULL,
-  prefetch_buffer_size = 1, num_parallel_reads = 1,
-  num_parallel_parser_calls = 2, sloppy = FALSE,
-  num_rows_for_inference = 100)
+make_csv_dataset(
+  file_pattern,
+  batch_size,
+  column_names = NULL,
+  column_defaults = NULL,
+  label_name = NULL,
+  select_columns = NULL,
+  field_delim = ",",
+  use_quote_delim = TRUE,
+  na_value = "",
+  header = TRUE,
+  num_epochs = NULL,
+  shuffle = TRUE,
+  shuffle_buffer_size = 10000,
+  shuffle_seed = NULL,
+  prefetch_buffer_size = 1,
+  num_parallel_reads = 1,
+  num_parallel_parser_calls = 2,
+  sloppy = FALSE,
+  num_rows_for_inference = 100
+)
 }
 \arguments{
 \item{file_pattern}{List of files or glob patterns of file paths containing CSV records.}

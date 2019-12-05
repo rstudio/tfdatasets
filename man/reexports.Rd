@@ -23,8 +23,8 @@ below to see their documentation.
 \describe{
   \item{generics}{\code{\link[generics]{fit}}}
 
-  \item{tensorflow}{\code{\link[tensorflow]{tf}}, \code{\link[tensorflow]{shape}}, \code{\link[tensorflow]{install_tensorflow}}}
+  \item{tensorflow}{\code{\link[tensorflow]{install_tensorflow}}, \code{\link[tensorflow]{shape}}, \code{\link[tensorflow]{tf}}}
 
-  \item{tidyselect}{\code{\link[tidyselect]{starts_with}}, \code{\link[tidyselect]{ends_with}}, \code{\link[tidyselect]{contains}}, \code{\link[tidyselect]{everything}}, \code{\link[tidyselect]{matches}}, \code{\link[tidyselect]{num_range}}, \code{\link[tidyselect]{one_of}}}
+  \item{tidyselect}{\code{\link[tidyselect]{contains}}, \code{\link[tidyselect]{ends_with}}, \code{\link[tidyselect]{everything}}, \code{\link[tidyselect]{matches}}, \code{\link[tidyselect]{num_range}}, \code{\link[tidyselect]{one_of}}, \code{\link[tidyselect]{starts_with}}}
 }}
 

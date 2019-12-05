@@ -17,7 +17,8 @@ A dataset.
 Creates a dataset whose elements are slices of the given tensors.
 }
 \seealso{
-Other tensor datasets: \code{\link{sparse_tensor_slices_dataset}},
-  \code{\link{tensors_dataset}}
+Other tensor datasets: 
+\code{\link{sparse_tensor_slices_dataset}()},
+\code{\link{tensors_dataset}()}
 }
 \concept{tensor datasets}

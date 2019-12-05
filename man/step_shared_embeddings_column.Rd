@@ -4,10 +4,18 @@
 \alias{step_shared_embeddings_column}
 \title{Creates shared embeddings for categorical columns}
 \usage{
-step_shared_embeddings_column(spec, ..., dimension, combiner = "mean",
-  initializer = NULL, shared_embedding_collection_name = NULL,
-  ckpt_to_load_from = NULL, tensor_name_in_ckpt = NULL,
-  max_norm = NULL, trainable = TRUE)
+step_shared_embeddings_column(
+  spec,
+  ...,
+  dimension,
+  combiner = "mean",
+  initializer = NULL,
+  shared_embedding_collection_name = NULL,
+  ckpt_to_load_from = NULL,
+  tensor_name_in_ckpt = NULL,
+  max_norm = NULL,
+  trainable = TRUE
+)
 }
 \arguments{
 \item{spec}{A feature specification created with \code{\link[=feature_spec]{feature_spec()}}.}
@@ -56,18 +64,20 @@ Does not work in the eager mode.
 \seealso{
 \link{steps} for a complete list of allowed steps.
 
-Other Feature Spec Functions: \code{\link{dataset_use_spec}},
-  \code{\link{feature_spec}},
-  \code{\link{fit.FeatureSpec}},
-  \code{\link{step_bucketized_column}},
-  \code{\link{step_categorical_column_with_hash_bucket}},
-  \code{\link{step_categorical_column_with_identity}},
-  \code{\link{step_categorical_column_with_vocabulary_file}},
-  \code{\link{step_categorical_column_with_vocabulary_list}},
-  \code{\link{step_crossed_column}},
-  \code{\link{step_embedding_column}},
-  \code{\link{step_indicator_column}},
-  \code{\link{step_numeric_column}},
-  \code{\link{step_remove_column}}, \code{\link{steps}}
+Other Feature Spec Functions: 
+\code{\link{dataset_use_spec}()},
+\code{\link{feature_spec}()},
+\code{\link{fit.FeatureSpec}()},
+\code{\link{step_bucketized_column}()},
+\code{\link{step_categorical_column_with_hash_bucket}()},
+\code{\link{step_categorical_column_with_identity}()},
+\code{\link{step_categorical_column_with_vocabulary_file}()},
+\code{\link{step_categorical_column_with_vocabulary_list}()},
+\code{\link{step_crossed_column}()},
+\code{\link{step_embedding_column}()},
+\code{\link{step_indicator_column}()},
+\code{\link{step_numeric_column}()},
+\code{\link{step_remove_column}()},
+\code{\link{steps}}
 }
 \concept{Feature Spec Functions}

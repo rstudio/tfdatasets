@@ -51,7 +51,7 @@ jobs:
           Rscript -e "reticulate::install_miniconda()"
           Rscript -e "reticulate::conda_create('r-reticulate', packages = 'python==3.6.9')"
           Rscript -e "tensorflow::install_tensorflow(version = Sys.getenv('TF_VERSION'))"
-          Rscript -e "reticulate::py_install(c('h5py', 'pyyaml', 'requests', 'Pillow', 'scipy'), pip = TRUE)"
+          Rscript -e "reticulate::py_install(c('h5py', 'pyyaml', 'requests', 'Pillow', 'scipy', 'IPython'), pip = TRUE)"
 
       - name: Check
         run: Rscript -e "rcmdcheck::rcmdcheck(args = '--no-manual', error_on = 'warning', check_dir = 'check')"

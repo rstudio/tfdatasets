@@ -13,6 +13,7 @@ and use this to create a \code{normalizer_fn}.
 \seealso{
 \link{scaler} to a complete list of normalizers
 
-Other scaler: \code{\link{scaler_min_max}}
+Other scaler: 
+\code{\link{scaler_min_max}()}
 }
 \concept{scaler}
