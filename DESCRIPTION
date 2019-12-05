@@ -45,8 +45,10 @@ Suggests:
     rsample,
     rmarkdown,
     Metrics,
-    dplyr
+    dplyr,
+    tfhub
 Remotes:
     rstudio/keras,
-    rstudio/reticulate
+    rstudio/reticulate,
+    rstudio/tfhub
 VignetteBuilder: knitr
