@@ -1788,7 +1788,7 @@ step_text_embedding_column <- function(spec, ..., module_spec, trainable = FALSE
 #'
 #' Use this step to create image embeddings columns from image columns.
 #'
-#' @inheritParams step_text_embedding_model
+#' @inheritParams step_text_embedding_column
 #'
 #' @export
 step_image_embedding_column <- function(spec, ..., module_spec) {

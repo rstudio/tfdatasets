@@ -6,6 +6,13 @@
 \usage{
 step_image_embedding_column(spec, ..., module_spec)
 }
+\arguments{
+\item{spec}{A feature specification created with \code{\link[=feature_spec]{feature_spec()}}.}
+
+\item{...}{Comma separated list of variable names to apply the step. \link{selectors} can also be used.}
+
+\item{module_spec}{A string handle or a _ModuleSpec identifying the module.}
+}
 \description{
 Use this step to create image embeddings columns from image columns.
 }
