@@ -52,3 +52,10 @@ Remotes:
     rstudio/reticulate,
     rstudio/tfhub
 VignetteBuilder: knitr
+Config/reticulate:
+  list(
+    packages = list(
+      list(package = "tensorflow", pip = TRUE)
+    )
+  )
+
