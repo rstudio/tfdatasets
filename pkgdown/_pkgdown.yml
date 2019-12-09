@@ -28,6 +28,7 @@ reference:
        - range_dataset
        - read_files
        - delim_record_spec
+       - make_csv_dataset
 
   - title: "Transforming Datasets"
     contents:
@@ -50,7 +51,11 @@ reference:
        - dataset_concatenate
        - dataset_interleave
        - dataset_prefetch_to_device
+       - dataset_window
+       - dataset_collect
        - zip_datasets
+       - sample_from_datasets
+       - with_dataset
 
   - title: "Dataset Properites"
     contents:
@@ -66,6 +71,27 @@ reference:
        - iterator_string_handle
        - iterator_make_initializer
        - out_of_range_handler
+       - next_batch
+
+  - title: "Feature Spec API"
+    contents:
+      - feature_spec
+      - dense_features
+      - dataset_use_spec
+      - fit.FeatureSpec
+      - scaler
+      - scaler_min_max
+      - scaler_standard
+      - starts_with("step")
+      - starts_with("all")
+      - starts_with("has")
+      - selectors
+      - layer_input_from_dataset
+
+  - title: "Data"
+    contents:
+      - hearts
+
 
 
 
