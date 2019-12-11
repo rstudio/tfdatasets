@@ -17,6 +17,6 @@ The TensorFlow Dataset API provides various facilities for creating scalable inp
 
 - Reading and transforming data are TensorFlow graph operations, so are executed in C++ and in parallel with model training.
 
-The R interface to TensorFlow datasets provides access to the Dataset API, including high-level convenience functions for easy integration with the [tfestimators](https://tensorflow.rstudio.com/tfestimators) package.
+The R interface to TensorFlow datasets provides access to the Dataset API, including high-level convenience functions for easy integration with the [keras](https://tensorflow.rstudio.com/keras) package.
 
 For documentation on using tfdatasets, see the package website at <https://tensorflow.rstudio.com/tools/tfdatasets/>.
