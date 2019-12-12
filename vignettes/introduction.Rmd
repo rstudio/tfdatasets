@@ -37,7 +37,7 @@ The TensorFlow Dataset API provides various facilities for creating scalable inp
 
 - Reading and transforming data are TensorFlow graph operations, so are executed in C++ and in parallel with model training.
 
-The R interface to TensorFlow datasets provides access to the Dataset API, including high-level convenience functions for easy integration with the [keras](https://tensorflow.rstudio.com/keras) and [tfestimators](https://tensorflow.rstudio.com/tfestimators) R packages.
+The R interface to TensorFlow datasets provides access to the Dataset API, including high-level convenience functions for easy integration with the [keras](https://tensorflow.rstudio.com/keras) R package.
 
 ## Installation
 
@@ -58,7 +58,7 @@ install_tensorflow()
 
 ## Creating a Dataset
 
-To create a dataset, use one of the [dataset creation](reference/index.html#section-creating-datasets) functions. Dataset can be created from delimted text files, [TFRecords files](https://www.tensorflow.org/api_guides/python/python_io#tfrecords_format_details), as well as from in-memory data.
+To create a dataset, use one of the [dataset creation](https://tensorflow.rstudio.com/reference/tfdatasets/#section-creating-datasets) functions. Dataset can be created from delimted text files, [TFRecords files](https://www.tensorflow.org/api_guides/python/python_io#tfrecords_format_details), as well as from in-memory data.
 
 ### Text Files
 
@@ -342,7 +342,7 @@ dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
 
 ## Reading Datasets
 
-The method for reading data from a TensorFlow Dataset varies depending upon which API you are using to build your models. If you are using the [keras](https://tensorflow.rstudio.com/keras) or [tfestimators](https://tensorflow.rstudio.com/tfestimators/) packages, then TensorFlow Datasets can be used much like in-memory R matrices and arrays. If you are using the lower-level [tensorflow core](https://tensorflow.rstudio.com/tensorflow/) API then you'll use explicit dataset iteration functions.
+The method for reading data from a TensorFlow Dataset varies depending upon which API you are using to build your models. If you are using the [keras](https://tensorflow.rstudio.com/keras), then TensorFlow Datasets can be used much like in-memory R matrices and arrays. If you are using the lower-level [tensorflow core](https://tensorflow.rstudio.com/tensorflow/) API then you'll use explicit dataset iteration functions.
 
 The sections below provide additional details and examples for each of the supported APIs.
 
@@ -438,51 +438,6 @@ print(score)
 Note that all data preprocessing (e.g. one-hot encoding of the response variable) is done within the `dataset_map()` operation.
 
 Also note that we pass `drop_remainder = TRUE` to the `dataset_batch()` function (this is to make sure that all batches are of equal size, a requirement for Keras tensor inputs).
-
-### tfestimators package
-
-Models created with **tfestimators** use an input function to consume data for training, evaluation, and prediction. For example, here is an example of using an input function to feed data from an in-memory R data frame to an estimators model:
-
-```{r}
-model %>% train(
-  input_fn(mtcars, features = c(mpg, disp), response = cyl,
-           batch_size = 128, epochs = 3)
-)
-```
-
-If you are using **tfdatasets** with the **tfestimators** package, you can create an estimators input function directly from a dataset as follows:
-
-```{r}
-library(tfestimators)
-library(tfdatasets)
-
-mtcars_spec <- csv_record_spec("mtcars.csv")
-dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>% 
-  dataset_batch(128) %>% 
-  dataset_repeat(3)
-
-cols <- feature_columns(
-  column_numeric("mpg"),
-  column_numeric("disp")
-)
-
-model <- linear_regressor(feature_columns = cols)
-
-model %>% train(
-  input_fn(dataset, features = c(mpg, disp), response = cyl)
-)
-```
-
-Note that we don't use the `dataset_prepare()` function in this example. Rather, this function is used under the hood to provide the `input_fn` interface expected by tfestimators models.
-
-As with `dataset_prepare()`, you can alternatively use an R formula to specify features and response:
-
-```{r}
-model %>% train(
-  input_fn(dataset, cyl ~ mpg + disp)
-)
-```
-
 
 ### tensorflow package
 
@@ -635,7 +590,7 @@ dataset <- read_files("data/*.csv", text_line_dataset, record_spec = mtcars_spec
                       num_shards = FLAGS$num_shards, shard_index = FLAGS$shard_index) %>% 
   dataset_shuffle_and_repeat(buffer_size = 1000, count = 3) %>% 
   dataset_batch(128) %>% 
-  dataset_prefetch(1) %>% 
+  dataset_prefetch(1)
 ```
 
 
