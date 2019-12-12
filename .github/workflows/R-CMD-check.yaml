@@ -58,11 +58,11 @@ jobs:
         continue-on-error: ${{ matrix.config.allow_failure }}
         run: Rscript -e "rcmdcheck::rcmdcheck(args = '--no-manual', error_on = 'warning', check_dir = 'check')"
 
-      - name: Check
-        continue-on-error: ${{ matrix.config.allow_failure }}
-        run: Rscript tests/test_that.R
+      - name: Test output
+        run: cat check/tfdatasets.Rcheck/tests/testthat.Rout
 
       - name: Upload check results
+        if: failure()
         uses: actions/upload-artifact@master
         with:
           name: ${{ runner.os }}-r${{ matrix.config.r }}-results
