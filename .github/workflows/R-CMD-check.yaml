@@ -59,6 +59,7 @@ jobs:
         run: Rscript -e "rcmdcheck::rcmdcheck(args = '--no-manual', error_on = 'warning', check_dir = 'check')"
 
       - name: Test output
+        continue-on-error: ${{ matrix.config.allow_failure }}
         run: cat check/tfdatasets.Rcheck/tests/testthat.Rout
 
       - name: Upload check results
