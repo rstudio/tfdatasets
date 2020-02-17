@@ -430,21 +430,12 @@ dataset_shard <- function(dataset, num_shards, index) {
 #' @export
 dataset_padded_batch <- function(dataset, batch_size, padded_shapes, padding_values = NULL,
                                  drop_remainder = FALSE) {
-  if (drop_remainder) {
-    as_tf_dataset(dataset$apply(
-      tf$contrib$data$padded_batch_and_drop_remainder(
-        as_integer_tensor(batch_size),
-        as_tensor_shapes(padded_shapes),
-        as_integer_tensor(padding_values)
-      )
-    ))
-  } else {
     as_tf_dataset(dataset$padded_batch(
       batch_size = as_integer_tensor(batch_size),
       padded_shapes = as_tensor_shapes(padded_shapes),
-      padding_values = padding_values
+      padding_values = padding_values,
+      drop_remainder = drop_remainder
     ))
-  }
 }
 
 
