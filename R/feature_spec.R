@@ -1653,7 +1653,7 @@ step_multiple_ <- function(spec, ..., step, args, prefix) {
 step_crossed_column <- function(spec, ..., hash_bucket_size, hash_key = NULL) {
 
   args <- list(
-    hash_bucket_size = hash_bucket_size,
+    hash_bucket_size = as.integer(hash_bucket_size),
     hash_key = hash_key
   )
 
