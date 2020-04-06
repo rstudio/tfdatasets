@@ -5,7 +5,9 @@
 \alias{selectors}
 \alias{cur_info_env}
 \title{Selectors}
-\format{An object of class \code{environment} of length 0.}
+\format{
+An object of class \code{environment} of length 0.
+}
 \usage{
 cur_info_env
 }

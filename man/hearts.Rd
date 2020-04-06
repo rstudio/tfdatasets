@@ -4,7 +4,8 @@
 \name{hearts}
 \alias{hearts}
 \title{Heart Disease Data Set}
-\format{A data frame with 303 rows and 14 variables:
+\format{
+A data frame with 303 rows and 14 variables:
 \describe{
 \item{age}{age in years}
 \item{sex}{sex (1 = male; 0 = female)}
@@ -25,7 +26,8 @@ Value 2: flat, Value 3: downsloping}
 \item{ca}{number of major vessels (0-3) colored by flourosopy}
 \item{thal}{3 = normal; 6 = fixed defect; 7 = reversable defect}
 \item{target}{diagnosis of heart disease angiographic}
-}}
+}
+}
 \source{
 \url{https://archive.ics.uci.edu/ml/datasets/heart+Disease}
 }
