@@ -180,7 +180,7 @@ test_succeeds("zip_datasets returns a dataset", {
   zip_datasets(list(tensors_dataset(tf$constant(1:100)), tensors_dataset(tf$constant(101:200))))
 })
 
-test_succeeds("dataset_windows ombines input elements into a dataset of windows", {
+test_succeeds("dataset_windows combines input elements into a dataset of windows", {
   d <- range_dataset(1, 100) %>%
     dataset_window(size = 5)
 })
@@ -198,6 +198,15 @@ test_succeeds("dataset_collect works", {
 
 })
 
+test_succeeds("dataset_reduce works", {
 
+  if (tensorflow::tf_version() < "2.0")
+    skip("dataset_reduce requires tf 2.0")
+
+  d <- tensor_slices_dataset(tf$constant(c(1.1, 2.2, 3.3)))
+  sum_and_count <- d %>% dataset_reduce(tuple(0, 0), function(x, y) tuple(x[[1]] + y, x[[2]] + 1))
+  expect_equal(as.numeric(sum_and_count[[1]])/as.numeric(sum_and_count[[2]]), 2.2, tol = 1e-6)
+
+})
 
 
