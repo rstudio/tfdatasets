@@ -1537,7 +1537,7 @@ step_embedding_column <- function(spec, ..., dimension = function(x) {as.integer
 
 
   args <- list(
-    dimension = dimension,
+    dimension = as.integer(dimension),
     combiner = combiner,
     initializer = initializer,
     ckpt_to_load_from = ckpt_to_load_from,

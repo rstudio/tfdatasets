@@ -215,7 +215,7 @@ Finally we can make predictions in the test set and calculate performance
 metrics like the AUC of the ROC curve:
 
 ```{r}
-hearts_test$pred <- predict(model, hearts_test)
+hearts_test$pred <- predict(model, hearts_test %>% select(-target))
 Metrics::auc(hearts_test$target, hearts_test$pred)
 ```
 
