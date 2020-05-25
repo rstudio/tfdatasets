@@ -1,7 +1,7 @@
 Package: tfdatasets
 Type: Package
 Title: Interface to 'TensorFlow' Datasets 
-Version: 2.0.0.9000
+Version: 2.2.0
 Authors@R: c(
   person("Daniel", "Falbel", role = c("ctb", "cph", "cre"), 
          email = "daniel@rstudio.com"),
@@ -53,5 +53,3 @@ Config/reticulate:
       list(package = "tensorflow", pip = TRUE)
     )
   )
-Remotes:
-    rstudio/keras
