@@ -562,3 +562,48 @@ test_that("can create text embedding columns", {
 
   expect_equal(x$get_shape()$as_list(), list(NULL, 50L))
 })
+
+test_that("can save and reload models that use a normalizer_fn", {
+
+  data <- data.frame(
+    y = runif(5),
+    x = runif(5),
+    b = runif(5)
+  )
+
+  spec <- feature_spec(data, y ~ .) %>%
+    step_numeric_column(x, normalizer_fn = scaler_standard()) %>%
+    fit()
+
+  input <- layer_input_from_dataset(data[-1])
+  output <- input %>%
+    layer_dense_features(dense_features(spec)) %>%
+    layer_dense(units = 1, activation = "sigmoid")
+  model <- keras_model(input, output)
+
+  model %>% compile(
+    loss = "binary_crossentropy",
+    optimizer = "adam",
+    metrics = "binary_accuracy"
+  )
+
+  tmp <- tempfile("model")
+  rds <- tempfile("rds")
+
+  save_model_weights_tf(model, tmp)
+  saveRDS(spec, rds)
+
+  reloaded_spec <- readRDS(rds)
+  input <- layer_input_from_dataset(data[-1])
+  output <- input %>%
+    layer_dense_features(dense_features(reloaded_spec)) %>%
+    layer_dense(units = 1, activation = "sigmoid")
+  new_model <- keras_model(input, output)
+  load_model_weights_tf(new_model, tmp)
+
+  expect_equal(
+    predict(model, data[-1]),
+    predict(new_model, data[-1])
+  )
+
+})
