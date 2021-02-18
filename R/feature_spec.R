@@ -16,6 +16,19 @@ dtype_chr <- function(x) {
   x$name
 }
 
+chr_dtype <- function(x) {
+  if (x == "float32")
+    tensorflow::tf$float32
+  else if (x == "string")
+    tensorflow::tf$string
+  else if (x == "float64")
+    tensorflow::tf$float64
+  else if (x == "float16")
+    tensorflow::tf$float16
+  else if (x == "bool")
+    tensorflow::tf$bool
+}
+
 # Selectors ---------------------------------------------------------------
 
 #' Selectors
@@ -514,7 +527,7 @@ StepNumericColumn <- R6::R6Class(
       self$key <- key
       self$shape <- shape
       self$default_value <- default_value
-      self$dtype <- dtype
+      self$dtype <- dtype_chr(dtype)
       self$normalizer_fn <- normalizer_fn
       self$name <- name
       self$column_type = dtype_chr(dtype)
@@ -534,7 +547,7 @@ StepNumericColumn <- R6::R6Class(
       tf$feature_column$numeric_column(
         key = self$key, shape = self$shape,
         default_value = self$default_value,
-        dtype = self$dtype,
+        dtype = chr_dtype(self$dtype),
         normalizer_fn = self$normalizer_fn
       )
     }
@@ -561,7 +574,7 @@ StepCategoricalColumnWithVocabularyList <- R6::R6Class(
 
       self$key <- key
       self$vocabulary_list <- vocabulary_list
-      self$dtype = dtype
+      self$dtype = dtype_chr(dtype)
       self$default_value <- default_value
       self$num_oov_buckets <- num_oov_buckets
       self$name <- name
@@ -614,7 +627,7 @@ StepCategoricalColumnWithVocabularyList <- R6::R6Class(
       tf$feature_column$categorical_column_with_vocabulary_list(
         key = self$key,
         vocabulary_list = self$vocabulary_list,
-        dtype = self$dtype,
+        dtype = dtype_chr(self$dtype),
         default_value = self$default_value,
         num_oov_buckets = self$num_oov_buckets
       )
@@ -637,7 +650,7 @@ StepCategoricalColumnWithHashBucket <- R6::R6Class(
     initialize = function(key, hash_bucket_size, dtype = tf$string, name) {
       self$key <- key
       self$hash_bucket_size <- hash_bucket_size
-      self$dtype <- dtype
+      self$dtype <- dtype_chr(dtype)
       self$name <- name
       if (!is.null(dtype)) {
         self$column_type = dtype_chr(dtype)
@@ -647,7 +660,7 @@ StepCategoricalColumnWithHashBucket <- R6::R6Class(
       tf$feature_column$categorical_column_with_hash_bucket(
         key = self$key,
         hash_bucket_size = self$hash_bucket_size,
-        dtype = self$dtype
+        dtype = chr_dtype(self$dtype)
       )
     }
   )
@@ -696,7 +709,7 @@ StepCategoricalColumnWithVocabularyFile <- R6::R6Class(
       self$key <- key
       self$vocabulary_file <- normalizePath(vocabulary_file)
       self$vocabulary_size <- vocabulary_size
-      self$dtype <- dtype
+      self$dtype <- dtype_chr(dtype)
       self$default_value <- default_value
       self$num_oov_buckets <- num_oov_buckets
       self$name <- name
@@ -709,7 +722,7 @@ StepCategoricalColumnWithVocabularyFile <- R6::R6Class(
         key = self$key,
         vocabulary_file = self$vocabulary_file,
         vocabulary_size = self$vocabulary_size,
-        dtype = self$dtype,
+        dtype = chr_dtype(self$dtype),
         default_value = self$default_value,
         num_oov_buckets = self$num_oov_buckets
       )
