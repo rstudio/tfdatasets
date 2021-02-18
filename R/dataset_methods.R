@@ -180,9 +180,10 @@ dataset_take <- function(dataset, count) {
 #'
 #' @export
 dataset_map <- function(dataset, map_func, num_parallel_calls = NULL) {
+  dtype <- if (tensorflow::tf_config() >= "2.3") tf$int64 else tf$int32
   as_tf_dataset(dataset$map(
     map_func = as_py_function(map_func),
-    num_parallel_calls = as_integer_tensor(num_parallel_calls, tf$int64)
+    num_parallel_calls = as_integer_tensor(num_parallel_calls, dtype)
   ))
 }
 
