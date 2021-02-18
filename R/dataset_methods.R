@@ -182,7 +182,7 @@ dataset_take <- function(dataset, count) {
 dataset_map <- function(dataset, map_func, num_parallel_calls = NULL) {
   as_tf_dataset(dataset$map(
     map_func = as_py_function(map_func),
-    num_parallel_calls = as_integer_tensor(num_parallel_calls, tf$int32)
+    num_parallel_calls = as_integer_tensor(num_parallel_calls, tf$int64)
   ))
 }
 
