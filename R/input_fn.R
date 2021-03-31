@@ -16,8 +16,6 @@
 #' @rdname input_fn
 #' @aliases input_fn
 #'
-#' @importFrom tfestimators input_fn
-#'
 #' @export
 input_fn.tf_dataset <- function(dataset, features, response = NULL) {
 
