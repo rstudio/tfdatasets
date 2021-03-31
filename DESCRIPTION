@@ -35,7 +35,7 @@ Imports:
     tidyselect,
     stats,
     generics,
-    tfestimators
+    vctrs
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.1
 Suggests:
@@ -45,7 +45,8 @@ Suggests:
     rsample,
     rmarkdown,
     Metrics,
-    dplyr
+    dplyr,
+    tfestimators
 VignetteBuilder: knitr
 Config/reticulate:
   list(

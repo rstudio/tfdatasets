@@ -37,7 +37,7 @@ The TensorFlow Dataset API provides various facilities for creating scalable inp
 
 - Reading and transforming data are TensorFlow graph operations, so are executed in C++ and in parallel with model training.
 
-The R interface to TensorFlow datasets provides access to the Dataset API, including high-level convenience functions for easy integration with the [keras](https://tensorflow.rstudio.com/keras) R package.
+The R interface to TensorFlow datasets provides access to the Dataset API, including high-level convenience functions for easy integration with the [keras](https://tensorflow.rstudio.com/keras/) R package.
 
 ## Installation
 
@@ -342,7 +342,7 @@ dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
 
 ## Reading Datasets
 
-The method for reading data from a TensorFlow Dataset varies depending upon which API you are using to build your models. If you are using the [keras](https://tensorflow.rstudio.com/keras), then TensorFlow Datasets can be used much like in-memory R matrices and arrays. If you are using the lower-level [tensorflow core](https://tensorflow.rstudio.com/tensorflow/) API then you'll use explicit dataset iteration functions.
+The method for reading data from a TensorFlow Dataset varies depending upon which API you are using to build your models. If you are using the [keras](https://tensorflow.rstudio.com/keras/), then TensorFlow Datasets can be used much like in-memory R matrices and arrays. If you are using the lower-level [tensorflow core](https://tensorflow.rstudio.com/tensorflow/) API then you'll use explicit dataset iteration functions.
 
 The sections below provide additional details and examples for each of the supported APIs.
 
