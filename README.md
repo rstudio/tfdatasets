@@ -7,7 +7,7 @@
 
 The TensorFlow Dataset API provides various facilities for creating scalable input pipelines for TensorFlow models, including:
 
-- Reading data from a variety of formats including CSV files and [TFRecords files](https://www.tensorflow.org/api_guides/python/python_io#tfrecords_format_details) (the standard binary format for TensorFlow training data).
+- Reading data from a variety of formats including CSV files and [TFRecords files](https://www.tensorflow.org/tutorials/load_data/tfrecord) (the standard binary format for TensorFlow training data).
 
 - Transforming datasets in a variety of ways including mapping arbitrary functions against them.
 

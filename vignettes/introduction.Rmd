@@ -27,7 +27,7 @@ knitr::opts_chunk$set(eval = FALSE)
 
 The TensorFlow Dataset API provides various facilities for creating scalable input pipelines for TensorFlow models, including:
 
-- Reading data from a variety of formats including CSV files and [TFRecords files](https://www.tensorflow.org/api_guides/python/python_io#tfrecords_format_details) (the standard binary format for TensorFlow training data).
+- Reading data from a variety of formats including CSV files and [TFRecords files](https://www.tensorflow.org/tutorials/load_data/tfrecord) (the standard binary format for TensorFlow training data).
 
 - Transforming datasets in a variety of ways including mapping arbitrary functions against them. 
 
@@ -58,7 +58,7 @@ install_tensorflow()
 
 ## Creating a Dataset
 
-To create a dataset, use one of the [dataset creation](https://tensorflow.rstudio.com/reference/tfdatasets/#section-creating-datasets) functions. Dataset can be created from delimted text files, [TFRecords files](https://www.tensorflow.org/api_guides/python/python_io#tfrecords_format_details), as well as from in-memory data.
+To create a dataset, use one of the [dataset creation](https://tensorflow.rstudio.com/reference/tfdatasets/#section-creating-datasets) functions. Dataset can be created from delimted text files, [TFRecords files](https://www.tensorflow.org/tutorials/load_data/tfrecord), as well as from in-memory data.
 
 ### Text Files
 
@@ -126,7 +126,7 @@ If you have multiple input files, you can also parallelize reading of these file
 
 ### TFRecords Files
 
-You can read datasets from [TFRecords files](https://www.tensorflow.org/api_guides/python/python_io#tfrecords_format_details) using the `tfrecord_dataset()` function.
+You can read datasets from [TFRecords files](https://www.tensorflow.org/tutorials/load_data/tfrecord) using the `tfrecord_dataset()` function.
 
 In many cases you'll want to map the records in the dataset into a set of named columns. You can do this using the `dataset_map()` function along with the `tf$parse_single_example()` function. for example:
 

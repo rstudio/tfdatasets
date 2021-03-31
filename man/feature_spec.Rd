@@ -9,7 +9,7 @@ feature_spec(dataset, x, y = NULL)
 \arguments{
 \item{dataset}{A TensorFlow dataset.}
 
-\item{x}{Features to include can use \code{\link[tidyselect:select_helpers]{tidyselect::select_helpers()}} or
+\item{x}{Features to include can use \code{\link[tidyselect:language]{tidyselect::select_helpers()}} or
 a \code{formula}.}
 
 \item{y}{(Optional) The response variable. Can also be specified using
