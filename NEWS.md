@@ -1,4 +1,8 @@
-# tfdatasets 1.13.1.9000
+# tfdatasets (unreleased)
+
+- Fixed problem when saving models with feature specs (#82).
+
+# tfdatasets 1.13.1
 
 * Add `datatset_window` method.
 * Allow `purrr` style lambda functions in `dataset_map`.
