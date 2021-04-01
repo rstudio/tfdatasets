@@ -12,3 +12,4 @@
 ^doc$
 ^Meta$
 ^\.github/workflows/R-CMD-check\.yaml$
+^cran-comments\.md$
