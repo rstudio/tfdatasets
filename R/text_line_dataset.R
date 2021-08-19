@@ -203,6 +203,3 @@ make_csv_dataset <- function(file_pattern, batch_size,
 
   do.call(tfd_make_csv_dataset, args)
 }
-
-
-

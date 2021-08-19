@@ -37,4 +37,3 @@ output_shapes <- function(object) {
     }
   }
 }
-

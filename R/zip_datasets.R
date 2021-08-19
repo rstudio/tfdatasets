@@ -17,4 +17,3 @@ zip_datasets <- function(...) {
     tf$data$Dataset$zip(tuple(...))
   )
 }
-

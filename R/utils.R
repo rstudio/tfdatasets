@@ -94,5 +94,3 @@ as_py_function <- function(x) {
     rlang::as_function(x)
   }
 }
-
-

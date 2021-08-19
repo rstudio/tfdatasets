@@ -31,4 +31,3 @@ test_succeeds("can fit a dataset using keras fit_generator", {
     model %>% fit_generator(d, steps_per_epoch = 5, epochs = 1)
   }, "deprecated")
 })
-

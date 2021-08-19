@@ -16,12 +16,3 @@ test_succeeds("range_dataset creates a dataset", {
   expect_equal(res, array(1L:10L))
 
 })
-
-
-
-
-
-
-
-
-

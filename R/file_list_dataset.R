@@ -44,4 +44,3 @@ file_list_dataset <- function(file_pattern, shuffle = NULL, seed = NULL) {
     do.call(tf$data$Dataset$list_files, args)
   )
 }
-

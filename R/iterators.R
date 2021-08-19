@@ -158,11 +158,3 @@ iterator_string_handle <- function(iterator, name = NULL) {
 iterator_make_initializer <- function(iterator, dataset, name = NULL) {
   iterator$make_initializer(dataset = dataset, name = name)
 }
-
-
-
-
-
-
-
-

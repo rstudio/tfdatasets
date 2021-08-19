@@ -149,10 +149,3 @@ test_succeeds("input_fn works with custom estimators", {
 
 
 })
-
-
-
-
-
-
-

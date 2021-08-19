@@ -31,11 +31,3 @@ test_succeeds("tensor slices works with mixed named/unnamed lists", {
   # TODO is this the expected behavior?
   tensor_slices_dataset(list(1:3, a = 1:3, 1:3))
 })
-
-
-
-
-
-
-
-

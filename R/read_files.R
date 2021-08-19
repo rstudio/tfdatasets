@@ -73,6 +73,3 @@ read_files <- function(files, reader, ...,
   # return
   as_tf_dataset(dataset)
 }
-
-
-

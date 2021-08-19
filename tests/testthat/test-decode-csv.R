@@ -53,7 +53,3 @@ test_succeeds("decode_csv does not attempt a preview if col info is provided", {
 test_succeeds("make_csv_dataset can read a dataset", {
   make_csv_dataset("data/mtcars-*.csv", batch_size = 10)
 })
-
-
-
-

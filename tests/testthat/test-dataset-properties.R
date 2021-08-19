@@ -21,4 +21,3 @@ test_succeeds("output_shapes returns shapes", {
   expect_equal(shapes$cyl$as_list(), list())
   expect_equal(shapes$mpg$as_list(), list())
 })
-

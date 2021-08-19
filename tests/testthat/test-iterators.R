@@ -164,5 +164,3 @@ test_succeeds("make_iterator_from_string_handle works", {
   })
 
 })
-
-

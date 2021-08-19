@@ -50,4 +50,3 @@ sqlite_dataset <- function(filename, query, record_spec) {
     filename <- path.expand(filename)
   sql_dataset("sqlite", filename, query, record_spec)
 }
-

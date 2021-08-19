@@ -19,14 +19,3 @@ test_succeeds("fixed_length_record_dataset creates a dataset", {
   }
 
 })
-
-
-
-
-
-
-
-
-
-
-

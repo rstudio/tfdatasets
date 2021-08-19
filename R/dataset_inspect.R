@@ -17,5 +17,3 @@ dataset_has_class <- function(dataset, class) {
 dataset_is_batched <- function(dataset) {
   dataset_has_class(dataset, "tensorflow.python.data.ops.dataset_ops.BatchDataset")
 }
-
-

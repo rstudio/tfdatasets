@@ -734,4 +734,3 @@ dataset_collect <- function(dataset, iter_max = Inf) {
 dataset_reduce <- function(dataset, initial_state, reduce_func) {
   dataset$`reduce`(initial_state, reduce_func)
 }
-

@@ -1,11 +1,11 @@
 Package: tfdatasets
 Type: Package
-Title: Interface to 'TensorFlow' Datasets 
+Title: Interface to 'TensorFlow' Datasets
 Version: 2.4.0.9000
 Authors@R: c(
   person("Tomasz", "Kalinowski", role = c("ctb", "cph", "cre"),
          email = "tomasz.kalinowski@rstudio.com"),
-  person("Daniel", "Falbel", role = c("ctb", "cph"), 
+  person("Daniel", "Falbel", role = c("ctb", "cph"),
          email = "daniel@rstudio.com"),
   person("JJ", "Allaire", role = c("aut", "cph"),
          email = "jj@rstudio.com"),
@@ -14,11 +14,11 @@ Authors@R: c(
          comment = c(ORCID = "0000-0001-5243-233X")),
   person("Kevin", "Ushey", role = c("aut"),
          email = "kevin@rstudio.com"),
-  person("RStudio", role = c("cph", "fnd")),  
+  person("RStudio", role = c("cph", "fnd")),
   person(family = "Google Inc.", role = c("cph"))
   )
-Description: Interface to 'TensorFlow' Datasets, a high-level library for 
-    building complex input pipelines from simple, re-usable pieces. 
+Description: Interface to 'TensorFlow' Datasets, a high-level library for
+    building complex input pipelines from simple, re-usable pieces.
     See <https://www.tensorflow.org/guide> for additional
     details.
 License: Apache License 2.0

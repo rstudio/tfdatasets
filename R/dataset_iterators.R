@@ -171,11 +171,3 @@ out_of_range_handler <- function(e) {
   if (is.null(last_error) || !identical(last_error$type, "OutOfRangeError"))
     stop(e$message, call. = FALSE)
 }
-
-
-
-
-
-
-
-

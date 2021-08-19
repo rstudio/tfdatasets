@@ -26,4 +26,3 @@ tensorflow::install_tensorflow
 #' @importFrom generics fit
 #' @export
 generics::fit
-

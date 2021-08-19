@@ -10,11 +10,3 @@ test_succeeds("filenames can be listed", {
       text_line_dataset(file)
     })
 })
-
-
-
-
-
-
-
-

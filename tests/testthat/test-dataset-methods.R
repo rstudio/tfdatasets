@@ -207,5 +207,3 @@ test_succeeds("dataset_reduce works", {
   expect_equal(as.numeric(sum_and_count[[1]])/as.numeric(sum_and_count[[2]]), 2.2, tol = 1e-6)
 
 })
-
-

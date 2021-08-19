@@ -63,7 +63,3 @@ sparse_tensor_slices_dataset <- function(sparse_tensor) {
     tf$data$Dataset$from_sparse_tensor_slices(sparse_tensor = sparse_tensor)
   )
 }
-
-
-
-

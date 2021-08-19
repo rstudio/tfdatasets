@@ -81,6 +81,3 @@ input_fn.tf_dataset <- function(dataset, features, response = NULL) {
     }
   }
 }
-
-
-

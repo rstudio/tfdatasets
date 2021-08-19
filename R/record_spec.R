@@ -232,6 +232,3 @@ tf_dataset_record_spec <- function(names, types, defaults, delim, skip) {
     skip = skip
   ))
 }
-
-
-

@@ -23,6 +23,3 @@ sample_from_datasets <- function(datasets, weights = NULL, seed = NULL) {
       seed = as_integer_tensor(seed))
   )
 }
-
-
-

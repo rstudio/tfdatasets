@@ -20,11 +20,3 @@ test_succeeds("files can be read in parallel", {
   }
 
 })
-
-
-
-
-
-
-
-

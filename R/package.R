@@ -8,5 +8,3 @@ NULL
 .onLoad <- function(libname, pkgname) {
   vctrs::s3_register("tfestimators::input_fn", "tf_dataset")
 }
-
-
