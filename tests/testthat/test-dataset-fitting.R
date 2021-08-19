@@ -1,6 +1,5 @@
 context("dataset-fitting")
 
-source("utils.R")
 
 library(keras)
 
