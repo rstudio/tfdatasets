@@ -1,8 +1,6 @@
 
 context("dataset properties")
 
-source("utils.R")
-
 test_succeeds("output_types returns types", {
 
   dataset <- tensors_dataset(tf$constant(1:100))

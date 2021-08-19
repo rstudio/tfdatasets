@@ -1,7 +1,5 @@
 context("decode_csv")
 
-source("utils.R")
-
 cols <- c("disp", "drat", "vs", "gear", "mpg", "qsec", "hp", "am", "wt",  "carb", "cyl")
 
 test_that("decode_csv parses column names from file", {

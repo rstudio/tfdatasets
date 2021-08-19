@@ -1,7 +1,5 @@
 context("sql datasets")
 
-source("utils.R")
-
 test_succeeds("sqlite_dataset creates a dataset", {
 
   skip_if_no_tensorflow()

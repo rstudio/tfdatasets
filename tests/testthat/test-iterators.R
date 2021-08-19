@@ -1,6 +1,5 @@
 context("iterators")
 
-source("utils.R")
 
 test_that("make_iterator_one_shot works", {
 
@@ -78,6 +77,8 @@ test_succeeds("make_iterator_from_structure works", {
   if (tf$executing_eagerly()) {
 
     for (i in 1:20) {
+
+      # TODO: this emits a warning about incorrect context for Iterator.get_next(), investigate
 
       # Initialize an iterator over the training dataset.
       iterator_make_initializer(iterator, training_dataset)

@@ -1,7 +1,6 @@
 
 context("dataset methods")
 
-source("utils.R")
 
 test_succeeds("dataset_repeat returns a dataset", {
   dataset <- tensors_dataset(tf$constant(1:100)) %>%

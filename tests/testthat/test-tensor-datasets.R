@@ -1,7 +1,5 @@
 context("tensor datasets")
 
-source("utils.R")
-
 test_succeeds("tensors_dataset creates a dataset", {
   tensors_dataset(tf$constant(1:100))
 })

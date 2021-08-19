@@ -1,14 +1,13 @@
 context("fixed length record datasets")
 
-source("utils.R")
 
 test_succeeds("fixed_length_record_dataset creates a dataset", {
 
-  data_file <- "data/mtcars-test.csv"
+  data_file <-  testing_data_filepath("mtcars-test.csv")
   file_bytes <- file.info(data_file)$size
 
   dataset <- fixed_length_record_dataset(
-    "data/mtcars-test.csv", record_bytes = file_bytes)
+    data_file, record_bytes = file_bytes)
 
   if (tf$executing_eagerly()) {
     batch <- next_batch(dataset)

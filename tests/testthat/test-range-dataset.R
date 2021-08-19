@@ -1,7 +1,5 @@
 context("range dataset")
 
-source("utils.R")
-
 test_succeeds("range_dataset creates a dataset", {
 
   dataset <- range_dataset(from = 1, to = 11) %>% dataset_batch(10)

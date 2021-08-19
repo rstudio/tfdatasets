@@ -1,7 +1,5 @@
 context("iterators")
 
-source("utils.R")
-
 test_succeeds("with_dataset catches end of iteration", {
 
   dataset <- tensor_slices_dataset(1:50) %>%

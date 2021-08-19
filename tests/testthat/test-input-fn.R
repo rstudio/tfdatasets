@@ -1,6 +1,5 @@
 context("input_fn")
 
-source("utils.R")
 
 use_input_fn <- function(features, response) {
 
@@ -44,8 +43,9 @@ test_succeeds("input_fn feeds data to train and evaluate", {
 test_that("input_fn reports incorrect features", {
   skip_if_no_tensorflow()
   expect_error(
+    expect_warning( # `quo_expr()` is deprecated as of rlang 0.2.0. (but so is tfestimators)
     use_input_fn(features = c("displacement", "cylinder"), response = "mpg")
-  )
+  ))
 })
 
 test_that("input_fn reports incorrect response", {

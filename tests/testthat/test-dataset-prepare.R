@@ -1,7 +1,5 @@
 context("dataset-prepare")
 
-source("utils.R")
-
 require(keras)
 
 test_succeeds("dataset_prepare yields list of x and y tensors", {

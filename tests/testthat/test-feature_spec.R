@@ -2,8 +2,6 @@ context("feature_specs")
 
 # Set up ------------------------------------------------------------------
 
-source("utils.R")
-
 skip_if_not_tf <- function() {
   skip_if_no_tensorflow(required_version = "2.0")
 }

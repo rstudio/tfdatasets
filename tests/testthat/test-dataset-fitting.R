@@ -27,6 +27,8 @@ test_succeeds("can fit a dataset using keras fit_generator", {
     layer_dense(units = 1, input_shape = 2)
 
   model %>% compile(optimizer = "adam", loss = "mse")
-  model %>% fit_generator(d, steps_per_epoch = 5, epochs = 1)
+  expect_warning( {
+    model %>% fit_generator(d, steps_per_epoch = 5, epochs = 1)
+  }, "deprecated")
 })
 

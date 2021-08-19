@@ -27,12 +27,14 @@ skip_if_v2 <- function(message) {
     skip(message)
 }
 
+py_capture_output <- reticulate::py_capture_output
+
 test_succeeds <- function(desc, expr, required_version = NULL) {
-  IPython <- reticulate::import("IPython")
-  py_capture_output <- IPython$utils$capture$capture_output
+  # IPython <- reticulate::import("IPython")
+  # py_capture_output <- IPython$utils$capture$capture_output
   invisible(
     capture.output({
-      with(py_capture_output(), {
+      py_capture_output({
         test_that(desc, {
           skip_if_no_tensorflow(required_version)
           expect_error(force(expr), NA)
@@ -48,14 +50,23 @@ csv_dataset <- function(file, ...) {
 }
 
 mtcars_dataset <- function() {
-  csv_dataset("data/mtcars.csv") %>%
+  testing_data_filepath("mtcars.csv") %>%
+    csv_dataset() %>%
     dataset_shuffle(50) %>%
     dataset_batch(10)
 }
 
 mtcars_dataset_nobatch <- function() {
-  csv_dataset("data/mtcars.csv") %>%
+  testing_data_filepath("mtcars.csv") %>%
+    csv_dataset() %>%
     dataset_shuffle(50)
 }
 
 
+testing_data_filepath <- function(x=NULL) {
+  d <- system.file("tests/testthat/data", package = "tfdatasets")
+  if(is.null(x))
+    d
+  else
+  file.path(d, x)
+}
