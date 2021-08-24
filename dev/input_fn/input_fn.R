@@ -1,5 +1,8 @@
 library(tfdatasets)
 library(tfestimators)
+# TODO: tfestimators is deprecated,
+# remove all references to it from this package and
+# then remove tfestimators from Suggests in DESCRIPTION
 
 mtcars_spec <- csv_record_spec("mtcars-train.csv")
 
@@ -30,10 +33,3 @@ model %>% train(mtcars_input_fn("mtcars-train.csv"))
 
 # evaluate model
 model %>% evaluate(mtcars_input_fn("mtcars-test.csv"))
-
-
-
-
-
-
-
