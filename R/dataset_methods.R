@@ -913,4 +913,37 @@ dataset_enumerate <- function(dataset, start=0L) {
 random_integer_dataset <- function(seed=NULL) {
   as_tf_dataset(tf$data$Dataset$random(as_integer_tensor(seed)))
 }
+
+
+#' A transformation that scans a function across an input dataset
+#'
+#' @details
+#' This transformation is a stateful relative of `dataset_map()`.
+#' In addition to mapping `scan_func` across the elements of the input dataset,
+#' `scan()` accumulates one or more state tensors, whose initial values are
+#' `initial_state`.
+#'
+#' @param initial_state A nested structure of tensors, representing the initial
+#' state of the accumulator.
+#'
+#' @param scan_func A function that maps `(old_state, input_element)` to
+#' `(new_state, output_element)`. It must take two arguments and return a
+#' pair of nested structures of tensors. The `new_state` must match the
+#' structure of `initial_state`.
+#'
+#' @export
+#' @examples
+#' \dontrun{
+#' initial_state <- as_tensor(0, dtype="int64")
+#' scan_func <- function(state, i) list(state + i, state + i)
+#' dataset <- range_dataset(0, 10) %>%
+#'   dataset_scan(initial_state, scan_func)
+#'
+#' reticulate::iterate(dataset, as.array) %>%
+#'   unlist()
+#' # 0  1  3  6 10 15 21 28 36 45
+#' }
+dataset_scan <- function(dataset, initial_state, scan_func)
+  as_tf_dataset(dataset$scan(initial_state, as_py_function(scan_func)))
+
 }
