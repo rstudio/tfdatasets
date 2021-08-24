@@ -1,5 +1,7 @@
 # tfdatasets (development version)
 
+- Added `dataset_options()` for setting and getting dataset options.
+
 # tfdatasets 2.4.0
 
 - Fixed problem when saving models with feature specs (#82).

@@ -732,5 +732,107 @@ dataset_collect <- function(dataset, iter_max = Inf) {
 #'
 #' @export
 dataset_reduce <- function(dataset, initial_state, reduce_func) {
-  dataset$`reduce`(initial_state, reduce_func)
+  dataset$reduce(initial_state, reduce_func)
+}
+
+
+#' Get or Set Dataset Options
+#'
+#' @param dataset a tensorflow dataset
+#' @param ... Valid values include:
+#'
+#'   +  A set of named arguments setting options. Names of nested attributes can
+#'   be separated with a `"."` (see examples). The set of named arguments can be
+#'   supplied individually to `...`, or as a single named list.
+#'
+#'   + a `tf$data$Options()` instance.
+#'
+#'
+#' @return If values are supplied to `...`, returns a `tf.data.Dataset` with the
+#'   given options set/updated. Otherwise, returns the currently set options for
+#'   the dataset.
+#'
+#' @details The options are "global" in the sense they apply to the entire
+#'   dataset. If options are set multiple times, they are merged as long as
+#'   different options do not use different non-default values.
+#'
+#'
+#' @export
+#' @examples
+#' \dontrun{
+#' # pass options directly:
+#' range_dataset(0, 10) %>%
+#'   dataset_options(
+#'     experimental_deterministic = FALSE,
+#'     threading.private_threadpool_size = 10
+#'   )
+#'
+#' # pass options as a named list:
+#' opts <- list(
+#'   experimental_deterministic = FALSE,
+#'   threading.private_threadpool_size = 10
+#' )
+#' range_dataset(0, 10) %>%
+#'   dataset_options(opts)
+#'
+#' # pass a tf.data.Options() instance
+#' opts <- tf$data$Options()
+#' opts$experimental_deterministic <- FALSE
+#' opts$threading$private_threadpool_size <- 10L
+#' range_dataset(0, 10) %>%
+#'   dataset_options(opts)
+#'
+#' # get currently set options
+#' range_dataset(0, 10) %>% dataset_options()
+#' }
+dataset_options <- function(dataset, ...) {
+
+  user_opts <- list(...)
+
+  if(!length(user_opts))
+    return(dataset$options())
+
+  options <- tf$data$Options()
+
+  # accept a packed list of arguments, don't required do.call for programming
+  if(is.null(names(user_opts)) &&
+     length(user_opts) == 1 &&
+     is.list(user_opts[[1]]))
+    user_opts <- user_opts[[1]]
+
+  for (i in seq_along(user_opts)) {
+    name <- names(user_opts)[i]
+    val <- user_opts[[i]]
+
+    if (inherits(val, "tensorflow.python.data.ops.dataset_ops.Options")) {
+      options <- options$merge(val)
+      next
+    }
+
+    # special convenience hooks for some known options, with a no-op fallback
+    transform <- switch(name,
+      "threading.private_threadpool_size" = as.integer,
+      "threading.max_intra_op_parallelism" = as.integer,
+      "experimental_distribute.num_devices" = as.integer,
+      identity
+    )
+
+    val <- transform(val)
+
+    # change names like "foo.bar.baz" to an R expression like
+    # `options$foo$bar$baz`, but with some semblance of safety by avoiding
+    # parse(), using as.symbol() on user supplied names, and constructing the
+    # call we want directly. We do this to avoid hand-coding a recursive impl
+    # using py_set_attr(), and let the R's `$<-` method do the recursion.
+    target <- Reduce(
+      function(x, y) substitute(x$y, list(x = x, y = as.symbol(y))),
+      strsplit(name, ".", fixed = TRUE)[[1]],
+      init = quote(options))
+
+    expr <- substitute(target <- val, list(target = target))
+    eval(expr)
+  }
+
+  as_tf_dataset(dataset$with_options(options))
+}
 }
