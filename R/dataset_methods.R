@@ -899,4 +899,18 @@ length.tensorflow.python.data.ops.dataset_ops.DatasetV2 <- length.tf_dataset
 dataset_enumerate <- function(dataset, start=0L) {
   as_tf_dataset(dataset$enumerate(as_integer_tensor(start)))
 }
+
+
+#' Creates a `Dataset` of pseudorandom values
+#'
+#' @details
+#' The dataset generates a sequence of uniformly distributed integer values (dtype int64).
+#'
+#' @param seed (Optional) If specified, the dataset produces a deterministic
+#' sequence of values.
+#'
+#' @export
+random_integer_dataset <- function(seed=NULL) {
+  as_tf_dataset(tf$data$Dataset$random(as_integer_tensor(seed)))
+}
 }

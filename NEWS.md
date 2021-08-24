@@ -3,6 +3,7 @@
 - Added `dataset_options()` for setting and getting dataset options.
 - Added a `length()` method for tensorflow datasets.
 - Added `dataset_enumerate()`
+- Added `random_integer_dataset()`
 
 # tfdatasets 2.4.0
 
