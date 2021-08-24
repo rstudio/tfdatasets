@@ -6,6 +6,7 @@
 - Added `random_integer_dataset()`
 - Added `dataset_scan()`, a stateful varient of `dataset_map()`.
 - Added `dataset_snapshot()` for persisting the output of a dataset pipeline to disk.
+- `range_dataset()` gains a `dtype` argument.
 
 
 # tfdatasets 2.4.0
