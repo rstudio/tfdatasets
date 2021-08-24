@@ -50,9 +50,3 @@ Suggests:
     dplyr,
     tfestimators
 VignetteBuilder: knitr
-Config/reticulate:
-  list(
-    packages = list(
-      list(package = "tensorflow", pip = TRUE)
-    )
-  )
