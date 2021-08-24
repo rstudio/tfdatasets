@@ -4,7 +4,8 @@
 - Added a `length()` method for tensorflow datasets.
 - Added `dataset_enumerate()`
 - Added `random_integer_dataset()`
-- Added `dataset_scan()`, a stateful varient of `dataset_map()`
+- Added `dataset_scan()`, a stateful varient of `dataset_map()`.
+- Added `dataset_snapshot()` for persisting the output of a dataset pipeline to disk.
 
 
 # tfdatasets 2.4.0

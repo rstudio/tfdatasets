@@ -946,4 +946,99 @@ random_integer_dataset <- function(seed=NULL) {
 dataset_scan <- function(dataset, initial_state, scan_func)
   as_tf_dataset(dataset$scan(initial_state, as_py_function(scan_func)))
 
+
+#' Persist the output of a dataset
+#'
+#' @details
+#' The snapshot API allows users to transparently persist the output of their
+#' preprocessing pipeline to disk, and materialize the pre-processed data on a
+#' different training run.
+#'
+#' This API enables repeated preprocessing steps to be consolidated, and allows
+#' re-use of already processed data, trading off disk storage and network
+#' bandwidth for freeing up more valuable CPU resources and accelerator compute
+#' time.
+#'
+#' https://github.com/tensorflow/community/blob/master/rfcs/20200107-tf-data-snapshot.md
+#' has detailed design documentation of this feature.
+#'
+#' Users can specify various options to control the behavior of snapshot,
+#' including how snapshots are read from and written to by passing in
+#' user-defined functions to the `reader_func` and `shard_func` parameters.
+#'
+#' `shard_func` is a user specified function that maps input elements to
+#' snapshot shards.
+#'
+# If `shard_func` is not supplied, the equivalent action is performed:
+#' ```R
+#' NUM_SHARDS <- parallel::detectCores()
+#' dataset %>%
+#'   dataset_enumerate() %>%
+#'   dataset_snapshot(
+#'     "/path/to/snapshot/dir",
+#'     shard_func = function(index, ds_elem) x %% NUM_SHARDS) %>%
+#'   dataset_map(function(index, ds_elem) ds_elem)
+#' ```
+#'
+#' `reader_func` is a user specified function that accepts a single argument:
+#' a Dataset of Datasets, each representing a "split" of elements of the
+#' original dataset. The cardinality of the input dataset matches the
+#' number of the shards specified in the `shard_func`. The function
+#' should return a Dataset of elements of the original dataset.
+#'
+#' Users may want specify this function to control how snapshot files should be
+#' read from disk, including the amount of shuffling and parallelism.
+#'
+#' Here is an example of a standard reader function a user can define. This
+#' function enables both dataset shuffling and parallel reading of datasets:
+#'
+#' ````R
+#' user_reader_func <- function(datasets) {
+#'   num_cores <- parallel::detectCores()
+#'   datasets %>%
+#'     dataset_shuffle(num_cores) %>%
+#'     dataset_interleave(function(x) x, num_parallel_calls=AUTOTUNE)
+#' }
+#'
+#' dataset <- dataset %>%
+#'   dataset_snapshot("/path/to/snapshot/dir",
+#'                    reader_func = user_reader_func)
+#' ````
+#'
+#' By default, snapshot parallelizes reads by the number of cores available on
+#' the system, but will not attempt to shuffle the data.
+#'
+#' @param path Required. A directory to use for storing/loading the snapshot to/from.
+#'
+#' @param compression Optional. The type of compression to apply to the snapshot
+#'   written to disk. Supported options are `"GZIP"`, `"SNAPPY"`, `"AUTO"` or
+#'   `NULL` (values of `""`, `NA`, and `"None"` are synonymous with `NULL`)
+#'   Defaults to `AUTO`, which attempts to pick an appropriate compression
+#'   algorithm for the dataset.
+#'
+#' @param reader_func Optional. A function to control how to read data from
+#' snapshot shards.
+#'
+#' @param shard_func Optional. A function to control how to shard data when writing
+#' a snapshot.
+#'
+#' @export
+dataset_snapshot <- function(dataset, path, compression=c("AUTO", "GZIP", "SNAPPY", "None"),
+                             reader_func=NULL, shard_func=NULL) {
+  if(identical(compression, ""))
+    compression <- NULL
+  else if(!is.null(compression)) {
+    compression <- match.arg(compression)
+    if(compression == "None")
+      compression <- NULL
+  }
+
+  if (!is.null(reader_func))
+    reader_func <- as_py_function(reader_func)
+  if (!is.null(shard_func))
+    shard_func <- as_py_function(shard_func)
+
+  dataset$snapshot(path, compression=compression,
+                   reader_func = reader_func,
+                   shard_func = shard_func)
 }
