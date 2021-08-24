@@ -1,7 +1,7 @@
 
 
 
-#' Tensor(s) for retreiving the next batch from a dataset
+#' Tensor(s) for retrieving the next batch from a dataset
 #'
 #' @param dataset A dataset
 #'
