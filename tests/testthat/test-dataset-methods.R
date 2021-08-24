@@ -207,3 +207,19 @@ test_succeeds("dataset_reduce works", {
   expect_equal(as.numeric(sum_and_count[[1]])/as.numeric(sum_and_count[[2]]), 2.2, tol = 1e-6)
 
 })
+
+
+test_succeeds("length.tf_dataset", {
+  expect_equal(length(range_dataset(0, 42)),
+               42)
+
+  expect_equal(length(range_dataset(0, 42) %>% dataset_repeat()),
+               Inf)
+
+  l <- range_dataset(0, 42) %>% dataset_repeat() %>%
+    dataset_filter(function(x) TRUE) %>% length()
+  expect_length(l, 1)
+  expect_true(is.na(l))
+
+})
+

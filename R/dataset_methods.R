@@ -835,4 +835,42 @@ dataset_options <- function(dataset, ...) {
 
   as_tf_dataset(dataset$with_options(options))
 }
+
+
+#' Get Dataset length
+#'
+#' Returns the length of the dataset.
+#'
+#' @param x a `tf.data.Dataset` object.
+#'
+#' @return Either `Inf` if the dataset is infinite, `NA` if the dataset length
+#'   is unknown, or an R numeric if it is known.
+#' @export
+#' @examples
+#' \dontrun{
+#' range_dataset(0, 42) %>% length()
+#' # 42
+#'
+#' range_dataset(0, 42) %>% dataset_repeat() %>% length()
+#' # Inf
+#'
+#' range_dataset(0, 42) %>% dataset_repeat() %>%
+#'   dataset_filter(function(x) TRUE) %>% length()
+#' # NA
+#' }
+length.tf_dataset <- function(x) {
+  l <- x$cardinality()$numpy()
+  if (l == tf$data$INFINITE_CARDINALITY)
+    Inf
+  else if (l == tf$data$UNKNOWN_CARDINALITY)
+    NA
+  else
+    l
+}
+
+#' @export
+#' @rdname length.tf_dataset
+length.tensorflow.python.data.ops.dataset_ops.DatasetV2 <- length.tf_dataset
+
+
 }
