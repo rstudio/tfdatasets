@@ -2,7 +2,7 @@
 % Please edit documentation in R/dataset_iterators.R
 \name{next_batch}
 \alias{next_batch}
-\title{Tensor(s) for retreiving the next batch from a dataset}
+\title{Tensor(s) for retrieving the next batch from a dataset}
 \usage{
 next_batch(dataset)
 }
@@ -13,7 +13,7 @@ next_batch(dataset)
 Tensor(s) that can be evaluated to yield the next batch of training data.
 }
 \description{
-Tensor(s) for retreiving the next batch from a dataset
+Tensor(s) for retrieving the next batch from a dataset
 }
 \details{
 To access the underlying data within the dataset you iteratively evaluate the

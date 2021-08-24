@@ -4,7 +4,7 @@
 \alias{range_dataset}
 \title{Creates a dataset of a step-separated range of values.}
 \usage{
-range_dataset(from = 0, to = 0, by = 1)
+range_dataset(from = 0, to = 0, by = 1, ..., dtype = tf$int64)
 }
 \arguments{
 \item{from}{Range start}
@@ -12,6 +12,8 @@ range_dataset(from = 0, to = 0, by = 1)
 \item{to}{Range end (exclusive)}
 
 \item{by}{Increment of the sequence}
+
+\item{dtype}{Output dtype. (Optional, default: \code{tf$int64}).}
 }
 \description{
 Creates a dataset of a step-separated range of values.
