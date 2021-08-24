@@ -873,4 +873,30 @@ length.tf_dataset <- function(x) {
 length.tensorflow.python.data.ops.dataset_ops.DatasetV2 <- length.tf_dataset
 
 
+#' Enumerates the elements of this dataset
+#'
+#' @details It is similar to python's `enumerate`, this transforms a sequence of
+#' elements into a sequence of `list(index, element)`, where index is an integer
+#' that indicates the position of the element in the sequence.
+#'
+#' @param start An integer (coerced to a `tf$int64` scalar `tf.Tensor`),
+#'   representing the start value for enumeration.
+#'
+#' @export
+#' @examples
+#' \dontrun{
+#' dataset <- tensor_slices_dataset(100:103) %>%
+#'   dataset_enumerate()
+#'
+#' iterator <- reticulate::as_iterator(dataset)
+#' reticulate::iter_next(iterator) # list(0, 100)
+#' reticulate::iter_next(iterator) # list(1, 101)
+#' reticulate::iter_next(iterator) # list(2, 102)
+#' reticulate::iter_next(iterator) # list(3, 103)
+#' reticulate::iter_next(iterator) # NULL (iterator exhausted)
+#' reticulate::iter_next(iterator) # NULL (iterator exhausted)
+#' }
+dataset_enumerate <- function(dataset, start=0L) {
+  as_tf_dataset(dataset$enumerate(as_integer_tensor(start)))
+}
 }

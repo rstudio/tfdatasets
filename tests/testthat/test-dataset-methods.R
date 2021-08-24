@@ -223,3 +223,22 @@ test_succeeds("length.tf_dataset", {
 
 })
 
+
+test_succeeds("dataset_enumerate", {
+
+  dataset <- tensor_slices_dataset(100:103) %>%
+    dataset_enumerate()
+
+  as_iterator <- reticulate::as_iterator
+  iter_next <- reticulate::iter_next
+
+  it <- as_iterator(dataset)
+  expect_equal(iter_next(it), list(as_tensor(0, "int64"), as_tensor(100, "int64")))
+  expect_equal(iter_next(it), list(as_tensor(1, "int64"), as_tensor(101, "int64")))
+  expect_equal(iter_next(it), list(as_tensor(2, "int64"), as_tensor(102, "int64")))
+  expect_equal(iter_next(it), list(as_tensor(3, "int64"), as_tensor(103, "int64")))
+  expect_null(iter_next(it))
+  expect_null(iter_next(it))
+
+})
+
