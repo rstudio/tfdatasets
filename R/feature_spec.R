@@ -1345,6 +1345,10 @@ step_categorical_column_with_identity <- function(spec, ..., num_buckets,
   quos_ <- quos(...)
 
   variables <- terms_select(spec$feature_names(), spec$feature_types(), quos_)
+  if(is.numeric(num_buckets))
+    storage.mode(num_buckets) <- "integer"
+  if(is.numeric(default_value))
+    storage.mode(default_value) <- "integer"
   for (var in variables) {
     stp <- StepCategoricalColumnWithIdentity$new(
       key = var,
