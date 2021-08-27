@@ -204,7 +204,7 @@ test_succeeds("dataset_reduce works", {
 
   d <- tensor_slices_dataset(tf$constant(c(1.1, 2.2, 3.3)))
   sum_and_count <- d %>% dataset_reduce(tuple(0, 0), function(x, y) tuple(x[[1]] + y, x[[2]] + 1))
-  expect_equal(as.numeric(sum_and_count[[1]])/as.numeric(sum_and_count[[2]]), 2.2, tol = 1e-6)
+  expect_equal(as.numeric(sum_and_count[[1]])/as.numeric(sum_and_count[[2]]), 2.2, tolerance = 1e-6)
 
 })
 

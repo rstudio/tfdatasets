@@ -381,8 +381,8 @@ test_that("Can use a scaler_standard", {
   value <- as.matrix(get_features(dataset, spec$dense_features()))
   normalized_c <- (df$c - mean(df$c))/sd(df$c)
   normalized_b <- (df$b - mean(df$b))/sd(df$b)
-  expect_equal(as.numeric(value[,2]), normalized_c[1:2], tol = 1e-6)
-  expect_equal(as.numeric(value[,1]), normalized_b[1:2], tol = 1e-6)
+  expect_equal(as.numeric(value[,2]), normalized_c[1:2], tolerance = 1e-6)
+  expect_equal(as.numeric(value[,1]), normalized_b[1:2], tolerance = 1e-6)
 })
 
 test_that("MinMaxScaler works as expected", {
@@ -407,8 +407,8 @@ test_that("Can use a scaler_min_max", {
   value <- as.matrix(get_features(dataset, spec$dense_features()))
   normalized_c <- (df$c - min(df$c))/(max(df$c) - min(df$c))
   normalized_b <- (df$b - min(df$b))/(max(df$b) - min(df$b))
-  expect_equal(as.numeric(value[,2]), normalized_c[1:2], tol = 1e-6)
-  expect_equal(as.numeric(value[,1]), normalized_b[1:2], tol = 1e-6)
+  expect_equal(as.numeric(value[,2]), normalized_c[1:2], tolerance = 1e-6)
+  expect_equal(as.numeric(value[,1]), normalized_b[1:2], tolerance = 1e-6)
 })
 
 test_that("Can use layer_input_from_dataset with TF datasets", {
@@ -426,7 +426,7 @@ test_that("Can use layer_input_from_dataset with TF datasets", {
   output <- input %>%
     keras::layer_dense_features(spec$dense_features())
 
-  model <- keras::keras_model(input = input, output = output)
+  model <- keras::keras_model(inputs = input, outputs = output)
 
 
   expect_length(input, 4)
@@ -449,7 +449,7 @@ test_that("Can use layer_input_from_dataset with TF data frames", {
     keras::layer_dense_features(spec$dense_features()) %>%
     keras::layer_dense(units = 1)
 
-  model <- keras::keras_model(input = input, output = output)
+  model <- keras::keras_model(inputs = input, outputs = output)
   keras::compile(model, loss = "mse", optimizer = "adam")
   hist <- keras::fit(model, x = df, y = df$y, verbose = 0)
 
