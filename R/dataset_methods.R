@@ -786,7 +786,6 @@ dataset_reduce <- function(dataset, initial_state, reduce_func) {
 #' range_dataset(0, 10) %>% dataset_options()
 #' }
 dataset_options <- function(dataset, ...) {
-
   user_opts <- list(...)
 
   if(!length(user_opts))
@@ -804,7 +803,8 @@ dataset_options <- function(dataset, ...) {
     name <- names(user_opts)[i]
     val <- user_opts[[i]]
 
-    if (inherits(val, "tensorflow.python.data.ops.dataset_ops.Options")) {
+    if (inherits(val, c("tensorflow.python.data.ops.dataset_ops.Options",
+                        "tensorflow.python.data.ops.options.Options"))) {
       options <- options$merge(val)
       next
     }
