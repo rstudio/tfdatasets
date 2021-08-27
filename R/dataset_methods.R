@@ -846,6 +846,7 @@ dataset_options <- function(dataset, ...) {
 #' @return Either `Inf` if the dataset is infinite, `NA` if the dataset length
 #'   is unknown, or an R numeric if it is known.
 #' @export
+#' @importFrom tensorflow tf_version
 #' @examples
 #' \dontrun{
 #' range_dataset(0, 42) %>% length()

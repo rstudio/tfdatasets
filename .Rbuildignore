@@ -11,6 +11,7 @@
 ^\.travis\.yml$
 ^doc$
 ^Meta$
-^\.github/workflows/R-CMD-check\.yaml$
+^\.github$
+^\.vscode$
 ^cran-comments\.md$
 ^CRAN-RELEASE$

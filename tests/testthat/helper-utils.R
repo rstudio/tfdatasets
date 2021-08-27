@@ -63,10 +63,12 @@ mtcars_dataset_nobatch <- function() {
 }
 
 
-testing_data_filepath <- function(x=NULL) {
-  d <- system.file("tests/testthat/data", package = "tfdatasets")
-  if(is.null(x))
+testing_data_filepath <- function(x = NULL) {
+  # basename(getwd()) is either "tfdatasets" or "tests" if in R CMD check
+  d <- if(file.exists("data/iris.csv"))
+     "data" else "tests/testthat/data"
+  if (is.null(x))
     d
   else
-  file.path(d, x)
+    file.path(d, x)
 }
