@@ -911,8 +911,11 @@ dataset_enumerate <- function(dataset, start=0L) {
 #' sequence of values.
 #'
 #' @export
-random_integer_dataset <- function(seed=NULL) {
-  as_tf_dataset(tf$data$Dataset$random(as_integer_tensor(seed)))
+random_integer_dataset <- function(seed = NULL) {
+  if (tf_version() >= "2.6")
+    as_tf_dataset(tf$data$Dataset$random(as_integer_tensor(seed)))
+  else
+    as_tf_dataset(tf$data$experimental$RandomDataset(as_integer_tensor(seed)))
 }
 
 
@@ -946,8 +949,15 @@ random_integer_dataset <- function(seed=NULL) {
 #'   unlist()
 #' # 0  1  3  6 10 15 21 28 36 45
 #' }
-dataset_scan <- function(dataset, initial_state, scan_func)
-  as_tf_dataset(dataset$scan(initial_state, as_py_function(scan_func)))
+dataset_scan <- function(dataset, initial_state, scan_func) {
+  if(tf_version() >= "2.6")
+    as_tf_dataset(dataset$scan(initial_state, as_py_function(scan_func)))
+  else {
+    dataset$apply(
+      tf$data$experimental$scan(initial_state, as_py_function(scan_func))
+    )
+  }
+}
 
 
 #' Persist the output of a dataset
@@ -1043,7 +1053,12 @@ dataset_snapshot <- function(dataset, path, compression=c("AUTO", "GZIP", "SNAPP
   if (!is.null(shard_func))
     shard_func <- as_py_function(shard_func)
 
-  dataset$snapshot(path, compression=compression,
+  args <- list(path, compression=compression,
                    reader_func = reader_func,
                    shard_func = shard_func)
+
+  if(tf_version() >= "2.6")
+    do.call(dataset$snapshot, args)
+  else
+    dataset$apply(do.call(tf$data$experimental$snapshot, args))
 }
