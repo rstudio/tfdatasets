@@ -69,7 +69,7 @@ test_succeeds("dataset_prepare can provide keras input tensors", {
     skip("dataset_prepare required TF >= 1.13")
 
   # create dataset
-  dataset <- csv_dataset("data/iris.csv") %>%
+  dataset <- csv_dataset(testing_data_filepath("iris.csv")) %>%
     dataset_map(function(record) {
       record$Species <- tf$one_hot(record$Species, depth = 3L)
       record

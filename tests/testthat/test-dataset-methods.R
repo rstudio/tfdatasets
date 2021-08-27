@@ -111,7 +111,7 @@ test_succeeds("dataset_prefetch_to_device returns a dataset", {
 })
 
 test_succeeds("dataset_filter narrows the dataset", {
-  dataset <- csv_dataset("data/mtcars.csv") %>%
+  dataset <- csv_dataset(testing_data_filepath("mtcars.csv")) %>%
     dataset_filter(function(record) {
       record$mpg >= 20 & record$cyl >= 6L
     }) %>%
@@ -140,7 +140,7 @@ test_succeeds("dataset_interleave yields a dataset" , {
 
 test_succeeds("dataset_shard yields a dataset" , {
 
-  dataset <- csv_dataset("data/mtcars.csv") %>%
+  dataset <- csv_dataset(testing_data_filepath("mtcars.csv")) %>%
     dataset_shard(num_shards = 4, index = 1) %>%
     dataset_batch(8)
 

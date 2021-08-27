@@ -542,6 +542,7 @@ test_that("can create image embedding steps", {
 })
 
 test_that("can create text embedding columns", {
+  # TODO: this was removed in tfhub, delete this test
   skip_if_not_tf()
 
   if (tensorflow::tf$executing_eagerly())

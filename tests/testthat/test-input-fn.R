@@ -28,10 +28,10 @@ use_input_fn <- function(features, response) {
   model <- linear_regressor(feature_columns = cols)
 
   # train model
-  model %>% train(mtcars_input_fn("data/mtcars-train.csv"))
+  model %>% train(mtcars_input_fn(testing_data_filepath("mtcars-train.csv")))
 
   # evaluate model
-  model %>% evaluate(mtcars_input_fn("data/mtcars-test.csv"))
+  model %>% evaluate(mtcars_input_fn(testing_data_filepath("mtcars-test.csv")))
 }
 
 test_succeeds("input_fn feeds data to train and evaluate", {
@@ -66,7 +66,8 @@ test_that("input_fn rejects un-named datasets", {
 
 test_succeeds("input_fn supports tidyselect", {
 
-  dataset <- csv_dataset("data/mtcars-train.csv") %>%
+  dataset <- testing_data_filepath("mtcars-train.csv") %>%
+    csv_dataset() %>%
     dataset_shuffle(2000) %>%
     dataset_batch(128) %>%
     dataset_repeat(3)
@@ -78,7 +79,8 @@ test_succeeds("input_fn supports tidyselect", {
 
 test_succeeds("input_fn accepts formula syntax", {
 
-  dataset <- csv_dataset("data/mtcars-train.csv") %>%
+  dataset <- testing_data_filepath("mtcars-train.csv") %>%
+    csv_dataset() %>%
     dataset_shuffle(2000) %>%
     dataset_batch(128) %>%
     dataset_repeat(3)
@@ -132,7 +134,7 @@ test_succeeds("input_fn works with custom estimators", {
 
   # define dataset
   col_names <- c("SepalLength", "SepalWidth", "PetalLength", "PetalWidth","Species")
-  dataset <- csv_dataset("data/iris.csv", names = col_names, types = "ddddi", skip = 1) %>%
+  dataset <- csv_dataset(testing_data_filepath("iris.csv"), names = col_names, types = "ddddi", skip = 1) %>%
     dataset_map(function(record) {
       record$Species <- tf$cast(record$Species, tf$int32)
       record
