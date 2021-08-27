@@ -13,6 +13,8 @@ dataset_snapshot(
 )
 }
 \arguments{
+\item{dataset}{A tensorflow dataset}
+
 \item{path}{Required. A directory to use for storing/loading the snapshot to/from.}
 
 \item{compression}{Optional. The type of compression to apply to the snapshot

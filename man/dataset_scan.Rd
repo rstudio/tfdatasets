@@ -7,6 +7,8 @@
 dataset_scan(dataset, initial_state, scan_func)
 }
 \arguments{
+\item{dataset}{A tensorflow dataset}
+
 \item{initial_state}{A nested structure of tensors, representing the initial
 state of the accumulator.}
 

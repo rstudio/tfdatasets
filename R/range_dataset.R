@@ -7,6 +7,8 @@
 #' @param to Range end (exclusive)
 #' @param by Increment of the sequence
 #'
+#' @param ... ignored
+#'
 #' @param dtype Output dtype. (Optional, default: `tf$int64`).
 #'
 #' @export

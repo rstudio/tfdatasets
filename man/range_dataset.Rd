@@ -13,6 +13,8 @@ range_dataset(from = 0, to = 0, by = 1, ..., dtype = tf$int64)
 
 \item{by}{Increment of the sequence}
 
+\item{...}{ignored}
+
 \item{dtype}{Output dtype. (Optional, default: \code{tf$int64}).}
 }
 \description{

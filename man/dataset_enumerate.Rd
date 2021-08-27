@@ -7,6 +7,8 @@
 dataset_enumerate(dataset, start = 0L)
 }
 \arguments{
+\item{dataset}{A tensorflow dataset}
+
 \item{start}{An integer (coerced to a \code{tf$int64} scalar \code{tf.Tensor}),
 representing the start value for enumeration.}
 }

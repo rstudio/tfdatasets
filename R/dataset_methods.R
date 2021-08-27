@@ -879,6 +879,7 @@ length.tensorflow.python.data.ops.dataset_ops.DatasetV2 <- length.tf_dataset
 #' elements into a sequence of `list(index, element)`, where index is an integer
 #' that indicates the position of the element in the sequence.
 #'
+#' @param dataset A tensorflow dataset
 #' @param start An integer (coerced to a `tf$int64` scalar `tf.Tensor`),
 #'   representing the start value for enumeration.
 #'
@@ -922,6 +923,8 @@ random_integer_dataset <- function(seed=NULL) {
 #' In addition to mapping `scan_func` across the elements of the input dataset,
 #' `scan()` accumulates one or more state tensors, whose initial values are
 #' `initial_state`.
+#'
+#' @param dataset A tensorflow dataset
 #'
 #' @param initial_state A nested structure of tensors, representing the initial
 #' state of the accumulator.
@@ -1007,6 +1010,8 @@ dataset_scan <- function(dataset, initial_state, scan_func)
 #'
 #' By default, snapshot parallelizes reads by the number of cores available on
 #' the system, but will not attempt to shuffle the data.
+#'
+#' @param dataset A tensorflow dataset
 #'
 #' @param path Required. A directory to use for storing/loading the snapshot to/from.
 #'
