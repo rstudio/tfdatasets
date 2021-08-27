@@ -1,4 +1,4 @@
-# tfdatasets (development version)
+# tfdatasets 2.6.0
 
 - New `dataset_options()` for setting and getting dataset options.
 - New `length()` method for tensorflow datasets.
