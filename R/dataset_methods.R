@@ -859,10 +859,19 @@ dataset_options <- function(dataset, ...) {
 #' # NA
 #' }
 length.tf_dataset <- function(x) {
-  l <- x$cardinality()$numpy()
-  if (l == tf$data$INFINITE_CARDINALITY)
+  if (tf_version() >= "2.3") {
+    l <- x$cardinality()$numpy()
+    car_inf <- tf$data$INFINITE_CARDINALITY
+    car_unk <- tf$data$UNKNOWN_CARDINALITY
+  } else {
+    l <- tf$data$experimental$cardinality(x)$numpy()
+    car_inf <- tf$data$experimental$INFINITE_CARDINALITY
+    car_unk <- tf$data$experimental$UNKNOWN_CARDINALITY
+  }
+
+  if (l == car_inf)
     Inf
-  else if (l == tf$data$UNKNOWN_CARDINALITY)
+  else if (l == car_unk)
     NA
   else
     l

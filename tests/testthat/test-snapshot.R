@@ -1,5 +1,6 @@
 test_that("dataset_snapshot works", {
 
+  skip_if(tf_version() < "2.3")
   fi <- tempfile()
 
   res <- tensor_slices_dataset(1:10) %>%
