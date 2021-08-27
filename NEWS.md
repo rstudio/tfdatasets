@@ -1,13 +1,12 @@
 # tfdatasets (development version)
 
-- Added `dataset_options()` for setting and getting dataset options.
-- Added a `length()` method for tensorflow datasets.
-- Added `dataset_enumerate()`
-- Added `random_integer_dataset()`
-- Added `dataset_scan()`, a stateful varient of `dataset_map()`.
-- Added `dataset_snapshot()` for persisting the output of a dataset pipeline to disk.
+- New `dataset_options()` for setting and getting dataset options.
+- New `length()` method for tensorflow datasets.
+- New `dataset_enumerate()`.
+- New `random_integer_dataset()`.
+- New `dataset_scan()`, a stateful variant of `dataset_map()`.
+- New `dataset_snapshot()` for persisting the output of a dataset to disk.
 - `range_dataset()` gains a `dtype` argument.
-
 
 # tfdatasets 2.4.0
 
