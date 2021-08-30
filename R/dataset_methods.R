@@ -252,7 +252,7 @@ dataset_flat_map <- function(dataset, map_func) {
 #' @family dataset methods
 #'
 #' @export
-dataset_prefetch <- function(dataset, buffer_size) {
+dataset_prefetch <- function(dataset, buffer_size = tf$data$AUTOTUNE) {
   as_tf_dataset(dataset$prefetch(as_integer_tensor(buffer_size)))
 }
 

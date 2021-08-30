@@ -7,6 +7,7 @@
 - New `dataset_scan()`, a stateful variant of `dataset_map()`.
 - New `dataset_snapshot()` for persisting the output of a dataset to disk.
 - `range_dataset()` gains a `dtype` argument.
+- `dataset_prefetch()` argument `buffer_size` is now optional, defaults to `tf$data$AUTOTUNE`
 
 # tfdatasets 2.4.0
 
