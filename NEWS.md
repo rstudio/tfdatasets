@@ -1,6 +1,6 @@
 # tfdatasets (development version)
 
-- `reticulate::as_iterator()` is now exported.
+- `as_iterator()` and `iter_next()` are is now reexported from {reticualte}.
 
 # tfdatasets 2.6.0
 
