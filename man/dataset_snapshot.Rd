@@ -50,7 +50,7 @@ including how snapshots are read from and written to by passing in
 user-defined functions to the \code{reader_func} and \code{shard_func} parameters.
 
 \code{shard_func} is a user specified function that maps input elements to
-snapshot shards.\if{html}{\out{<div class="R">}}\preformatted{NUM_SHARDS <- parallel::detectCores()
+snapshot shards.\if{html}{\out{<div class="sourceCode R">}}\preformatted{NUM_SHARDS <- parallel::detectCores()
 dataset \%>\%
   dataset_enumerate() \%>\%
   dataset_snapshot(
@@ -69,7 +69,7 @@ Users may want specify this function to control how snapshot files should be
 read from disk, including the amount of shuffling and parallelism.
 
 Here is an example of a standard reader function a user can define. This
-function enables both dataset shuffling and parallel reading of datasets:\if{html}{\out{<div class="R">}}\preformatted{user_reader_func <- function(datasets) \{
+function enables both dataset shuffling and parallel reading of datasets:\if{html}{\out{<div class="sourceCode R">}}\preformatted{user_reader_func <- function(datasets) \{
   num_cores <- parallel::detectCores()
   datasets \%>\%
     dataset_shuffle(num_cores) \%>\%

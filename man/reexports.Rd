@@ -14,6 +14,7 @@
 \alias{shape}
 \alias{install_tensorflow}
 \alias{fit}
+\alias{as_iterator}
 \title{Objects exported from other packages}
 \keyword{internal}
 \description{
@@ -22,6 +23,8 @@ below to see their documentation.
 
 \describe{
   \item{generics}{\code{\link[generics]{fit}}}
+
+  \item{reticulate}{\code{\link[reticulate:iterate]{as_iterator}}}
 
   \item{tensorflow}{\code{\link[tensorflow]{install_tensorflow}}, \code{\link[tensorflow]{shape}}, \code{\link[tensorflow]{tf}}}
 

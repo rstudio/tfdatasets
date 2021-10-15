@@ -39,7 +39,7 @@ Imports:
     generics,
     vctrs
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
 Suggests:
     testthat,
     knitr,

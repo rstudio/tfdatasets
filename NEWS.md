@@ -1,5 +1,7 @@
 # tfdatasets (development version)
 
+- `reticulate::as_iterator()` is now exported.
+
 # tfdatasets 2.6.0
 
 - New `dataset_options()` for setting and getting dataset options.

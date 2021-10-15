@@ -4,7 +4,7 @@
 \alias{dataset_prefetch}
 \title{Creates a Dataset that prefetches elements from this dataset.}
 \usage{
-dataset_prefetch(dataset, buffer_size)
+dataset_prefetch(dataset, buffer_size = tf$data$AUTOTUNE)
 }
 \arguments{
 \item{dataset}{A dataset}
