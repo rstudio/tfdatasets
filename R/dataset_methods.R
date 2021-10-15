@@ -1072,3 +1072,14 @@ dataset_snapshot <- function(dataset, path, compression=c("AUTO", "GZIP", "SNAPP
   else
     dataset$apply(do.call(tf$data$experimental$snapshot, args))
 }
+
+
+#' Convert tf_dataset to an iterator that yields R arrays.
+#'
+#' @param dataset A tensorflow dataset
+#'
+#' @return An iterable. Use [`iterate()`] or [`iter_next()`] to access values from the iterator.
+#' @export
+as_array_iterator <- function(dataset) {
+  dataset$as_numpy_iterator()
+}
