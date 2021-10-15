@@ -1,6 +1,7 @@
 # tfdatasets (development version)
 
 - `as_iterator()` and `iter_next()` are is now reexported from {reticualte}.
+- `as_iterator()`, `iter_next()` and `iterate()` are is now reexported from {reticualte}.
 
 # tfdatasets 2.6.0
 

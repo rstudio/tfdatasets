@@ -34,3 +34,8 @@ reticulate::as_iterator
 #' @importFrom reticulate iter_next
 #' @export
 reticulate::iter_next
+
+
+#' @importFrom reticulate iterate
+#' @export
+reticulate::iterate

@@ -16,6 +16,7 @@
 \alias{fit}
 \alias{as_iterator}
 \alias{iter_next}
+\alias{iterate}
 \title{Objects exported from other packages}
 \keyword{internal}
 \description{
@@ -25,7 +26,7 @@ below to see their documentation.
 \describe{
   \item{generics}{\code{\link[generics]{fit}}}
 
-  \item{reticulate}{\code{\link[reticulate:iterate]{as_iterator}}, \code{\link[reticulate:iterate]{iter_next}}}
+  \item{reticulate}{\code{\link[reticulate:iterate]{as_iterator}}, \code{\link[reticulate:iterate]{iter_next}}, \code{\link[reticulate]{iterate}}}
 
   \item{tensorflow}{\code{\link[tensorflow]{install_tensorflow}}, \code{\link[tensorflow]{shape}}, \code{\link[tensorflow]{tf}}}
 
