@@ -29,9 +29,9 @@ to create in parallel. On one hand, higher values can help mitigate the effect o
 stragglers. On the other hand, higher values can increase contention if CPU is
 scarce.}
 
-\item{drop_remainder}{Ensure that batches have a fixed size by
-omitting any final smaller batch if it's present. Note that this is
-required for use with the Keras tensor inputs to fit/evaluate/etc.}
+\item{drop_remainder}{(Optional.) A boolean, representing whether the last
+batch should be dropped in the case it has fewer than \code{batch_size}
+elements; the default behavior is not to drop the smaller batch.}
 
 \item{num_parallel_calls}{(Optional) An integer, representing the
 number of elements to process in parallel If not specified, elements will
