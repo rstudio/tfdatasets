@@ -4,7 +4,12 @@
 \alias{sample_from_datasets}
 \title{Samples elements at random from the datasets in \code{datasets}.}
 \usage{
-sample_from_datasets(datasets, weights = NULL, seed = NULL)
+sample_from_datasets(
+  datasets,
+  weights = NULL,
+  seed = NULL,
+  stop_on_empty_dataset = TRUE
+)
 }
 \arguments{
 \item{datasets}{A list ofobjects with compatible structure.}

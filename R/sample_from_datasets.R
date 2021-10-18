@@ -14,8 +14,19 @@
 #'   `weights` if provided, otherwise with uniform probability.
 #'
 #' @export
-sample_from_datasets <- function(datasets, weights = NULL, seed = NULL) {
+sample_from_datasets <-
+function(datasets, weights = NULL, seed = NULL, stop_on_empty_dataset = TRUE)
+{
+  args <- capture_args(match.call(), list(seed = as_integer_tensor),
+                       ignore = "dataset")
   validate_tf_version()
+  if (tf_version() >= "2.7") {
+    callable <- tf$data$Dataset$sample_from_datasets
+  } else {
+    callable <- tf$data$experimental$sample_from_datasets
+  }
+  as_tf_dataset(do.call(callable, args))
+}
 
 
 #' Creates a dataset that deterministically chooses elements from datasets.

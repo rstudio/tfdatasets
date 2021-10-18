@@ -7,6 +7,7 @@
 - New `dataset_rejection_resample()`
 - New `dataset_unique()`
 - New `choose_from_datasets()`
+- `sample_from_datasets()` gains argument `stop_on_empty_dataset`.
 
 # tfdatasets 2.6.0
 
