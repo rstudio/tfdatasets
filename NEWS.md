@@ -4,6 +4,7 @@
 - New `as_array_iterator()`, for converting a dataset into an iterable that yields R arrays.
   (`as_iterator()` yields tensorflow tensors)
 - New `dataset_bucket_by_sequence_length()`
+- New `dataset_rejection_resample()`
 
 # tfdatasets 2.6.0
 

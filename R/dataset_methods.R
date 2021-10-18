@@ -540,28 +540,77 @@ dataset_shard <- function(dataset, num_shards, index) {
 #'   components. Defaults are 0 for numeric types and the empty string for
 #'   string types.
 #'
-#' @return A dataset
+
+#' A transformation that resamples a dataset to a target distribution.
 #'
-#' @family dataset methods
+#' @param dataset A `tf.Dataset`
+#' @param class_func A function mapping an element of the input dataset to a
+#'   scalar `tf.int32` tensor. Values should be in `[0, num_classes)`.
+#' @param target_dist A floating point type tensor, shaped `[num_classes]`.
+#' @param initial_dist (Optional.) A floating point type tensor, shaped
+#'   `[num_classes]`. If not provided, the true class distribution is estimated
+#'   live in a streaming fashion.
+#' @param seed (Optional.) Integer seed for the resampler.
+#' @param name (Optional.) A name for the tf.data operation.
 #'
+#' @return A `tf.Dataset`
 #' @export
-dataset_padded_batch <- function(dataset, batch_size, padded_shapes, padding_values = NULL,
-                                 drop_remainder = FALSE) {
-  if (drop_remainder) {
-    as_tf_dataset(dataset$apply(
-      tf$contrib$data$padded_batch_and_drop_remainder(
-        as_integer_tensor(batch_size),
-        as_tensor_shapes(padded_shapes),
-        as_integer_tensor(padding_values)
-      )
-    ))
-  } else {
-    as_tf_dataset(dataset$padded_batch(
-      batch_size = as_integer_tensor(batch_size),
-      padded_shapes = as_tensor_shapes(padded_shapes),
-      padding_values = padding_values
-    ))
-  }
+#'
+#' @examples
+#' \dontrun{
+#' initial_dist <- c(.5, .5)
+#' target_dist <- c(.6, .4)
+#' num_classes <- length(initial_dist)
+#' num_samples <- 100000
+#' data <- sample.int(num_classes, num_samples, prob = initial_dist, replace = TRUE)
+#' dataset <- tensor_slices_dataset(data)
+#' tally <- c(0, 0)
+#' `add<-` <- function (x, value) x + value
+#' # tfautograph::autograph({
+#' #   for(i in dataset)
+#' #     add(tally[as.numeric(i)]) <- 1
+#' # })
+#' dataset %>%
+#'   as_array_iterator() %>%
+#'   iterate(function(i) {
+#'     add(tally[i]) <<- 1
+#'   }, simplify = FALSE)
+#' # The value of `tally` will be close to c(50000, 50000) as
+#' # per the `initial_dist` distribution.
+#' tally # c(50287, 49713)
+#'
+#' tally <- c(0, 0)
+#' dataset %>%
+#'   dataset_rejection_resample(
+#'     class_func = function(x) (x-1) %% 2,
+#'     target_dist = target_dist,
+#'     initial_dist = initial_dist
+#'   ) %>%
+#'   as_array_iterator() %>%
+#'   iterate(function(element) {
+#'     names(element) <- c("class_id", "i")
+#'     add(tally[element$i]) <<- 1
+#'   }, simplify = FALSE)
+#' # The value of tally will be now be close to c(75000, 50000)
+#' # thus satisfying the target_dist distribution.
+#' tally # c(74822, 49921)
+#' }
+dataset_rejection_resample <-
+function(dataset,
+         class_func,
+         target_dist,
+         initial_dist = NULL,
+         seed = NULL,
+         name = NULL)
+{
+  require_tf_version("2.7", "dataset_rejection_resample")
+  args <- capture_args(match.call(),
+                       list(class_func = as_py_function,
+                            seed = as_integer_tensor),
+                       ignore = "dataset")
+  as_tf_dataset(do.call(dataset$rejection_resample, args))
+}
+
 }
 
 
