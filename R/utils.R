@@ -96,6 +96,8 @@ as_py_function <- function(x) {
 }
 
 
+as_integer_list <- function(x) as.list(as.integer(x))
+
 
 # assert_all_dots_named(), capture_args(), require_tf_version()
 # copy-pasted from keras circa tf_version() 2.7
