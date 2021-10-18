@@ -6,6 +6,7 @@
 - New `dataset_bucket_by_sequence_length()`
 - New `dataset_rejection_resample()`
 - New `dataset_unique()`
+- New `choose_from_datasets()`
 
 # tfdatasets 2.6.0
 

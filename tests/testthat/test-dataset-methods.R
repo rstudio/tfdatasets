@@ -212,6 +212,18 @@ test_succeeds("dataset_bucet_by_sequence_length", {
 })
 
 
+test_succeeds("choose_from_datasets", {
+  datasets <- list(tensors_dataset("foo") %>% dataset_repeat(),
+                   tensors_dataset("bar") %>% dataset_repeat(),
+                   tensors_dataset("baz") %>% dataset_repeat())
+
+  # Define a dataset containing `[0, 1, 2, 0, 1, 2, 0, 1, 2]`.
+  choice_dataset <- range_dataset(0, 3) %>% dataset_repeat(3)
+  result <- choose_from_datasets(datasets, choice_dataset)
+  res <- result %>% as_array_iterator() %>% iterate(function(s) s$decode())
+  expect_identical(res, c("foo", "bar", "baz", "foo", "bar", "baz", "foo", "bar", "baz"))
+})
+
 test_succeeds("dataset_unique", {
   res <- c(0, 37, 2, 37, 2, 1) %>% as_tensor("int32") %>%
     tensor_slices_dataset() %>%
