@@ -535,30 +535,105 @@ dataset_shard <- function(dataset, num_shards, index) {
   ))
 }
 
-
-#' Combines consecutive elements of this dataset into padded batches
+#' Combines consecutive elements of this dataset into padded batches.
 #'
-#' This method combines multiple consecutive elements of this dataset, which
-#' might have different shapes, into a single element. The tensors in the
-#' resulting element have an additional outer dimension, and are padded to the
-#' respective shape in `padded_shapes`.
+#' @details
+#' This transformation combines multiple consecutive elements of the input
+#' dataset into a single element.
+#'
+#' Like [`dataset_batch()`], the components of the resulting element will
+#' have an additional outer dimension, which will be `batch_size` (or
+#' `N %% batch_size` for the last element if `batch_size` does not divide the
+#' number of input elements `N` evenly and `drop_remainder` is `FALSE`). If
+#' your program depends on the batches having the same outer dimension, you
+#' should set the `drop_remainder` argument to `TRUE` to prevent the smaller
+#' batch from being produced.
+#'
+#' Unlike [`dataset_batch()`], the input elements to be batched may have
+#' different shapes, and this transformation will pad each component to the
+#' respective shape in `padded_shapes`. The `padded_shapes` argument
+#' determines the resulting shape for each dimension of each component in an
+#' output element:
+#'
+#' * If the dimension is a constant, the component will be padded out to that
+#'   length in that dimension.
+#' * If the dimension is unknown, the component will be padded out to the
+#'   maximum length of all elements in that dimension.
+#'
+#' See also `tf$data$experimental$dense_to_sparse_batch`, which combines
+#' elements that may have different shapes into a `tf$sparse$SparseTensor`.
 #'
 #' @inheritParams dataset_batch
+#' @param batch_size An integer, representing the number of
+#'     consecutive elements of this dataset to combine in a single batch.
+#' @param padded_shapes (Optional.) A (nested) structure of
+#' `tf.TensorShape` (returned by [`tensorflow::shape()`]) or
+#'     `tf$int64` vector tensor-like objects representing the shape to which
+#'     the respective component of each input element should be padded prior
+#'     to batching. Any unknown dimensions will be padded to the maximum size
+#'     of that dimension in each batch. If unset, all dimensions of all
+#'     components are padded to the maximum size in the batch. `padded_shapes`
+#'     must be set if any component has an unknown rank.
+#' @param padding_values: (Optional.) A (nested) structure of scalar-shaped
+#'     `tf.Tensor`, representing the padding values to use for the respective
+#'     components. `NULL` represents that the (nested) structure should be padded
+#'     with default values.  Defaults are `0` for numeric types and the empty
+#'     string `""` for string types. The `padding_values` should have the same
+#'     (nested) structure as the input dataset. If `padding_values` is a single
+#'     element and the input dataset has multiple components, then the same
+#'     `padding_values` will be used to pad every component of the dataset.
+#'     If `padding_values` is a scalar, then its value will be broadcasted
+#'     to match the shape of each component.
+#' @param drop_remainder: (Optional.) A boolean scalar, representing
+#'     whether the last batch should be dropped in the case it has fewer than
+#'     `batch_size` elements; the default behavior is not to drop the smaller
+#'     batch.
 #'
-#' @param dataset A dataset
-#' @param batch_size An integer, representing the number of consecutive elements
-#'   of this dataset to combine in a single batch.
-#' @param padded_shapes A nested structure of tf$TensorShape or integer vector
-#'   tensor-like objects representing the shape to which the respective
-#'   component of each input element should be padded prior to batching. Any
-#'   unknown dimensions (e.g. `tf$Dimension(NULL)` in a `tf$TensorShape` or -1
-#'   in a tensor-like object) will be padded to the maximum size of that
-#'   dimension in each batch.
-#' @param padding_values (Optional) A nested structure of scalar-shaped
-#'   tf$Tensor, representing the padding values to use for the respective
-#'   components. Defaults are 0 for numeric types and the empty string for
-#'   string types.
+#' @param name: (Optional.) A name for the tf.data operation. Requires tensorflow version >= 2.7.
 #'
+#' @returns A tf_dataset
+#' @export
+#' @family dataset methods
+#' @seealso
+#'  -  <https://www.tensorflow.org/api_docs/python/tf/data/Dataset#padded_batch>
+#'
+#' @examples
+#' \dontrun{
+#' A <- range_dataset(1, 5) %>%
+#'   dataset_map(function(x) tf$fill(list(x), x))
+#'
+#' # Pad to the smallest per-batch size that fits all elements.
+#' B <- A %>% dataset_padded_batch(2)
+#' B %>% as_array_iterator() %>% iterate(print)
+#'
+#' # Pad to a fixed size.
+#' C <- A %>% dataset_padded_batch(2, padded_shapes=5)
+#' C %>% as_array_iterator() %>% iterate(print)
+#'
+#' # Pad with a custom value.
+#' D <- A %>% dataset_padded_batch(2, padded_shapes=5, padding_values=-1)
+#' D %>% as_array_iterator() %>% iterate(print)
+#'
+#' # Pad with a single value and multiple components.
+#' E <- zip_datasets(A, A) %>%  dataset_padded_batch(2, padding_values = -1)
+#' E %>% as_array_iterator() %>% iterate(print)
+#' }
+dataset_padded_batch <-
+function(dataset,
+         batch_size,
+         padded_shapes = NULL,
+         padding_values = NULL,
+         drop_remainder = FALSE,
+         name = NULL) {
+  args <- capture_args(match.call(), list(
+    batch_size = as_integer_tensor,
+    padded_shapes = as_tensor_shapes,
+    padding_values = as_integer_tensor
+  ), ignore = "dataset")
+
+  as_tf_dataset(do.call(dataset$padded_batch, args))
+}
+
 
 #' A transformation that resamples a dataset to a target distribution.
 #'

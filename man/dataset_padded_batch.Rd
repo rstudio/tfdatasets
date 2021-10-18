@@ -2,48 +2,114 @@
 % Please edit documentation in R/dataset_methods.R
 \name{dataset_padded_batch}
 \alias{dataset_padded_batch}
-\title{Combines consecutive elements of this dataset into padded batches}
+\title{Combines consecutive elements of this dataset into padded batches.}
 \usage{
 dataset_padded_batch(
   dataset,
   batch_size,
-  padded_shapes,
+  padded_shapes = NULL,
   padding_values = NULL,
-  drop_remainder = FALSE
+  drop_remainder = FALSE,
+  name = NULL
 )
 }
 \arguments{
 \item{dataset}{A dataset}
 
-\item{batch_size}{An integer, representing the number of consecutive elements
-of this dataset to combine in a single batch.}
+\item{batch_size}{An integer, representing the number of
+consecutive elements of this dataset to combine in a single batch.}
 
-\item{padded_shapes}{A nested structure of tf$TensorShape or integer vector
-tensor-like objects representing the shape to which the respective
-component of each input element should be padded prior to batching. Any
-unknown dimensions (e.g. \code{tf$Dimension(NULL)} in a \code{tf$TensorShape} or -1
-in a tensor-like object) will be padded to the maximum size of that
-dimension in each batch.}
+\item{padded_shapes}{(Optional.) A (nested) structure of
+\code{tf.TensorShape} (returned by \code{\link[tensorflow:shape]{tensorflow::shape()}}) or
+\code{tf$int64} vector tensor-like objects representing the shape to which
+the respective component of each input element should be padded prior
+to batching. Any unknown dimensions will be padded to the maximum size
+of that dimension in each batch. If unset, all dimensions of all
+components are padded to the maximum size in the batch. \code{padded_shapes}
+must be set if any component has an unknown rank.}
 
-\item{padding_values}{(Optional) A nested structure of scalar-shaped
-tf$Tensor, representing the padding values to use for the respective
-components. Defaults are 0 for numeric types and the empty string for
-string types.}
+\item{drop_remainder}{(Optional.) A boolean, representing whether the last
+batch should be dropped in the case it has fewer than \code{batch_size}
+elements; the default behavior is not to drop the smaller batch.}
 
-\item{drop_remainder}{Ensure that batches have a fixed size by
-omitting any final smaller batch if it's present. Note that this is
-required for use with the Keras tensor inputs to fit/evaluate/etc.}
+\item{padding_values:}{(Optional.) A (nested) structure of scalar-shaped
+\code{tf.Tensor}, representing the padding values to use for the respective
+components. \code{NULL} represents that the (nested) structure should be padded
+with default values.  Defaults are \code{0} for numeric types and the empty
+string \code{""} for string types. The \code{padding_values} should have the same
+(nested) structure as the input dataset. If \code{padding_values} is a single
+element and the input dataset has multiple components, then the same
+\code{padding_values} will be used to pad every component of the dataset.
+If \code{padding_values} is a scalar, then its value will be broadcasted
+to match the shape of each component.}
+
+\item{drop_remainder:}{(Optional.) A boolean scalar, representing
+whether the last batch should be dropped in the case it has fewer than
+\code{batch_size} elements; the default behavior is not to drop the smaller
+batch.}
+
+\item{name:}{(Optional.) A name for the tf.data operation. Requires tensorflow version >= 2.7.}
 }
 \value{
-A dataset
+A tf_dataset
 }
 \description{
-This method combines multiple consecutive elements of this dataset, which
-might have different shapes, into a single element. The tensors in the
-resulting element have an additional outer dimension, and are padded to the
-respective shape in \code{padded_shapes}.
+Combines consecutive elements of this dataset into padded batches.
+}
+\details{
+This transformation combines multiple consecutive elements of the input
+dataset into a single element.
+
+Like \code{\link[=dataset_batch]{dataset_batch()}}, the components of the resulting element will
+have an additional outer dimension, which will be \code{batch_size} (or
+\code{N \%\% batch_size} for the last element if \code{batch_size} does not divide the
+number of input elements \code{N} evenly and \code{drop_remainder} is \code{FALSE}). If
+your program depends on the batches having the same outer dimension, you
+should set the \code{drop_remainder} argument to \code{TRUE} to prevent the smaller
+batch from being produced.
+
+Unlike \code{\link[=dataset_batch]{dataset_batch()}}, the input elements to be batched may have
+different shapes, and this transformation will pad each component to the
+respective shape in \code{padded_shapes}. The \code{padded_shapes} argument
+determines the resulting shape for each dimension of each component in an
+output element:
+\itemize{
+\item If the dimension is a constant, the component will be padded out to that
+length in that dimension.
+\item If the dimension is unknown, the component will be padded out to the
+maximum length of all elements in that dimension.
+}
+
+See also \code{tf$data$experimental$dense_to_sparse_batch}, which combines
+elements that may have different shapes into a \code{tf$sparse$SparseTensor}.
+}
+\examples{
+\dontrun{
+A <- range_dataset(1, 5) \%>\%
+  dataset_map(function(x) tf$fill(list(x), x))
+
+# Pad to the smallest per-batch size that fits all elements.
+B <- A \%>\% dataset_padded_batch(2)
+B \%>\% as_array_iterator() \%>\% iterate(print)
+
+# Pad to a fixed size.
+C <- A \%>\% dataset_padded_batch(2, padded_shapes=5)
+C \%>\% as_array_iterator() \%>\% iterate(print)
+
+# Pad with a custom value.
+D <- A \%>\% dataset_padded_batch(2, padded_shapes=5, padding_values=-1)
+D \%>\% as_array_iterator() \%>\% iterate(print)
+
+# Pad with a single value and multiple components.
+E <- zip_datasets(A, A) \%>\%  dataset_padded_batch(2, padding_values = -1)
+E \%>\% as_array_iterator() \%>\% iterate(print)
+}
 }
 \seealso{
+\itemize{
+\item \url{https://www.tensorflow.org/api_docs/python/tf/data/Dataset#padded_batch}
+}
+
 Other dataset methods: 
 \code{\link{dataset_batch}()},
 \code{\link{dataset_cache}()},

@@ -9,6 +9,9 @@
 - New `choose_from_datasets()`
 - `sample_from_datasets()` gains argument `stop_on_empty_dataset`.
 - `dataset_batch()` gains arguments `num_parallel_calls` and `deterministic`.
+- `dataset_padded_batch()`:
+    Fixed error raised when `drop_remainder=TRUE` with recent TF versions.
+    Added examples, docs, and tests.
 
 # tfdatasets 2.6.0
 
