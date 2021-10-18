@@ -8,6 +8,7 @@
 - New `dataset_unique()`
 - New `choose_from_datasets()`
 - `sample_from_datasets()` gains argument `stop_on_empty_dataset`.
+- `dataset_batch()` gains arguments `num_parallel_calls` and `deterministic`.
 
 # tfdatasets 2.6.0
 

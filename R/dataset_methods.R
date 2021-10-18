@@ -73,12 +73,38 @@ dataset_shuffle_and_repeat <- function(dataset, buffer_size, count = NULL, seed 
 
 #' Combines consecutive elements of this dataset into batches.
 #'
+#' The components of the resulting element will have an additional outer
+#' dimension, which will be `batch_size` (or `N %% batch_size` for the last
+#' element if `batch_size` does not divide the number of input elements `N`
+#' evenly and `drop_remainder` is `FALSE`). If your program depends on the
+#' batches having the same outer dimension, you should set the `drop_remainder`
+#' argument to `TRUE` to prevent the smaller batch from being produced.
+#'
+#' @note If your program requires data to have a statically known shape (e.g.,
+#'   when using XLA), you should use `drop_remainder=TRUE`. Without
+#'   `drop_remainder=TRUE` the shape of the output dataset will have an unknown
+#'   leading dimension due to the possibility of a smaller final batch.
+#'
 #' @param dataset A dataset
 #' @param batch_size An integer, representing the number of consecutive elements
 #'   of this dataset to combine in a single batch.
-#' @param drop_remainder Ensure that batches have a fixed size by
-#'   omitting any final smaller batch if it's present. Note that this is
-#'   required for use with the Keras tensor inputs to fit/evaluate/etc.
+#' @param drop_remainder (Optional.) A boolean, representing whether the last
+#'   batch should be dropped in the case it has fewer than `batch_size`
+#'   elements; the default behavior is not to drop the smaller batch.
+#' @param num_parallel_calls (Optional.) A scalar integer, representing the
+#'   number of batches to compute asynchronously in parallel. If not specified,
+#'   batches will be computed sequentially. If the value `tf$data$AUTOTUNE` is
+#'   used, then the number of parallel calls is set dynamically based on
+#'   available resources.
+#'
+#' @param deterministic (Optional.) When `num_parallel_calls` is specified, if
+#'   this boolean is specified (`TRUE` or `FALSE`), it controls the order in
+#'   which the transformation produces elements. If set to `FALSE`, the
+#'   transformation is allowed to yield elements out of order to trade
+#'   determinism for performance. If not specified, the
+#'   `tf.data.Options.experimental_deterministic` option (`TRUE` by default)
+#'   controls the behavior. See `dataset_options()` for how to set dataset
+#'   options.
 #'
 #' @return A dataset
 #'
@@ -86,20 +112,13 @@ dataset_shuffle_and_repeat <- function(dataset, buffer_size, count = NULL, seed 
 #'
 #' @export
 dataset_batch <-
-  function(dataset, batch_size, drop_remainder = FALSE) {
-    if (tensorflow::tf_version() > "1.9") {
-      as_tf_dataset(
-        dataset$batch(batch_size = as_integer_tensor(batch_size),
-                      drop_remainder = drop_remainder)
-      )
-    } else {
-      if (drop_remainder) {
-        as_tf_dataset(dataset$apply(
-          tf$contrib$data$batch_and_drop_remainder(as_integer_tensor(batch_size))
-        ))
-      } else {
-        as_tf_dataset(dataset$batch(batch_size = as_integer_tensor(batch_size)))
-      }
+  function(dataset, batch_size, drop_remainder = FALSE, num_parallel_calls=NULL, deterministic=NULL) {
+    args <- capture_args(match.call(), list(
+      batch_size = as_integer_tensor
+    ), ignore = "dataset")
+    as_tf_dataset(do.call(dataset$batch, args))
+}
+
 
 #' A transformation that buckets elements in a `Dataset` by length
 #'

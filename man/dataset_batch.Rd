@@ -4,7 +4,13 @@
 \alias{dataset_batch}
 \title{Combines consecutive elements of this dataset into batches.}
 \usage{
-dataset_batch(dataset, batch_size, drop_remainder = FALSE)
+dataset_batch(
+  dataset,
+  batch_size,
+  drop_remainder = FALSE,
+  num_parallel_calls = NULL,
+  deterministic = NULL
+)
 }
 \arguments{
 \item{dataset}{A dataset}
@@ -12,15 +18,41 @@ dataset_batch(dataset, batch_size, drop_remainder = FALSE)
 \item{batch_size}{An integer, representing the number of consecutive elements
 of this dataset to combine in a single batch.}
 
-\item{drop_remainder}{Ensure that batches have a fixed size by
-omitting any final smaller batch if it's present. Note that this is
-required for use with the Keras tensor inputs to fit/evaluate/etc.}
+\item{drop_remainder}{(Optional.) A boolean, representing whether the last
+batch should be dropped in the case it has fewer than \code{batch_size}
+elements; the default behavior is not to drop the smaller batch.}
+
+\item{num_parallel_calls}{(Optional.) A scalar integer, representing the
+number of batches to compute asynchronously in parallel. If not specified,
+batches will be computed sequentially. If the value \code{tf$data$AUTOTUNE} is
+used, then the number of parallel calls is set dynamically based on
+available resources.}
+
+\item{deterministic}{(Optional.) When \code{num_parallel_calls} is specified, if
+this boolean is specified (\code{TRUE} or \code{FALSE}), it controls the order in
+which the transformation produces elements. If set to \code{FALSE}, the
+transformation is allowed to yield elements out of order to trade
+determinism for performance. If not specified, the
+\code{tf.data.Options.experimental_deterministic} option (\code{TRUE} by default)
+controls the behavior. See \code{dataset_options()} for how to set dataset
+options.}
 }
 \value{
 A dataset
 }
 \description{
-Combines consecutive elements of this dataset into batches.
+The components of the resulting element will have an additional outer
+dimension, which will be \code{batch_size} (or \code{N \%\% batch_size} for the last
+element if \code{batch_size} does not divide the number of input elements \code{N}
+evenly and \code{drop_remainder} is \code{FALSE}). If your program depends on the
+batches having the same outer dimension, you should set the \code{drop_remainder}
+argument to \code{TRUE} to prevent the smaller batch from being produced.
+}
+\note{
+If your program requires data to have a statically known shape (e.g.,
+when using XLA), you should use \code{drop_remainder=TRUE}. Without
+\code{drop_remainder=TRUE} the shape of the output dataset will have an unknown
+leading dimension due to the possibility of a smaller final batch.
 }
 \seealso{
 Other dataset methods: 
