@@ -5,6 +5,7 @@
   (`as_iterator()` yields tensorflow tensors)
 - New `dataset_bucket_by_sequence_length()`
 - New `dataset_rejection_resample()`
+- New `dataset_unique()`
 
 # tfdatasets 2.6.0
 

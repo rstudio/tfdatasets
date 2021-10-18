@@ -212,6 +212,14 @@ test_succeeds("dataset_bucet_by_sequence_length", {
 })
 
 
+test_succeeds("dataset_unique", {
+  res <- c(0, 37, 2, 37, 2, 1) %>% as_tensor("int32") %>%
+    tensor_slices_dataset() %>%
+    dataset_unique() %>%
+    as_array_iterator() %>% iterate(simplify = FALSE) %>%
+    unlist() %>% sort()
+
+  expect_identical(res, c(0L, 1L, 2L, 37L))
 })
 
 test_succeeds("zip_datasets returns a dataset", {

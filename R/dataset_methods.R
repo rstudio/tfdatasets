@@ -611,6 +611,33 @@ function(dataset,
   as_tf_dataset(do.call(dataset$rejection_resample, args))
 }
 
+#' A transformation that discards duplicate elements of a Dataset.
+#'
+#' Use this transformation to produce a dataset that contains one instance of
+#' each unique element in the input (See example).
+#'
+#' @note This transformation only supports datasets which fit into memory and
+#' have elements of either tf.int32, tf.int64 or tf.string type.
+#'
+#' @param dataset A tf.Dataset.
+#' @param name 	(Optional.) A name for the tf.data operation.
+#'
+#' @return A tf.Dataset
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' c(0, 37, 2, 37, 2, 1) %>% as_tensor("int32") %>%
+#'   tensor_slices_dataset() %>%
+#'   dataset_unique() %>%
+#'   as_array_iterator() %>% iterate() %>% sort()
+#' # [1]  0  1  2 37
+#' }
+dataset_unique <- function(dataset, name=NULL) {
+  require_tf_version("2.6", "dataset_unique")
+  args <- list()
+  args$name <- name
+  as_tf_dataset(do.call(dataset$unique, args))
 }
 
 
