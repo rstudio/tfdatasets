@@ -4,7 +4,7 @@
 \alias{dataset_concatenate}
 \title{Creates a dataset by concatenating given dataset with this dataset.}
 \usage{
-dataset_concatenate(dataset, other)
+dataset_concatenate(dataset, ...)
 }
 \arguments{
 \item{dataset}{A dataset}

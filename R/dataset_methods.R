@@ -257,8 +257,11 @@ dataset_cache <- function(dataset, filename = NULL) {
 #' @family dataset methods
 #'
 #' @export
-dataset_concatenate <- function(dataset, other) {
-  as_tf_dataset(dataset$concatenate(other))
+dataset_concatenate <- function(dataset, ...) {
+  for (other in list(...))
+    dataset <- dataset$concatenate(other)
+
+  as_tf_dataset(dataset)
 }
 
 

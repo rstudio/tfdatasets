@@ -12,6 +12,7 @@
 - `dataset_padded_batch()`:
     Fixed error raised when `drop_remainder=TRUE` with recent TF versions.
     Added examples, docs, and tests.
+- `dataset_concatenate()` gains `...` and the ability to combine multiple datasets in one call.
 
 # tfdatasets 2.6.0
 
