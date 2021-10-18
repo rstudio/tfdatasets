@@ -1,8 +1,9 @@
 # tfdatasets (development version)
 
 - `as_iterator()`, `iter_next()` and `iterate()` are is now reexported from {reticualte}.
-- New `as_array_iterator()`, for converting a dataset into an iterable that yields R arrays. 
+- New `as_array_iterator()`, for converting a dataset into an iterable that yields R arrays.
   (`as_iterator()` yields tensorflow tensors)
+- New `dataset_bucket_by_sequence_length()`
 
 # tfdatasets 2.6.0
 
