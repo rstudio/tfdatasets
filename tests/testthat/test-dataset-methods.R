@@ -249,7 +249,7 @@ test_succeeds("dataset_bucet_by_sequence_length", {
   expect_identical(res, expected)
 })
 
-
+if(tf_version() >= "2.7")
 test_succeeds("choose_from_datasets", {
   datasets <- list(tensors_dataset("foo") %>% dataset_repeat(),
                    tensors_dataset("bar") %>% dataset_repeat(),
