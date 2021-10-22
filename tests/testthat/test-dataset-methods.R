@@ -201,6 +201,10 @@ test_succeeds("dataset_padded_batch", {
   expect_equal(res, expected)
 
   # Pad with a single value and multiple components.
+  if(tf_version() >= "2.3") {
+    ## In TF 2.2:
+    # TypeError: If shallow structure is a sequence, input must also be a sequence.
+    # Input has type: <class 'tensorflow.python.framework.ops.EagerTensor'>.
   E <- zip_datasets(A, A) %>%  dataset_padded_batch(2, padding_values = padding_value)
   E %>% as_array_iterator() %>% iterate(simplify = FALSE) -> res
   expected <- list(list(structure(c(1, 2, -1, 2), .Dim = c(2L, 2L)),
@@ -208,6 +212,7 @@ test_succeeds("dataset_padded_batch", {
                    list(structure(c(3, 4, 3, 4, 3,  4, -1, 4), .Dim = c(2L, 4L)),
                         structure(c(3, 4, 3, 4, 3, 4, -1,  4), .Dim = c(2L, 4L))))
   expect_equal(res, expected)
+  }
 })
 
 if(tf_version() >= "2.6")
