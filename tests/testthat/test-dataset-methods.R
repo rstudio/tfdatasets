@@ -178,6 +178,7 @@ test_succeeds("dataset_padded_batch", {
   A <- range_dataset(1, 5) %>%
     dataset_map(function(x) tf$fill(list(x), x))
 
+  padding_value <- tf$constant(-1L, dtype = tf$int64)
   # Pad to the smallest per-batch size that fits all elements.
   B <- A %>% dataset_padded_batch(2)
   B %>% as_array_iterator() %>% iterate(simplify = FALSE) -> res
@@ -193,14 +194,14 @@ test_succeeds("dataset_padded_batch", {
   expect_identical(res, expected)
 
   # Pad with a custom value.
-  D <- A %>% dataset_padded_batch(2, padded_shapes=5, padding_values=-1)
+  D <- A %>% dataset_padded_batch(2, padded_shapes=5, padding_values = padding_value)
   D %>% as_array_iterator() %>% iterate(simplify = FALSE) -> res
   expected <- list(structure(c(1, 2, -1, 2, -1, -1, -1, -1, -1, -1), .Dim = c(2L, 5L)),
                    structure(c(3, 4, 3, 4, 3, 4, -1, 4, -1, -1), .Dim = c(2L, 5L)))
   expect_identical(res, expected)
 
   # Pad with a single value and multiple components.
-  E <- zip_datasets(A, A) %>%  dataset_padded_batch(2, padding_values = -1)
+  E <- zip_datasets(A, A) %>%  dataset_padded_batch(2, padding_values = padding_value)
   E %>% as_array_iterator() %>% iterate(simplify = FALSE) -> res
   expected <- list(list(structure(c(1, 2, -1, 2), .Dim = c(2L, 2L)),
                         structure(c(1,  2, -1, 2), .Dim = c(2L, 2L))),
@@ -219,7 +220,7 @@ test_succeeds("dataset_bucet_by_sequence_length", {
                   c(21, 22)) %>%
     lapply(as.array) %>% lapply(as_tensor, "int32") %>%
     lapply(tensors_dataset) %>%
-    purrr::reduce(dataset_concatenate)
+    do.call(dataset_concatenate, .)
 
   res <- dataset %>%
     dataset_bucket_by_sequence_length(

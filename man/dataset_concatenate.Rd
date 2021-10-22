@@ -7,9 +7,7 @@
 dataset_concatenate(dataset, ...)
 }
 \arguments{
-\item{dataset}{A dataset}
-
-\item{other}{Dataset to be concatenated}
+\item{dataset, ...}{\code{tf_dataset}s to be concatenated}
 }
 \value{
 A dataset

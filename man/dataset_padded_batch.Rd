@@ -28,11 +28,7 @@ of that dimension in each batch. If unset, all dimensions of all
 components are padded to the maximum size in the batch. \code{padded_shapes}
 must be set if any component has an unknown rank.}
 
-\item{drop_remainder}{(Optional.) A boolean, representing whether the last
-batch should be dropped in the case it has fewer than \code{batch_size}
-elements; the default behavior is not to drop the smaller batch.}
-
-\item{padding_values:}{(Optional.) A (nested) structure of scalar-shaped
+\item{padding_values}{(Optional.) A (nested) structure of scalar-shaped
 \code{tf.Tensor}, representing the padding values to use for the respective
 components. \code{NULL} represents that the (nested) structure should be padded
 with default values.  Defaults are \code{0} for numeric types and the empty
@@ -43,12 +39,12 @@ element and the input dataset has multiple components, then the same
 If \code{padding_values} is a scalar, then its value will be broadcasted
 to match the shape of each component.}
 
-\item{drop_remainder:}{(Optional.) A boolean scalar, representing
+\item{drop_remainder}{(Optional.) A boolean scalar, representing
 whether the last batch should be dropped in the case it has fewer than
 \code{batch_size} elements; the default behavior is not to drop the smaller
 batch.}
 
-\item{name:}{(Optional.) A name for the tf.data operation. Requires tensorflow version >= 2.7.}
+\item{name}{(Optional.) A name for the tf.data operation. Requires tensorflow version >= 2.7.}
 }
 \value{
 A tf_dataset
@@ -85,7 +81,7 @@ elements that may have different shapes into a \code{tf$sparse$SparseTensor}.
 }
 \examples{
 \dontrun{
-A <- range_dataset(1, 5) \%>\%
+A <- range_dataset(1, 5, dtype = tf$int32) \%>\%
   dataset_map(function(x) tf$fill(list(x), x))
 
 # Pad to the smallest per-batch size that fits all elements.
@@ -97,11 +93,11 @@ C <- A \%>\% dataset_padded_batch(2, padded_shapes=5)
 C \%>\% as_array_iterator() \%>\% iterate(print)
 
 # Pad with a custom value.
-D <- A \%>\% dataset_padded_batch(2, padded_shapes=5, padding_values=-1)
+D <- A \%>\% dataset_padded_batch(2, padded_shapes=5, padding_values = -1L)
 D \%>\% as_array_iterator() \%>\% iterate(print)
 
 # Pad with a single value and multiple components.
-E <- zip_datasets(A, A) \%>\%  dataset_padded_batch(2, padding_values = -1)
+E <- zip_datasets(A, A) \%>\%  dataset_padded_batch(2, padding_values = -1L)
 E \%>\% as_array_iterator() \%>\% iterate(print)
 }
 }

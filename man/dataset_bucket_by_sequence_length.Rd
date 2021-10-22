@@ -18,6 +18,8 @@ dataset_bucket_by_sequence_length(
 )
 }
 \arguments{
+\item{dataset}{A \code{tf_dataset}}
+
 \item{element_length_func}{function from element in \code{Dataset} to \code{tf$int32},
 determines the length of the element, which will determine the bucket it
 goes into.}
@@ -48,6 +50,8 @@ need to be either of type \code{tf.sparse.SparseTensor} or of same shape).}
 whether the last batch should be dropped in the case it has fewer than
 \code{batch_size} elements; the default behavior is not to drop the smaller
 batch.}
+
+\item{name}{(Optional.) A name for the tf.data operation.}
 }
 \description{
 A transformation that buckets elements in a \code{Dataset} by length
@@ -74,7 +78,7 @@ dataset <- list(c(0),
                 c(21, 22)) \%>\%
   lapply(as.array) \%>\% lapply(as_tensor, "int32") \%>\%
   lapply(tensors_dataset) \%>\%
-  purrr::reduce(dataset_concatenate)
+  Reduce(dataset_concatenate, .)
 
 dataset \%>\%
   dataset_bucket_by_sequence_length(

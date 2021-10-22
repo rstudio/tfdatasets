@@ -134,6 +134,7 @@ dataset_batch <-
 #' Below is an example to bucketize the input data to the 3 buckets
 #' "[0, 3), [3, 5), [5, Inf)" based on sequence length, with batch size 2.
 #'
+#' @param dataset A `tf_dataset`
 #' @param element_length_func function from element in `Dataset` to `tf$int32`,
 #' determines the length of the element, which will determine the bucket it
 #' goes into.
@@ -165,6 +166,8 @@ dataset_batch <-
 #' `batch_size` elements; the default behavior is not to drop the smaller
 #' batch.
 #'
+#' @param name (Optional.) A name for the tf.data operation.
+#'
 #' @seealso
 #'   +  <https://www.tensorflow.org/api_docs/python/tf/data/Dataset#bucket_by_sequence_length>
 #'
@@ -179,7 +182,7 @@ dataset_batch <-
 #'                 c(21, 22)) %>%
 #'   lapply(as.array) %>% lapply(as_tensor, "int32") %>%
 #'   lapply(tensors_dataset) %>%
-#'   purrr::reduce(dataset_concatenate)
+#'   Reduce(dataset_concatenate, .)
 #'
 #' dataset %>%
 #'   dataset_bucket_by_sequence_length(
@@ -249,8 +252,7 @@ dataset_cache <- function(dataset, filename = NULL) {
 #' @note Input dataset and dataset to be concatenated should have same nested
 #'   structures and output types.
 #'
-#' @param dataset A dataset
-#' @param other Dataset to be concatenated
+#' @param dataset,... `tf_dataset`s to be concatenated
 #'
 #' @return A dataset
 #'
@@ -577,7 +579,7 @@ dataset_shard <- function(dataset, num_shards, index) {
 #'     of that dimension in each batch. If unset, all dimensions of all
 #'     components are padded to the maximum size in the batch. `padded_shapes`
 #'     must be set if any component has an unknown rank.
-#' @param padding_values: (Optional.) A (nested) structure of scalar-shaped
+#' @param padding_values (Optional.) A (nested) structure of scalar-shaped
 #'     `tf.Tensor`, representing the padding values to use for the respective
 #'     components. `NULL` represents that the (nested) structure should be padded
 #'     with default values.  Defaults are `0` for numeric types and the empty
@@ -587,12 +589,12 @@ dataset_shard <- function(dataset, num_shards, index) {
 #'     `padding_values` will be used to pad every component of the dataset.
 #'     If `padding_values` is a scalar, then its value will be broadcasted
 #'     to match the shape of each component.
-#' @param drop_remainder: (Optional.) A boolean scalar, representing
+#' @param drop_remainder (Optional.) A boolean scalar, representing
 #'     whether the last batch should be dropped in the case it has fewer than
 #'     `batch_size` elements; the default behavior is not to drop the smaller
 #'     batch.
 #'
-#' @param name: (Optional.) A name for the tf.data operation. Requires tensorflow version >= 2.7.
+#' @param name (Optional.) A name for the tf.data operation. Requires tensorflow version >= 2.7.
 #'
 #' @returns A tf_dataset
 #' @export
@@ -602,7 +604,7 @@ dataset_shard <- function(dataset, num_shards, index) {
 #'
 #' @examples
 #' \dontrun{
-#' A <- range_dataset(1, 5) %>%
+#' A <- range_dataset(1, 5, dtype = tf$int32) %>%
 #'   dataset_map(function(x) tf$fill(list(x), x))
 #'
 #' # Pad to the smallest per-batch size that fits all elements.
@@ -614,11 +616,11 @@ dataset_shard <- function(dataset, num_shards, index) {
 #' C %>% as_array_iterator() %>% iterate(print)
 #'
 #' # Pad with a custom value.
-#' D <- A %>% dataset_padded_batch(2, padded_shapes=5, padding_values=-1)
+#' D <- A %>% dataset_padded_batch(2, padded_shapes=5, padding_values = -1L)
 #' D %>% as_array_iterator() %>% iterate(print)
 #'
 #' # Pad with a single value and multiple components.
-#' E <- zip_datasets(A, A) %>%  dataset_padded_batch(2, padding_values = -1)
+#' E <- zip_datasets(A, A) %>%  dataset_padded_batch(2, padding_values = -1L)
 #' E %>% as_array_iterator() %>% iterate(print)
 #' }
 dataset_padded_batch <-
@@ -630,8 +632,7 @@ function(dataset,
          name = NULL) {
   args <- capture_args(match.call(), list(
     batch_size = as_integer_tensor,
-    padded_shapes = as_tensor_shapes,
-    padding_values = as_integer_tensor
+    padded_shapes = as_tensor_shapes
   ), ignore = "dataset")
 
   as_tf_dataset(do.call(dataset$padded_batch, args))

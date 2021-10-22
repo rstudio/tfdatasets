@@ -10,6 +10,8 @@
 #' @param seed (Optional.) An integer, representing the random seed
 #'   that will be used to create the distribution.
 #'
+#' @inheritParams choose_from_datasets
+#'
 #' @return A dataset that interleaves elements from `datasets` at random, according to
 #'   `weights` if provided, otherwise with uniform probability.
 #'
