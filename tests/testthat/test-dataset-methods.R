@@ -210,8 +210,8 @@ test_succeeds("dataset_padded_batch", {
   expect_identical(res, expected)
 })
 
-
-test_succeeds("dataset_bucet_by_sequence_length", {
+if(tf_version() >= "2.6")
+test_succeeds("dataset_bucket_by_sequence_length", {
   dataset <- list(c(0),
                   c(1, 2, 3, 4),
                   c(5, 6, 7),
@@ -262,6 +262,7 @@ test_succeeds("choose_from_datasets", {
   expect_identical(res, c("foo", "bar", "baz", "foo", "bar", "baz", "foo", "bar", "baz"))
 })
 
+if(tf_version() >= "2.6")
 test_succeeds("dataset_unique", {
   res <- c(0, 37, 2, 37, 2, 1) %>% as_tensor("int32") %>%
     tensor_slices_dataset() %>%
