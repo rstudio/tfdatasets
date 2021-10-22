@@ -269,7 +269,7 @@ test_succeeds("dataset_unique", {
     as_array_iterator() %>% iterate(simplify = FALSE) %>%
     unlist() %>% sort()
 
-  expect_identical(res, c(0L, 1L, 2L, 37L))
+  expect_equal(res, c(0L, 1L, 2L, 37L))
 })
 
 test_succeeds("zip_datasets returns a dataset", {
