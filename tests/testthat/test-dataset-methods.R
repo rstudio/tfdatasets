@@ -174,7 +174,9 @@ test_succeeds("dataset_padded_batch returns a dataset", {
 
 })
 
+if(tf_version() >= "2.2")
 test_succeeds("dataset_padded_batch", {
+  # in TF 2.1: Message: TypeError: padded_batch() missing 1 required positional argument: 'padded_shapes'
   A <- range_dataset(1, 5) %>%
     dataset_map(function(x) tf$fill(list(x), x))
 
