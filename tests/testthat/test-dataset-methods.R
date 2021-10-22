@@ -184,21 +184,21 @@ test_succeeds("dataset_padded_batch", {
   B %>% as_array_iterator() %>% iterate(simplify = FALSE) -> res
   expected <- list(array(c(1, 2, 0, 2), c(2L, 2L)),
                    array(c(3, 4, 3, 4, 3, 4, 0, 4), c(2L, 4L)))
-  expect_identical(res, expected)
+  expect_equal(res, expected)
 
   # Pad to a fixed size.
   C <- A %>% dataset_padded_batch(2, padded_shapes=5)
   C %>% as_array_iterator() %>% iterate(simplify = FALSE) -> res
   expected <- list(structure(c(1, 2, 0, 2, 0, 0, 0, 0, 0, 0), .Dim = c(2L, 5L)),
                    structure(c(3, 4, 3, 4, 3, 4, 0, 4, 0, 0), .Dim = c(2L, 5L)))
-  expect_identical(res, expected)
+  expect_equal(res, expected)
 
   # Pad with a custom value.
   D <- A %>% dataset_padded_batch(2, padded_shapes=5, padding_values = padding_value)
   D %>% as_array_iterator() %>% iterate(simplify = FALSE) -> res
   expected <- list(structure(c(1, 2, -1, 2, -1, -1, -1, -1, -1, -1), .Dim = c(2L, 5L)),
                    structure(c(3, 4, 3, 4, 3, 4, -1, 4, -1, -1), .Dim = c(2L, 5L)))
-  expect_identical(res, expected)
+  expect_equal(res, expected)
 
   # Pad with a single value and multiple components.
   E <- zip_datasets(A, A) %>%  dataset_padded_batch(2, padding_values = padding_value)
@@ -207,7 +207,7 @@ test_succeeds("dataset_padded_batch", {
                         structure(c(1,  2, -1, 2), .Dim = c(2L, 2L))),
                    list(structure(c(3, 4, 3, 4, 3,  4, -1, 4), .Dim = c(2L, 4L)),
                         structure(c(3, 4, 3, 4, 3, 4, -1,  4), .Dim = c(2L, 4L))))
-  expect_identical(res, expected)
+  expect_equal(res, expected)
 })
 
 if(tf_version() >= "2.6")
