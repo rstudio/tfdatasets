@@ -251,7 +251,7 @@ test_succeeds("dataset_bucket_by_sequence_length", {
 #' # [1,]    0    0
 #' # [2,]   21   22
 
-  expect_identical(res, expected)
+  expect_equal(res, expected)
 })
 
 if(tf_version() >= "2.7")
