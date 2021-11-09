@@ -1,4 +1,4 @@
-# tfdatasets (development version)
+# tfdatasets 2.7.0
 
 - Added compatability with Tensorflow version 2.7
 - `as_iterator()`, `iter_next()` and `iterate()` are is now reexported from {reticualte}.
