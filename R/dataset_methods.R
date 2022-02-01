@@ -898,6 +898,17 @@ dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features =
   as_tf_dataset(dataset)
 }
 
+#' Unbatch a dataset
+#'
+#' Splits elements of a dataset into multiple elements.
+#'
+#' @param dataset A dataset
+#' @param name (Optional.) A name for the tf.data operation.
+#' @export
+dataset_unbatch <- function(dataset, name = NULL) {
+  dataset$unbatch(name)
+}
+
 
 #' Add the tf_dataset class to a dataset
 #'

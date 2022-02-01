@@ -1,5 +1,7 @@
 # tfdatasets (development version)
 
+-  New `dataset_unbatch()`
+
 # tfdatasets 2.7.0
 
 - Added compatability with Tensorflow version 2.7
