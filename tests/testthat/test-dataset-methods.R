@@ -360,3 +360,19 @@ test_succeeds("dataset_scan", {
   expect_equal(res, c(0, 1, 3, 6, 10, 15, 21, 28, 36, 45))
 
 })
+
+
+
+test_succeeds("as_tensor", {
+  x <- array(seq(prod(4, 5)), c(4, 5))
+  ds <- x %>%
+    tensor_slices_dataset() %>%
+    dataset_map(~.x + 100, num_parallel_calls = 4) %>%
+    dataset_batch(4)
+
+  expect_identical(x + 100L, as.array(as_tensor(ds)))
+  expect_identical(x + 100L, as.array(ds))
+
+
+})
+

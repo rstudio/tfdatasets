@@ -1366,3 +1366,69 @@ dataset_snapshot <- function(dataset, path, compression=c("AUTO", "GZIP", "SNAPP
 as_array_iterator <- function(dataset) {
   dataset$as_numpy_iterator()
 }
+
+
+
+#' Get the single element of the dataset.
+#'
+#' The function enables you to use a TF Dataset in a stateless "tensor-in
+#' tensor-out" expression, without creating an iterator. This facilitates the
+#' ease of data transformation on tensors using the optimized TF Dataset
+#' abstraction on top of them.
+#'
+#' For example, consider a `preprocess_batch()` which would take as an input
+#' a batch of raw features and returns the processed feature.
+#'
+#' ```r
+#' preprocess_one_case <- function(x) x + 100
+#'
+#' preprocess_batch   <- function(raw_features) {
+#'   batch_size <- dim(raw_features)[1]
+#'   ds <- raw_features %>%
+#'     tensor_slices_dataset() %>%
+#'     dataset_map(preprocess_one_case, num_parallel_calls = batch_size) %>%
+#'     dataset_batch(batch_size)
+#'   as_tensor(ds)
+#' }
+#'
+#' raw_features <- array(seq(prod(4, 5)), c(4, 5))
+#' preprocess_batch(raw_features)
+#' ````
+#'
+#' In the above example, the batch of `raw_features` was converted to a TF
+#' Dataset. Next, each of the raw_feature cases in the batch was mapped using
+#' the preprocess_one_case and the processed features were grouped into a single
+#' batch. The final dataset contains only one element which is a batch of all
+#' the processed features.
+#'
+#' Note: The dataset should contain only one element. Now, instead of creating
+#' an iterator for the dataset and retrieving the batch of features, the
+#' `as_tensor()` function is used to skip the iterator creation process and
+#' directly output the batch of features.
+#'
+#' This can be particularly useful when your tensor transformations are
+#' expressed as TF Dataset operations, and you want to use those transformations
+#' while serving your model.
+#'
+#' @seealso
+#' +  <https://www.tensorflow.org/api_docs/python/tf/data/Dataset#get_single_element>
+#'
+#' @export
+#' @aliases get_single_element as_tensor
+#' @importFrom tensorflow as_tensor
+as_tensor.tensorflow.python.data.ops.dataset_ops.DatasetV2 <- function(x, ..., name = NULL) {
+  tensor <- x$get_single_element(name = name)
+  if(length(list(...)))
+    tensorflow::as_tensor(tensor, ..., name = name)
+  else
+    tensor
+}
+
+#' @rdname as_tensor.tensorflow.python.data.ops.dataset_ops.DatasetV2
+#' @export
+as.array.tensorflow.python.data.ops.dataset_ops.DatasetV2 <- function(x)
+  as.array(as_tensor.tensorflow.python.data.ops.dataset_ops.DatasetV2(x))
+
+
+#' @export
+tensorflow::as_tensor
