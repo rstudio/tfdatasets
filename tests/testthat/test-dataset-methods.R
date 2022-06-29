@@ -364,6 +364,7 @@ test_succeeds("dataset_scan", {
 
 
 test_succeeds("as_tensor", {
+  skip_if_no_tensorflow("2.7")
   x <- array(as.numeric(seq(prod(4, 5))), c(4, 5))
   ds <- x %>%
     tensor_slices_dataset() %>%
@@ -379,6 +380,7 @@ test_succeeds("as_tensor", {
 
 test_succeeds("dataset_group_by_window", {
   window_size <-  5
+  skip_if_no_tensorflow("2.7")
 
   dataset <- range_dataset(from = 0, to = 10) %>%
     dataset_group_by_window(
@@ -403,6 +405,7 @@ test_succeeds("dataset_group_by_window", {
 
 
 test_succeeds("dataset_take_while", {
+  skip_if_no_tensorflow("2.7")
   out <- range_dataset(from = 0, to = 10) %>%
      dataset_take_while( ~ .x < 5) %>%
      dataset_map( ~ tf$cast(.x, "float64")) %>%
