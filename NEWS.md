@@ -5,7 +5,6 @@
 - New `dataset_take_while()`
 - New `as_tensor()` and `as.array()` methods which can be used on TF Datasets with a single element.
 
-
 # tfdatasets 2.7.0
 
 - Added compatability with Tensorflow version 2.7
