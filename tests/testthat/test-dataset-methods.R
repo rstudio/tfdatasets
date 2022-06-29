@@ -376,3 +376,26 @@ test_succeeds("as_tensor", {
 
 })
 
+
+test_succeeds("dataset_group_by_window", {
+  window_size <-  5
+
+  dataset <- range_dataset(from = 0, to = 10) %>%
+    dataset_group_by_window(
+      key_func = function(x) x %% 2,
+      reduce_func = function(key, ds) dataset_batch(ds, window_size),
+      window_size = window_size
+    )
+
+  out <- dataset %>%
+    dataset_map( ~ tf$cast(.x, "float64")) %>%
+    as_array_iterator() %>%
+    iterate(simplify = FALSE)
+
+  expected <-
+    list(array(c(0, 2, 4, 6, 8)),
+         array(c(1, 3,  5, 7, 9)))
+
+  expect_identical(out, expected)
+
+})

@@ -3,13 +3,19 @@
 \name{as_tensor.tensorflow.python.data.ops.dataset_ops.DatasetV2}
 \alias{as_tensor.tensorflow.python.data.ops.dataset_ops.DatasetV2}
 \alias{get_single_element}
-\alias{as_tensor}
 \alias{as.array.tensorflow.python.data.ops.dataset_ops.DatasetV2}
 \title{Get the single element of the dataset.}
 \usage{
 \method{as_tensor}{tensorflow.python.data.ops.dataset_ops.DatasetV2}(x, ..., name = NULL)
 
-\method{as.array}{tensorflow.python.data.ops.dataset_ops.DatasetV2}(x)
+\method{as.array}{tensorflow.python.data.ops.dataset_ops.DatasetV2}(x, ...)
+}
+\arguments{
+\item{x}{A TF Dataset}
+
+\item{...}{passed on to \code{tensorflow::as_tensor()}}
+
+\item{name}{(Optional.) A name for the TensorFlow operation.}
 }
 \description{
 The function enables you to use a TF Dataset in a stateless "tensor-in
