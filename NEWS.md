@@ -1,4 +1,4 @@
-# tfdatasets (development version)
+# tfdatasets 2.8.0
 
 - New `dataset_unbatch()`
 - New `dataset_group_by_window()`

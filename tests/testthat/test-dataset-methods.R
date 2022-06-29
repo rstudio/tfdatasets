@@ -374,7 +374,6 @@ test_succeeds("as_tensor", {
   expect_identical(x + 100, as.array(as_tensor(ds)))
   expect_identical(x + 100, as.array(ds))
 
-
 })
 
 
