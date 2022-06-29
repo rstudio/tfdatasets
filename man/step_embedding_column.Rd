@@ -7,7 +7,9 @@
 step_embedding_column(
   spec,
   ...,
-  dimension = function(x) {     as.integer(x^0.25) },
+  dimension = function(x) {
+     as.integer(x^0.25)
+ },
   combiner = "mean",
   initializer = NULL,
   ckpt_to_load_from = NULL,
