@@ -364,14 +364,14 @@ test_succeeds("dataset_scan", {
 
 
 test_succeeds("as_tensor", {
-  x <- array(seq(prod(4, 5)), c(4, 5))
+  x <- array(as.numeric(seq(prod(4, 5))), c(4, 5))
   ds <- x %>%
     tensor_slices_dataset() %>%
     dataset_map(~.x + 100, num_parallel_calls = 4) %>%
     dataset_batch(4)
 
-  expect_identical(x + 100L, as.array(as_tensor(ds)))
-  expect_identical(x + 100L, as.array(ds))
+  expect_identical(x + 100, as.array(as_tensor(ds)))
+  expect_identical(x + 100, as.array(ds))
 
 
 })
