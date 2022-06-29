@@ -284,6 +284,40 @@ dataset_take <- function(dataset, count) {
   as_tf_dataset(dataset$take(count = as_integer_tensor(count)))
 }
 
+#' A transformation that stops dataset iteration based on a predicate.
+#'
+#' @param dataset A TF dataset
+#' @param predicate A function that maps a nested structure of tensors (having
+#'   shapes and types defined by `self$output_shapes` and `self$output_types`)
+#'   to a scalar `tf.bool` tensor.
+#' @param name (Optional.) A name for the tf.data operation.
+#'
+#' @details
+#' Example usage:
+#' ```` r
+#'  range_dataset(from = 0, to = 10) %>%
+#'    dataset_take_while( ~ .x < 5) %>%
+#'    as_array_iterator() %>%
+#'    iterate(simplify = FALSE) %>% str()
+#'  #> List of 5
+#'  #> $ : num 0
+#'  #> $ : num 1
+#'  #> $ : num 2
+#'  #> $ : num 3
+#'  #> $ : num 4
+#' ````
+#'
+#' @return A TF Dataset
+#'
+#' @family dataset methods
+#'
+#' @export
+dataset_take_while <- function(dataset, predicate, name = NULL) {
+  as_tf_dataset(dataset$take_while(
+    as_py_function(predicate),
+    name = name))
+}
+
 
 #' Map a function across a dataset.
 #'

@@ -39,6 +39,7 @@ Other dataset methods:
 \code{\link{dataset_shuffle_and_repeat}()},
 \code{\link{dataset_shuffle}()},
 \code{\link{dataset_skip}()},
+\code{\link{dataset_take_while}()},
 \code{\link{dataset_window}()}
 }
 \concept{dataset methods}

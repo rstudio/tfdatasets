@@ -399,3 +399,15 @@ test_succeeds("dataset_group_by_window", {
   expect_identical(out, expected)
 
 })
+
+
+
+test_succeeds("dataset_take_while", {
+  out <- range_dataset(from = 0, to = 10) %>%
+     dataset_take_while( ~ .x < 5) %>%
+     dataset_map( ~ tf$cast(.x, "float64")) %>%
+     as_array_iterator() %>%
+     iterate(simplify = FALSE)
+
+  expect_identical(out, as.list(as.numeric(0:4)))
+})
