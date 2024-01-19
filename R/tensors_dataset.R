@@ -32,7 +32,7 @@ tensors_dataset <- function(tensors) {
 #' Creates a dataset whose elements are slices of the given tensors.
 #'
 #' @param tensors A nested structure of tensors, each having the same size in
-#'   the 0th dimension.
+#'   the first dimension.
 #'
 #' @return A dataset.
 #'

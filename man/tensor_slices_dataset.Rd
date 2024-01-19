@@ -8,7 +8,7 @@ tensor_slices_dataset(tensors)
 }
 \arguments{
 \item{tensors}{A nested structure of tensors, each having the same size in
-the 0th dimension.}
+the first dimension.}
 }
 \value{
 A dataset.
