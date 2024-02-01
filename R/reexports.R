@@ -35,7 +35,10 @@ reticulate::as_iterator
 #' @export
 reticulate::iter_next
 
-
 #' @importFrom reticulate iterate
 #' @export
 reticulate::iterate
+
+#' @importFrom reticulate tuple
+#' @export
+reticulate::tuple
