@@ -351,7 +351,7 @@ The sections below provide additional details and examples for each of the suppo
 **IMPORTANT NOTE**: Using TensorFlow Datasets with Keras requires that you are running the very latest versions of Keras (v2.2) and TensorFlow (v1.9). You can ensure that you have the latest versions of the core Keras and TensorFlow libraries with:
 
 ```r
-library(keras)
+library(keras3)
 install_keras()
 ```
 
@@ -370,7 +370,7 @@ However, this requires loading data into an R data frame or matrix before callin
 Alternatively, Keras enables you to pass a dataset directly as the `x` argument to `fit()` and `evaluate()`. Here's a complete example that uses datasets to read from TFRecord files containing MNIST digits:
 
 ```{r}
-library(keras)
+library(keras3)
 library(tfdatasets)
 
 batch_size = 128

@@ -404,7 +404,7 @@ function from Keras to create a layer that will automatically initialize values.
 Here is an an example of how it would work:
 
 ```{r}
-library(keras)
+library(keras3)
 library(dplyr)
 
 spec <- feature_spec(hearts, target ~ .) %>% 

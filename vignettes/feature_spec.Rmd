@@ -179,7 +179,7 @@ knows what to do with the feature columns specification.
 We also use a new `layer_input_from_dataset` that is useful to create a Keras input object copying the structure from a `data.frame` or TensorFlow dataset.
 
 ```{r}
-library(keras)
+library(keras3)
 
 input <- layer_input_from_dataset(hearts_train %>% select(-target))
 
