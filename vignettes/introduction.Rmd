@@ -70,7 +70,7 @@ library(tfdatasets)
 # create specification for parsing records from an example file
 iris_spec <- csv_record_spec("iris.csv")
 
-# read the datset
+# read the dataset
 dataset <- text_line_dataset("iris.csv", record_spec = iris_spec) 
 
 # take a glimpse at the dataset
@@ -441,7 +441,7 @@ Also note that we pass `drop_remainder = TRUE` to the `dataset_batch()` function
 
 ### tensorflow package
 
-You read batches of data from a dataset by using tensors that yield the next batch. You can obtain this tensor from a dataset via the `make_iterator_one_shot()` and `iterator_get_next()` functions. For example:
+You read batches of data from a dataset by using tensors that yield the next batch. You can obtain this tensor from a dataset via the `as_iterator()` and `iter_next()` functions. For example:
 
 ```{r}
 dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>% 
@@ -449,8 +449,8 @@ dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
   dataset_shuffle(20) %>% 
   dataset_batch(5)
 
-iter <- make_iterator_one_shot(dataset)
-next_batch <- iterator_get_next(iter)
+iter <- as_iterator(dataset)
+next_batch <- iter_next(iter)
 next_batch
 ```
 ```
@@ -461,98 +461,98 @@ $y
 Tensor("IteratorGetNext_13:1", shape=(?,), dtype=int32)
 ```
 
-As you can see `next_batch` isn't the data itself but rather a tensor that will yield the next batch of data when it is evaluated:
+<!-- As you can see `next_batch` isn't the data itself but rather a tensor that will yield the next batch of data when it is evaluated: -->
 
-```{r}
-sess <- tf$Session()
-sess$run(next_batch)
-```
-```
-$x
-     [,1] [,2]
-[1,] 21.0  160
-[2,] 21.0  160
-[3,] 22.8  108
-[4,] 21.4  258
-[5,] 18.7  360
+<!-- ```{r} -->
+<!-- sess <- tf$Session() -->
+<!-- sess$run(next_batch) -->
+<!-- ``` -->
+<!-- ``` -->
+<!-- $x -->
+<!--      [,1] [,2] -->
+<!-- [1,] 21.0  160 -->
+<!-- [2,] 21.0  160 -->
+<!-- [3,] 22.8  108 -->
+<!-- [4,] 21.4  258 -->
+<!-- [5,] 18.7  360 -->
 
-$y
-[1] 6 6 4 6 8
-```
+<!-- $y -->
+<!-- [1] 6 6 4 6 8 -->
+<!-- ``` -->
 
-If you are iterating over a dataset using these functions, you will need to determine at what point to stop iteration. One approach to this is to use the `dataset_repeat()` function to create an dataset that yields values infinitely. For example:
+<!-- If you are iterating over a dataset using these functions, you will need to determine at what point to stop iteration. One approach to this is to use the `dataset_repeat()` function to create an dataset that yields values infinitely. For example: -->
 
-```{r}
-library(tfdatasets)
+<!-- ```{r} -->
+<!-- library(tfdatasets) -->
 
-sess <- tf$Session()
+<!-- sess <- tf$Session() -->
 
-mtcars_spec <- csv_record_spec("mtcars.csv")
-dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>% 
-  dataset_shuffle(5000) %>% 
-  dataset_repeat() # repeat infinitely
-  dataset_prepare(x = c(mpg, disp), y = cyl) %>% 
-  dataset_batch(128) %>% 
+<!-- mtcars_spec <- csv_record_spec("mtcars.csv") -->
+<!-- dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%  -->
+<!--   dataset_shuffle(5000) %>%  -->
+<!--   dataset_repeat() # repeat infinitely -->
+<!--   dataset_prepare(x = c(mpg, disp), y = cyl) %>%  -->
+<!--   dataset_batch(128) %>%  -->
 
-iter <- make_iterator_one_shot(dataset)
-next_batch <- iterator_get_next(iter)
+<!-- iter <- make_iterator_one_shot(dataset) -->
+<!-- next_batch <- iterator_get_next(iter) -->
 
-steps <- 200
-for (i in 1:steps) {
-  
-  # use next_batch for training, etc. 
-  
-  # (note that you need to actually use the next_batch e.g. by passing it to a
-  # function that consumes a tensor or by running it explicitly) in order to 
-  # advance to the next batch)
-}
-```
+<!-- steps <- 200 -->
+<!-- for (i in 1:steps) { -->
 
-In this case the `steps` variable is used to determine when to stop drawing new batches of training data (we could have equally included code to detect a learning plateau or any other custom method of determining when to stop training).
+<!--   # use next_batch for training, etc.  -->
 
-Another approach is to detect when all batches have been yielded from the dataset. When a dataset iterator reaches the end, an out of range runtime error will occur. You can catch and ignore the error when it occurs by using `out_of_range_handler` as the `error` argument to `tryCatch()`. For example:
+<!--   # (note that you need to actually use the next_batch e.g. by passing it to a -->
+<!--   # function that consumes a tensor or by running it explicitly) in order to  -->
+<!--   # advance to the next batch) -->
+<!-- } -->
+<!-- ``` -->
 
-```{r}
-library(tfdatasets)
+<!-- In this case the `steps` variable is used to determine when to stop drawing new batches of training data (we could have equally included code to detect a learning plateau or any other custom method of determining when to stop training). -->
 
-sess <- tf$Session()
+<!-- Another approach is to detect when all batches have been yielded from the dataset. When a dataset iterator reaches the end, an out of range runtime error will occur. You can catch and ignore the error when it occurs by using `out_of_range_handler` as the `error` argument to `tryCatch()`. For example: -->
 
-mtcars_spec <- csv_record_spec("mtcars.csv")
-dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>% 
-  dataset_prepare(x = c(mpg, disp), y = cyl) %>% 
-  dataset_batch(128) %>% 
-  dataset_repeat(10)
-  
-iter <- make_iterator_one_shot(dataset)
-next_batch <- iterator_get_next(iter)
+<!-- ```{r} -->
+<!-- library(tfdatasets) -->
 
-tryCatch({
-  while(TRUE) {
-    batch <- sess$run(next_batch)
-    str(batch)
-  }
-}, error = out_of_range_handler)
-```
+<!-- sess <- tf$Session() -->
 
-You can write this iteration more elegantly using the `until_out_of_range()` function, which automatically handles the error and provides the `while(TRUE)` around an expression:
+<!-- mtcars_spec <- csv_record_spec("mtcars.csv") -->
+<!-- dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%  -->
+<!--   dataset_prepare(x = c(mpg, disp), y = cyl) %>%  -->
+<!--   dataset_batch(128) %>%  -->
+<!--   dataset_repeat(10) -->
 
-```{r}
-until_out_of_range({
-  batch <- sess$run(next_batch)
-  str(batch)
-})
-```
+<!-- iter <- make_iterator_one_shot(dataset) -->
+<!-- next_batch <- iterator_get_next(iter) -->
 
-When running under eager execution, you organize the code a bit differently (since you don't need to explicitly `run()` tensors):
+<!-- tryCatch({ -->
+<!--   while(TRUE) { -->
+<!--     batch <- sess$run(next_batch) -->
+<!--     str(batch) -->
+<!--   } -->
+<!-- }, error = out_of_range_handler) -->
+<!-- ``` -->
 
-```{r}
-iter <- make_iterator_one_shot(dataset)
+<!-- You can write this iteration more elegantly using the `until_out_of_range()` function, which automatically handles the error and provides the `while(TRUE)` around an expression: -->
 
-until_out_of_range({
-  batch <- iterator_get_next(iter)
-  str(batch)
-})
-```
+<!-- ```{r} -->
+<!-- until_out_of_range({ -->
+<!--   batch <- sess$run(next_batch) -->
+<!--   str(batch) -->
+<!-- }) -->
+<!-- ``` -->
+
+<!-- When running under eager execution, you organize the code a bit differently (since you don't need to explicitly `run()` tensors): -->
+
+<!-- ```{r} -->
+<!-- iter <- make_iterator_one_shot(dataset) -->
+
+<!-- until_out_of_range({ -->
+<!--   batch <- iterator_get_next(iter) -->
+<!--   str(batch) -->
+<!-- }) -->
+<!-- ``` -->
 
 ## Reading Multiple Files
 
