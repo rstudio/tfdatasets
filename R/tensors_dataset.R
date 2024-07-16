@@ -43,9 +43,12 @@ tensor_slices_dataset <-function(tensors) {
 
   validate_tf_version()
 
+  with(tf$device("cpu"), {
+  # https://github.com/tensorflow/tensorflow/issues/71744
   as_tf_dataset(
     tf$data$Dataset$from_tensor_slices(tensors = resolve_tensors(tensors))
   )
+  })
 }
 
 #' Splits each rank-N `tf$SparseTensor` in this dataset row-wise.
