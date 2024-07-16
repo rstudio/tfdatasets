@@ -342,7 +342,7 @@ dataset <- text_line_dataset("mtcars.csv", record_spec = mtcars_spec) %>%
 
 ## Reading Datasets
 
-The method for reading data from a TensorFlow Dataset varies depending upon which API you are using to build your models. If you are using the [keras](https://tensorflow.rstudio.com/keras/), then TensorFlow Datasets can be used much like in-memory R matrices and arrays. If you are using the lower-level [tensorflow core](https://tensorflow.rstudio.com/tensorflow/) API then you'll use explicit dataset iteration functions.
+The method for reading data from a TensorFlow Dataset varies depending upon which API you are using to build your models. If you are using the [keras3](https://keras3.posit.co), then TensorFlow Datasets can be used much like in-memory R matrices and arrays. If you are using the lower-level [tensorflow core](https://tensorflow.rstudio.com/) API then you'll use explicit dataset iteration functions.
 
 The sections below provide additional details and examples for each of the supported APIs.
 
