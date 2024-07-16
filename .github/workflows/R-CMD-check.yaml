@@ -19,19 +19,19 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {os: 'ubuntu-latest'  , tf: 'default', r: 'release'}
+          - {os: 'ubuntu-latest' , tf: 'default', r: 'release'}
           - {os: 'windows-latest', tf: 'default', r: 'release'}
           - {os: 'macOS-latest'  , tf: 'default', r: 'release'}
 
-          - {os: 'ubuntu-latest'  , tf: 'default', r: 'oldrel'}
+          - {os: 'ubuntu-latest' , tf: 'default', r: 'oldrel'}
           - {os: 'windows-latest', tf: 'default', r: 'oldrel'}
           - {os: 'macOS-latest'  , tf: 'default', r: 'oldrel'}
 
           # - {os: 'ubuntu-latest', tf: 'default', r: '3.6'} # default R in ubuntu-20.04
 
-          # - {os: 'ubuntu-20.04'  , tf: 'release', r: 'release'}
-          # - {os: 'windows-latest', tf: 'release', r: 'release'}
-          # - {os: 'macOS-latest'  , tf: 'release', r: 'release'}
+          - {os: 'ubuntu-latest' , tf: 'release', r: 'release'}
+          - {os: 'windows-latest', tf: 'release', r: 'release'}
+          - {os: 'macOS-latest'  , tf: 'release', r: 'release'}
 
           - {os: 'ubuntu-latest', tf: '2.17', r: 'release'}
           - {os: 'ubuntu-latest', tf: '2.15', r: 'release'}
@@ -71,6 +71,6 @@ jobs:
           upgrade: 'TRUE'
 
       - name: Install Tensorflow
-        run: tensorflow::install_tensorflow(version = '${{ matrix.python }}')
+        run: tensorflow::install_tensorflow(version = '${{ matrix.tf }}')
 
       - uses: r-lib/actions/check-r-package@v2
