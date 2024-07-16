@@ -1727,8 +1727,10 @@ step_shared_embeddings_column <- function(spec, ..., dimension, combiner = "mean
 
 #' Creates a list of inputs from a dataset
 #'
+#' DEPRECATED: Use `keras3::layer_feature_space()` instead.
+#'
 #' Create a list ok Keras input layers that can be used together
-#' with [keras::layer_dense_features()].
+#' with `keras::layer_dense_features()`.
 #'
 #' @param dataset a TensorFlow dataset or a data.frame
 #' @return a list of Keras input layers
@@ -1766,7 +1768,7 @@ layer_input_from_dataset <- function(dataset) {
   inputs <- list()
   for (i in seq_along(col_names)) {
 
-    x <- list(keras::layer_input(
+    x <- list(tf$keras$layers$Input(
       name = col_names[i],
       shape = col_shapes[[i]]$as_list()[-1],
       dtype = col_types[[i]]$name

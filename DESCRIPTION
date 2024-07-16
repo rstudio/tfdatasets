@@ -48,5 +48,6 @@ Suggests:
     rmarkdown,
     Metrics,
     dplyr,
+    progress,
     tfestimators
 VignetteBuilder: knitr

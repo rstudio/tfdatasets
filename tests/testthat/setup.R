@@ -58,9 +58,12 @@ clean_python_tempdirs <- function() {
 
   unlink(detritus, recursive = TRUE, force = TRUE)
 
-  unlink(unlist(py_to_r(get_py_created_tempdirs())),
+  unlink(unlist(reticulate::py_to_r(get_py_created_tempdirs())),
          recursive = TRUE, force = TRUE)
 
 }
 
-withr::defer(clean_python_tempdirs(), teardown_env())
+do.call(base::on.exit,
+        list(as.call(list(clean_python_tempdirs)), TRUE),
+        envir = teardown_env())
+# withr::defer(clean_python_tempdirs(), teardown_env())
