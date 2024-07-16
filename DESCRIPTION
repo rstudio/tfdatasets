@@ -43,7 +43,7 @@ RoxygenNote: 7.3.0
 Suggests:
     testthat,
     knitr,
-    keras,
+    keras3,
     rsample,
     rmarkdown,
     Metrics,
