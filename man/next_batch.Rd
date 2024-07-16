@@ -21,8 +21,8 @@ tensor(s) to read batches of data.
 
 Note that in many cases you won't need to explicitly evaluate the tensors.
 Rather, you will pass the tensors to another function that will perform
-the evaluation (e.g. the Keras \link[keras:layer_input]{layer_input()} and
-\link[keras:reexports]{compile()} functions).
+the evaluation (e.g. the Keras \link[keras3:layer_input]{layer_input()} and
+\link[keras3:reexports]{compile()} functions).
 
 If you do need to perform iteration manually by evaluating the tensors, there
 are a couple of possible approaches to controlling/detecting when iteration should
