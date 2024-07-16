@@ -10,7 +10,9 @@ as_integer_tensor <- function(x, dtype = tf$int64) {
   else if (is_tensor(x))
     tf$cast(x, dtype = dtype)
   else
-    tf$constant(as.integer(x), dtype = dtype)
+    as.integer(x)
+    # https://github.com/tensorflow/tensorflow/issues/71937
+    # tf$constant(as.integer(x), dtype = dtype)
 }
 
 as_tensor_shapes <- function(x) {
