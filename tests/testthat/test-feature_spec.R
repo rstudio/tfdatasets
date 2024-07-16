@@ -224,6 +224,7 @@ test_that("Can remove columns", {
 
 test_that("Using with layer_dense_features", {
   skip_if_not_tf()
+  skip("layer_dense_features")
 
   spec <- feature_spec(dataset, y ~ a+b+c+d) %>%
     step_numeric_column(b, c) %>%

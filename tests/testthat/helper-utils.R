@@ -27,6 +27,10 @@ skip_if_v2 <- function(message) {
     skip(message)
 }
 
+skip_tfestimators <- function() {
+  skip("tfestimators deprecated")
+}
+
 py_capture_output <- reticulate::py_capture_output
 
 test_succeeds <- function(desc, expr, required_version = NULL) {

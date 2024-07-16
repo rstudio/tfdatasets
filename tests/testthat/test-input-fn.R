@@ -37,11 +37,13 @@ use_input_fn <- function(features, response) {
 test_succeeds("input_fn feeds data to train and evaluate", {
   skip("Skipping temporarily until fixed in order to focus on TF 2.0 issues")
   skip_if_v2("tfestimators has not yet been adapted to work with TF 2.0")
+  skip_tfestimators()
   use_input_fn(features = c("disp", "cyl"), response = "mpg")
 })
 
 test_that("input_fn reports incorrect features", {
   skip_if_no_tensorflow()
+  skip_tfestimators()
   expect_error(
     expect_warning( # `quo_expr()` is deprecated as of rlang 0.2.0. (but so is tfestimators)
     use_input_fn(features = c("displacement", "cylinder"), response = "mpg")
@@ -50,6 +52,7 @@ test_that("input_fn reports incorrect features", {
 
 test_that("input_fn reports incorrect response", {
   skip_if_no_tensorflow()
+  skip_tfestimators()
   expect_error(
     use_input_fn(features = c("disp", "cyl"), response = "m_p_g")
   )
@@ -57,8 +60,9 @@ test_that("input_fn reports incorrect response", {
 
 test_that("input_fn rejects un-named datasets", {
   skip_if_no_tensorflow()
+  dataset <- tensors_dataset(1:100)
+  skip_tfestimators()
   expect_error({
-    dataset <- tensors_dataset(1:100)
     input_fn(dataset, features = c("disp", "cyl"), response = "mpg")
   })
 })
@@ -72,6 +76,7 @@ test_succeeds("input_fn supports tidyselect", {
     dataset_batch(128) %>%
     dataset_repeat(3)
 
+  skip_tfestimators()
   # create input_fn from dataset
   input_fn(dataset, features = c(disp, cyl), response = mpg)
 })
@@ -85,6 +90,7 @@ test_succeeds("input_fn accepts formula syntax", {
     dataset_batch(128) %>%
     dataset_repeat(3)
 
+  skip_tfestimators()
   # create input_fn from dataset
   input_fn(dataset, mpg ~ disp + cyl)
 })
@@ -95,7 +101,7 @@ test_succeeds("input_fn works with custom estimators", {
   skip("Skipping temporarily until fixed in order to focus on TF 2.0 issues")
   skip_if_no_tensorflow()
   skip_if_v2("tfestimators has not yet been adapted to work with TF 2.0")
-
+  skip_tfestimators()
   require(tfestimators)
 
   # define custom estimator model_fn
