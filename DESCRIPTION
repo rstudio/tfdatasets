@@ -4,7 +4,7 @@ Title: Interface to 'TensorFlow' Datasets
 Version: 2.17.0
 Authors@R: c(
   person("Tomasz", "Kalinowski", role = c("ctb", "cph", "cre"),
-         email = "tomasz.kalinowski@rstudio.com"),
+         email = "tomasz@posit.co"),
   person("Daniel", "Falbel", role = c("ctb", "cph"),
          email = "daniel@rstudio.com"),
   person("JJ", "Allaire", role = c("aut", "cph"),
