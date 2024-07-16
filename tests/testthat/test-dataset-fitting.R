@@ -9,6 +9,7 @@ test_succeeds("can fit a dataset using keras fit", {
     dataset_batch(2) %>%
     dataset_shuffle(1024)
 
+  skip_if(tf_version() < "2.16")
   model <-
     keras_model_sequential(input_shape = 2) %>%
     layer_dense(units = 1)
