@@ -39,14 +39,15 @@ Imports:
     generics,
     vctrs
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.0
+RoxygenNote: 7.3.2
 Suggests:
     testthat,
     knitr,
-    keras,
+    keras3,
     rsample,
     rmarkdown,
     Metrics,
     dplyr,
+    progress,
     tfestimators
 VignetteBuilder: knitr

@@ -33,17 +33,17 @@ Other dataset methods:
 \code{\link{dataset_decode_delim}()},
 \code{\link{dataset_filter}()},
 \code{\link{dataset_interleave}()},
-\code{\link{dataset_map_and_batch}()},
 \code{\link{dataset_map}()},
+\code{\link{dataset_map_and_batch}()},
 \code{\link{dataset_padded_batch}()},
-\code{\link{dataset_prefetch_to_device}()},
 \code{\link{dataset_prefetch}()},
+\code{\link{dataset_prefetch_to_device}()},
 \code{\link{dataset_reduce}()},
 \code{\link{dataset_repeat}()},
-\code{\link{dataset_shuffle_and_repeat}()},
 \code{\link{dataset_shuffle}()},
+\code{\link{dataset_shuffle_and_repeat}()},
 \code{\link{dataset_skip}()},
-\code{\link{dataset_take_while}()},
-\code{\link{dataset_take}()}
+\code{\link{dataset_take}()},
+\code{\link{dataset_take_while}()}
 }
 \concept{dataset methods}

@@ -26,8 +26,8 @@ get_features <- function(df, feature_columns) {
     example <- make_iterator_one_shot(df)
     example <- iterator_get_next(example)
   }
-
-  k <- keras::layer_dense_features(feature_columns = feature_columns)
+  skip("layer_dense_features()/tfestimators deprecated") # use keras3::layer_feature_space()
+  # k <- keras::layer_dense_features(feature_columns = feature_columns)
 
   if (tensorflow::tf$executing_eagerly())
     return(k(example))
@@ -224,6 +224,7 @@ test_that("Can remove columns", {
 
 test_that("Using with layer_dense_features", {
   skip_if_not_tf()
+  skip("layer_dense_features")
 
   spec <- feature_spec(dataset, y ~ a+b+c+d) %>%
     step_numeric_column(b, c) %>%
@@ -232,7 +233,8 @@ test_that("Using with layer_dense_features", {
 
   spec$fit()
 
-  lyr <- keras::layer_dense_features(feature_columns = spec$dense_features())
+  skip("layer_dense_features()/tfestimators deprecated") # use keras3::layer_feature_space()
+  # lyr <- keras::layer_dense_features(feature_columns = spec$dense_features())
 
   ds <- reticulate::as_iterator(dataset)
   x <- lyr(reticulate::iter_next(ds))
@@ -414,6 +416,7 @@ test_that("Can use a scaler_min_max", {
 test_that("Can use layer_input_from_dataset with TF datasets", {
 
   skip_if_not_tf()
+  skip("layer_dense_features()/tfestimators deprecated") # use keras3::layer_feature_space()
 
   spec <- feature_spec(dataset, y ~ a + b + c + d) %>%
     step_numeric_column(all_numeric(), normalizer_fn = scaler_min_max())
@@ -423,10 +426,10 @@ test_that("Can use layer_input_from_dataset with TF datasets", {
   ds <- dataset_use_spec(dataset, spec)
   input <- layer_input_from_dataset(ds)
 
-  output <- input %>%
-    keras::layer_dense_features(spec$dense_features())
+  # output <- input %>%
+    # keras::layer_dense_features(spec$dense_features())
 
-  model <- keras::keras_model(inputs = input, outputs = output)
+  # model <- keras::keras_model(inputs = input, outputs = output)
 
 
   expect_length(input, 4)
@@ -437,6 +440,7 @@ test_that("Can use layer_input_from_dataset with TF datasets", {
 test_that("Can use layer_input_from_dataset with TF data frames", {
 
   skip_if_not_tf()
+  skip("layer_dense_features()/tfestimators deprecated") # use keras3::layer_feature_space()
 
   spec <- feature_spec(as.data.frame(df), y ~ a + b + c + d) %>%
     step_numeric_column(all_numeric(), normalizer_fn = scaler_min_max())
@@ -444,14 +448,13 @@ test_that("Can use layer_input_from_dataset with TF data frames", {
   spec <- fit(spec)
 
   input <- layer_input_from_dataset(as.data.frame(df)[, 1:4])
-
   output <- input %>%
-    keras::layer_dense_features(spec$dense_features()) %>%
-    keras::layer_dense(units = 1)
+  #   keras::layer_dense_features(spec$dense_features()) %>%
+    # keras::layer_dense(units = 1)
 
-  model <- keras::keras_model(inputs = input, outputs = output)
-  keras::compile(model, loss = "mse", optimizer = "adam")
-  hist <- keras::fit(model, x = df, y = df$y, verbose = 0)
+  # model <- keras::keras_model(inputs = input, outputs = output)
+  # keras::compile(model, loss = "mse", optimizer = "adam")
+  # hist <- keras::fit(model, x = df, y = df$y, verbose = 0)
 
   expect_s3_class(hist, "keras_training_history")
 })
@@ -478,7 +481,7 @@ test_that("Can use data.frames", {
 
 test_that("Correctly creates indicator vars", {
   skip_if_not_tf()
-
+  skip("layer_dense_features()/tfestimators deprecated") # use keras3::layer_feature_space()
   x <- data.frame(
     y = runif(5),
     x = c("a", "aã", "b", "c", "d"),
@@ -492,7 +495,7 @@ test_that("Correctly creates indicator vars", {
 
   spec <- fit(spec)
 
-  k <- keras::layer_dense_features(feature_columns = spec$dense_features())
+  # k <- keras::layer_dense_features(feature_columns = spec$dense_features())
   res <- as.matrix(k(list(x = x$x)))
   expect_equal(
     res,
@@ -503,9 +506,10 @@ test_that("Correctly creates indicator vars", {
 test_that("feature_spec works with make_csv_dataset", {
   skip_if_not_tf()
 
+
   TRAIN_DATA_URL <- "https://storage.googleapis.com/tf-datasets/titanic/train.csv"
 
-  train_file_path <- keras::get_file("train_csv", TRAIN_DATA_URL)
+  train_file_path <- keras3::get_file("train_csv", TRAIN_DATA_URL)
   train_dataset <- make_csv_dataset(
     train_file_path,
     field_delim = ",",
@@ -520,6 +524,7 @@ test_that("feature_spec works with make_csv_dataset", {
 
 test_that("can create image embedding steps", {
   skip_if_not_tf()
+  skip("layer_dense_features()/tfestimators deprecated") # use keras3::layer_feature_space()
 
   if (tensorflow::tf$executing_eagerly())
     skip("Needs non-eager execution.")
@@ -535,7 +540,7 @@ test_that("can create image embedding steps", {
 
   spec <- spec %>% fit()
 
-  layer <- keras::layer_dense_features(feature_columns = spec$dense_features())
+  # layer <- keras::layer_dense_features(feature_columns = spec$dense_features())
   x <- layer(list(img = array(0, dim = c(1, 192, 192, 3))))
 
   expect_equal(x$get_shape()$as_list(), c(1L, 768L))
@@ -544,6 +549,7 @@ test_that("can create image embedding steps", {
 test_that("can create text embedding columns", {
   # TODO: this was removed in tfhub, delete this test
   skip_if_not_tf()
+  skip("layer_dense_features()/tfestimators deprecated") # use keras3::layer_feature_space()
 
   if (tensorflow::tf$executing_eagerly())
     skip("Needs non-eager execution.")
@@ -556,7 +562,7 @@ test_that("can create text embedding columns", {
 
   spec <- spec %>% fit()
 
-  layer <- keras::layer_dense_features(feature_columns = spec$dense_features())
+  # layer <- keras::layer_dense_features(feature_columns = spec$dense_features())
   x <- layer(list(txt = c("hello world", "hello world")))
 
   expect_equal(x$get_shape()$as_list(), list(NULL, 50L))
@@ -573,6 +579,8 @@ test_that("can save and reload models that use a normalizer_fn", {
   spec <- feature_spec(data, y ~ .) %>%
     step_numeric_column(x, normalizer_fn = scaler_standard()) %>%
     fit()
+
+  skip("layer_dense_features()/tfestimators deprecated") # use keras3::layer_feature_space()
 
   input <- layer_input_from_dataset(data[-1])
   output <- input %>%

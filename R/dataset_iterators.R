@@ -14,8 +14,8 @@
 #'
 #' Note that in many cases you won't need to explicitly evaluate the tensors.
 #' Rather, you will pass the tensors to another function that will perform
-#' the evaluation (e.g. the Keras [layer_input()][keras::layer_input()] and
-#' [compile()][keras::compile()] functions).
+#' the evaluation (e.g. the Keras [layer_input()][keras3::layer_input()] and
+#' [compile()][keras3::compile()] functions).
 #'
 #' If you do need to perform iteration manually by evaluating the tensors, there
 #' are a couple of possible approaches to controlling/detecting when iteration should

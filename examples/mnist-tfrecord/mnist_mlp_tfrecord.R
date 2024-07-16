@@ -11,7 +11,7 @@
 #     (devtools::install_github("rstudio/tfdatasets"))
 #
 
-library(keras)
+library(keras3)
 library(tfdatasets)
 
 batch_size = 128

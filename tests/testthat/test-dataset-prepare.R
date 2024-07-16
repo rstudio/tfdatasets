@@ -1,6 +1,6 @@
 context("dataset-prepare")
 
-require(keras)
+require(keras3)
 
 test_succeeds("dataset_prepare yields list of x and y tensors", {
   batch <- mtcars_dataset() %>%

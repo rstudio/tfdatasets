@@ -13,8 +13,11 @@ layer_input_from_dataset(dataset)
 a list of Keras input layers
 }
 \description{
+DEPRECATED: Use \code{keras3::layer_feature_space()} instead.
+}
+\details{
 Create a list ok Keras input layers that can be used together
-with \code{\link[keras:layer_dense_features]{keras::layer_dense_features()}}.
+with \code{keras::layer_dense_features()}.
 }
 \examples{
 \dontrun{

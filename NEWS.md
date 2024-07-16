@@ -1,5 +1,7 @@
 # tfdatasets (development version)
 
+- Updates for TensorFlow v2.17.0, Keras 3.
+
 # tfdatasets 2.9.0
 
 - New `dataset_unbatch()`

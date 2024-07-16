@@ -22,7 +22,7 @@ aliases:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
   eval = (identical(Sys.getenv("EVAL_VIGNETTE", "false"), "true") || identical(Sys.getenv("CI"), "true")) && (tensorflow::tf_version() >= "2.0")
-) 
+)
 ```
 
 > This document is an adaptation of the official TensorFlow [Feature Columns guide](https://www.tensorflow.org/tutorials/keras/regression).
@@ -404,7 +404,7 @@ function from Keras to create a layer that will automatically initialize values.
 Here is an an example of how it would work:
 
 ```{r}
-library(keras)
+library(keras3)
 library(dplyr)
 
 spec <- feature_spec(hearts, target ~ .) %>% 
