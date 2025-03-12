@@ -589,12 +589,26 @@ dataset_skip <- function(dataset, count) {
 #' @family dataset methods
 #'
 #' @export
-dataset_interleave <- function(dataset, map_func, cycle_length, block_length = 1) {
+dataset_interleave <- function(dataset, map_func, cycle_length = NULL, block_length = 1,
+                               num_parallel_calls=NULL,
+                               deterministic=NULL,
+                               name=NULL)
+{
   as_tf_dataset(dataset$interleave(
     map_func = as_py_function(map_func),
     cycle_length = as_integer_tensor(cycle_length),
-    block_length = as_integer_tensor(block_length)
+    block_length = as_integer_tensor(block_length),
+    num_parallel_calls = as_integer(num_parallel_calls),
+    deterministic = deterministic,
+    name = NULL
   ))
+}
+
+as_integer <- function(x) {
+  if (is.numeric(x))
+    as.integer(x)
+  else
+    x
 }
 
 #' Creates a dataset that includes only 1 / num_shards of this dataset.
