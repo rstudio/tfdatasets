@@ -259,7 +259,7 @@ function(dataset,
          drop_remainder = FALSE,
          name = NULL)
 {
-    args <- capture_args(match.call(), list(
+    args <- capture_args(list(
       bucket_boundaries = as_integer_list,
       bucket_batch_sizes = as_integer_list,
       padded_shapes = as_tensor_shapes
@@ -723,7 +723,7 @@ function(dataset,
          padding_values = NULL,
          drop_remainder = FALSE,
          name = NULL) {
-  args <- capture_args(match.call(), list(
+  args <- capture_args(list(
     batch_size = as_integer_tensor,
     padded_shapes = as_tensor_shapes
   ), ignore = "dataset")
@@ -795,7 +795,7 @@ function(dataset,
          name = NULL)
 {
   require_tf_version("2.7", "dataset_rejection_resample")
-  args <- capture_args(match.call(),
+  args <- capture_args(
                        list(class_func = as_py_function,
                             seed = as_integer_tensor),
                        ignore = "dataset")
