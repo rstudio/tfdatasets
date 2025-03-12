@@ -4,7 +4,15 @@
 \alias{dataset_interleave}
 \title{Maps map_func across this dataset, and interleaves the results}
 \usage{
-dataset_interleave(dataset, map_func, cycle_length, block_length = 1)
+dataset_interleave(
+  dataset,
+  map_func,
+  cycle_length = NULL,
+  block_length = 1,
+  num_parallel_calls = NULL,
+  deterministic = NULL,
+  name = NULL
+)
 }
 \arguments{
 \item{dataset}{A dataset}
@@ -18,6 +26,23 @@ processed concurrently.}
 
 \item{block_length}{The number of consecutive elements to produce from each
 input element before cycling to another input element.}
+
+\item{num_parallel_calls}{(Optional.) If specified, the implementation creates a
+threadpool, which is used to fetch inputs from cycle elements
+asynchronously and in parallel. The default behavior is to fetch inputs
+from cycle elements synchronously with no parallelism. If the value
+\code{tf.data.AUTOTUNE} is used, then the number of parallel
+calls is set dynamically based on available CPU.}
+
+\item{deterministic}{(Optional.) When \code{num_parallel_calls} is specified, if this
+boolean is specified (\code{TRUE} or \code{FALSE}), it controls the order in which
+the transformation produces elements. If set to \code{FALSE}, the
+transformation is allowed to yield elements out of order to trade
+determinism for performance. If not specified, the
+\code{tf.data.Options.deterministic} option (\code{TRUE} by default) controls the
+behavior.}
+
+\item{name}{(Optional.) A name for the tf.data operation.}
 }
 \description{
 Maps map_func across this dataset, and interleaves the results
@@ -69,6 +94,7 @@ Other dataset methods:
 \code{\link{dataset_padded_batch}()},
 \code{\link{dataset_prefetch}()},
 \code{\link{dataset_prefetch_to_device}()},
+\code{\link{dataset_rebatch}()},
 \code{\link{dataset_reduce}()},
 \code{\link{dataset_repeat}()},
 \code{\link{dataset_shuffle}()},
