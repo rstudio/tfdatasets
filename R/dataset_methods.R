@@ -112,12 +112,16 @@ dataset_shuffle_and_repeat <- function(dataset, buffer_size, count = NULL, seed 
 #'
 #' @export
 dataset_batch <-
-  function(dataset, batch_size, drop_remainder = FALSE, num_parallel_calls=NULL, deterministic=NULL) {
-    args <- capture_args(match.call(), list(
-      batch_size = as_integer_tensor
-    ), ignore = "dataset")
+  function(dataset, batch_size, drop_remainder = FALSE, num_parallel_calls = NULL,
+           deterministic=NULL, name = NULL) {
+    args <- capture_args(
+      list(batch_size = as_integer_tensor,
+           num_parallel_calls = as_integer),
+      ignore = "dataset"
+    )
     as_tf_dataset(do.call(dataset$batch, args))
 }
+
 
 #' Rebatch elements from this dataset into batches of specified size.
 #'
