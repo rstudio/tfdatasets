@@ -119,6 +119,51 @@ dataset_batch <-
     as_tf_dataset(do.call(dataset$batch, args))
 }
 
+#' Rebatch elements from this dataset into batches of specified size.
+#'
+#' `dataset_rebatch(N)` is functionally equivalent to `dataset_unbatch()`
+#' followed by `dataset_batch(N)`, but it performs only one copy operation,
+#' making it more efficient.
+#'
+#' If `batch_size` is a vector, it cycles through the provided values in a
+#' round-robin manner to determine the size of each batch.
+#'
+#' @examples
+#' \dontrun{
+#' ds <- dataset_range(6) %>% dataset_batch(2) %>% dataset_rebatch(3)
+#' ds %>% as_array_iterator() %>% iterate(print)
+#' # [0, 1, 2], [3, 4, 5]
+#'
+#' ds <- dataset_range(7) %>% dataset_batch(4) %>% dataset_rebatch(3)
+#' ds %>% as_array_iterator() %>% iterate(print)
+#' # [0, 1, 2], [3, 4, 5], [6]
+#'
+#' ds <- dataset_range(7) %>% dataset_batch(2) %>% dataset_rebatch(3, drop_remainder = TRUE)
+#' ds %>% as_array_iterator() %>% iterate(print)
+#' # [0, 1, 2], [3, 4, 5]
+#'
+#' ds <- dataset_range(8) %>% dataset_batch(4) %>% dataset_rebatch(c(2, 1, 1))
+#' ds %>% as_array_iterator() %>% iterate(print)
+#' # [0, 1], [2], [3], [4, 5], [6], [7]
+#' }
+#'
+#' @param dataset A dataset.
+#' @param batch_size An integer or integer vector specifying batch sizes. If a
+#'   vector, batch sizes cycle through these values in round-robin order.
+#' @param drop_remainder (Optional.) Logical. If `TRUE`, drops the last batch if
+#'   it contains fewer elements than `batch_size`. Defaults to `FALSE`.
+#' @param name (Optional.) Name for the operation.
+#'
+#' @return A dataset.
+#'
+#' @family dataset methods
+#'
+#' @export
+dataset_rebatch <- function(dataset, batch_size, drop_remainder = FALSE, name = NULL) {
+  args <- capture_args(list(batch_size = as_integer), ignore = "dataset")
+  as_tf_dataset(do.call(dataset$rebatch, args))
+}
+
 
 #' A transformation that buckets elements in a `Dataset` by length
 #'
