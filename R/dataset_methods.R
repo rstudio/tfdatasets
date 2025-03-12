@@ -106,6 +106,8 @@ dataset_shuffle_and_repeat <- function(dataset, buffer_size, count = NULL, seed 
 #'   controls the behavior. See `dataset_options()` for how to set dataset
 #'   options.
 #'
+#' @param name (Optional.) Name for the operation.
+#'
 #' @return A dataset
 #'
 #' @family dataset methods
@@ -556,6 +558,21 @@ dataset_skip <- function(dataset, count) {
 #'   processed concurrently.
 #' @param block_length The number of consecutive elements to produce from each
 #'   input element before cycling to another input element.
+#'
+#' @param num_parallel_calls (Optional.) If specified, the implementation creates a
+#' threadpool, which is used to fetch inputs from cycle elements
+#' asynchronously and in parallel. The default behavior is to fetch inputs
+#' from cycle elements synchronously with no parallelism. If the value
+#' `tf.data.AUTOTUNE` is used, then the number of parallel
+#' calls is set dynamically based on available CPU.
+#' @param deterministic (Optional.) When `num_parallel_calls` is specified, if this
+#' boolean is specified (`TRUE` or `FALSE`), it controls the order in which
+#' the transformation produces elements. If set to `FALSE`, the
+#' transformation is allowed to yield elements out of order to trade
+#' determinism for performance. If not specified, the
+#' `tf.data.Options.deterministic` option (`TRUE` by default) controls the
+#' behavior.
+#' @param name (Optional.) A name for the tf.data operation.
 #'
 #' @details
 #'

@@ -14,6 +14,7 @@
 #'   pipeline is I/O bottlenecked, consider setting this parameter to a value
 #'   greater than one to parallelize the I/O. If NULL, files will be read
 #'   sequentially.
+#' @param ... unused, must be empty.
 #' @param name 	(Optional.) A name for the tf.data operation.
 #' @param record_spec (Optional) Specification used to decode delimimted text
 #'   lines into records (see [delim_record_spec()]).
