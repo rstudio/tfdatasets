@@ -14,8 +14,8 @@ tfrecord_dataset(
 \arguments{
 \item{filenames}{String(s) specifying one or more filenames}
 
-\item{compression_type}{A string, one of: \code{NULL} (no compression), \code{"ZLIB"}, or
-\code{"GZIP"}.}
+\item{compression_type}{A string, one of: \code{NULL} (no compression), \code{"ZLIB"},
+or \code{"GZIP"}.}
 
 \item{buffer_size}{An integer representing the number of bytes in the read buffer. (0
 means no buffering).}

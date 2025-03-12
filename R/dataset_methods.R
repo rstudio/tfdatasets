@@ -106,17 +106,68 @@ dataset_shuffle_and_repeat <- function(dataset, buffer_size, count = NULL, seed 
 #'   controls the behavior. See `dataset_options()` for how to set dataset
 #'   options.
 #'
+#' @param name (Optional.) Name for the operation.
+#'
 #' @return A dataset
 #'
 #' @family dataset methods
 #'
 #' @export
 dataset_batch <-
-  function(dataset, batch_size, drop_remainder = FALSE, num_parallel_calls=NULL, deterministic=NULL) {
-    args <- capture_args(match.call(), list(
-      batch_size = as_integer_tensor
-    ), ignore = "dataset")
+  function(dataset, batch_size, drop_remainder = FALSE, num_parallel_calls = NULL,
+           deterministic=NULL, name = NULL) {
+    args <- capture_args(
+      list(batch_size = as_integer_tensor,
+           num_parallel_calls = as_integer),
+      ignore = "dataset"
+    )
     as_tf_dataset(do.call(dataset$batch, args))
+}
+
+
+#' Rebatch elements from this dataset into batches of specified size.
+#'
+#' `dataset_rebatch(N)` is functionally equivalent to `dataset_unbatch()`
+#' followed by `dataset_batch(N)`, but it performs only one copy operation,
+#' making it more efficient.
+#'
+#' If `batch_size` is a vector, it cycles through the provided values in a
+#' round-robin manner to determine the size of each batch.
+#'
+#' @examples
+#' \dontrun{
+#' ds <- dataset_range(6) %>% dataset_batch(2) %>% dataset_rebatch(3)
+#' ds %>% as_array_iterator() %>% iterate(print)
+#' # [0, 1, 2], [3, 4, 5]
+#'
+#' ds <- dataset_range(7) %>% dataset_batch(4) %>% dataset_rebatch(3)
+#' ds %>% as_array_iterator() %>% iterate(print)
+#' # [0, 1, 2], [3, 4, 5], [6]
+#'
+#' ds <- dataset_range(7) %>% dataset_batch(2) %>% dataset_rebatch(3, drop_remainder = TRUE)
+#' ds %>% as_array_iterator() %>% iterate(print)
+#' # [0, 1, 2], [3, 4, 5]
+#'
+#' ds <- dataset_range(8) %>% dataset_batch(4) %>% dataset_rebatch(c(2, 1, 1))
+#' ds %>% as_array_iterator() %>% iterate(print)
+#' # [0, 1], [2], [3], [4, 5], [6], [7]
+#' }
+#'
+#' @param dataset A dataset.
+#' @param batch_size An integer or integer vector specifying batch sizes. If a
+#'   vector, batch sizes cycle through these values in round-robin order.
+#' @param drop_remainder (Optional.) Logical. If `TRUE`, drops the last batch if
+#'   it contains fewer elements than `batch_size`. Defaults to `FALSE`.
+#' @param name (Optional.) Name for the operation.
+#'
+#' @return A dataset.
+#'
+#' @family dataset methods
+#'
+#' @export
+dataset_rebatch <- function(dataset, batch_size, drop_remainder = FALSE, name = NULL) {
+  args <- capture_args(list(batch_size = as_integer), ignore = "dataset")
+  as_tf_dataset(do.call(dataset$rebatch, args))
 }
 
 
@@ -214,7 +265,7 @@ function(dataset,
          drop_remainder = FALSE,
          name = NULL)
 {
-    args <- capture_args(match.call(), list(
+    args <- capture_args(list(
       bucket_boundaries = as_integer_list,
       bucket_batch_sizes = as_integer_list,
       padded_shapes = as_tensor_shapes
@@ -508,6 +559,21 @@ dataset_skip <- function(dataset, count) {
 #' @param block_length The number of consecutive elements to produce from each
 #'   input element before cycling to another input element.
 #'
+#' @param num_parallel_calls (Optional.) If specified, the implementation creates a
+#' threadpool, which is used to fetch inputs from cycle elements
+#' asynchronously and in parallel. The default behavior is to fetch inputs
+#' from cycle elements synchronously with no parallelism. If the value
+#' `tf.data.AUTOTUNE` is used, then the number of parallel
+#' calls is set dynamically based on available CPU.
+#' @param deterministic (Optional.) When `num_parallel_calls` is specified, if this
+#' boolean is specified (`TRUE` or `FALSE`), it controls the order in which
+#' the transformation produces elements. If set to `FALSE`, the
+#' transformation is allowed to yield elements out of order to trade
+#' determinism for performance. If not specified, the
+#' `tf.data.Options.deterministic` option (`TRUE` by default) controls the
+#' behavior.
+#' @param name (Optional.) A name for the tf.data operation.
+#'
 #' @details
 #'
 #' The `cycle_length` and `block_length` arguments control the order in which
@@ -544,12 +610,26 @@ dataset_skip <- function(dataset, count) {
 #' @family dataset methods
 #'
 #' @export
-dataset_interleave <- function(dataset, map_func, cycle_length, block_length = 1) {
+dataset_interleave <- function(dataset, map_func, cycle_length = NULL, block_length = 1,
+                               num_parallel_calls=NULL,
+                               deterministic=NULL,
+                               name=NULL)
+{
   as_tf_dataset(dataset$interleave(
     map_func = as_py_function(map_func),
     cycle_length = as_integer_tensor(cycle_length),
-    block_length = as_integer_tensor(block_length)
+    block_length = as_integer_tensor(block_length),
+    num_parallel_calls = as_integer(num_parallel_calls),
+    deterministic = deterministic,
+    name = NULL
   ))
+}
+
+as_integer <- function(x) {
+  if (is.numeric(x))
+    as.integer(x)
+  else
+    x
 }
 
 #' Creates a dataset that includes only 1 / num_shards of this dataset.
@@ -664,7 +744,7 @@ function(dataset,
          padding_values = NULL,
          drop_remainder = FALSE,
          name = NULL) {
-  args <- capture_args(match.call(), list(
+  args <- capture_args(list(
     batch_size = as_integer_tensor,
     padded_shapes = as_tensor_shapes
   ), ignore = "dataset")
@@ -736,7 +816,7 @@ function(dataset,
          name = NULL)
 {
   require_tf_version("2.7", "dataset_rejection_resample")
-  args <- capture_args(match.call(),
+  args <- capture_args(
                        list(class_func = as_py_function,
                             seed = as_integer_tensor),
                        ignore = "dataset")

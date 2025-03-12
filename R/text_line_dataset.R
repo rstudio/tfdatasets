@@ -3,35 +3,61 @@
 #' A dataset comprising lines from one or more text files.
 #'
 #' @param filenames String(s) specifying one or more filenames
-#' @param compression_type A string, one of: `NULL` (no compression), `"ZLIB"`, or
-#'   `"GZIP"`.
-#' @param record_spec (Optional) Specification used to decode delimimted text lines
-#'   into records (see [delim_record_spec()]).
-#'
+#' @param compression_type A string, one of: `NULL` (no compression), `"ZLIB"`,
+#'   or `"GZIP"`.
+#' @param buffer_size (Optional.) A tf.int64 scalar denoting the number of bytes
+#'   to buffer. A value of 0 results in the default buffering values chosen
+#'   based on the compression type.
+#' @param num_parallel_reads (Optional.) A tf.int64 scalar representing the
+#'   number of files to read in parallel. If greater than one, the records of
+#'   files read in parallel are outputted in an interleaved order. If your input
+#'   pipeline is I/O bottlenecked, consider setting this parameter to a value
+#'   greater than one to parallelize the I/O. If NULL, files will be read
+#'   sequentially.
+#' @param ... unused, must be empty.
+#' @param name 	(Optional.) A name for the tf.data operation.
+#' @param record_spec (Optional) Specification used to decode delimimted text
+#'   lines into records (see [delim_record_spec()]).
 #' @param parallel_records (Optional) An integer, representing the number of
-#'   records to decode in parallel. If not specified, records will be
-#'   processed sequentially.
+#'   records to decode in parallel. If not specified, records will be processed
+#'   sequentially. This is only applicable if `record_spec` is provided
 #'
 #' @return A dataset
 #'
 #' @family text datasets
 #'
 #' @export
-text_line_dataset <- function(filenames, compression_type = NULL,
-                              record_spec = NULL, parallel_records = NULL) {
+text_line_dataset <- function(filenames,
+                              compression_type = NULL,
+                              ...,
+                              buffer_size = NULL,
+                              num_parallel_reads = NULL,
+                              name = NULL,
+                              record_spec = NULL,
+                              parallel_records = NULL) {
+
 
   # validate during dataset contruction
   validate_tf_version()
 
-  # resolve NULL to ""
-  if (is.null(compression_type))
-    compression_type <- ""
-
-  # basic test line dataset
-  dataset <- tf$data$TextLineDataset(
+  args <- drop_nulls(list(
     filenames = filenames,
-    compression_type = compression_type
-  )
+    compression_type = compression_type,
+    buffer_size = as_integer(buffer_size),
+    num_parallel_reads = as_integer(num_parallel_reads),
+    name = name
+  ))
+  # basic test line dataset
+  dataset <- do.call(tf$data$TextLineDataset, args)
+  # tf$data$TextLineDataset
+  # <class 'tensorflow.python.data.ops.readers.TextLineDatasetV2'>
+  #   signature: (
+  #     filenames,
+  #     compression_type=None,
+  #     buffer_size=None,
+  #     num_parallel_reads=None,
+  #     name=None
+  #   )
 
   # if a record_spec is provided then apply it
   if (!is.null(record_spec)) {
@@ -44,6 +70,17 @@ text_line_dataset <- function(filenames, compression_type = NULL,
 
   # return dataset
   as_tf_dataset(dataset)
+}
+
+drop_nulls <- function(x) {
+  x[!vapply(x, is.null, FALSE, USE.NAMES = FALSE)]
+}
+
+as_integer <- function(x) {
+  if(is.double(x))
+    as.integer(x)
+  else
+    x
 }
 
 

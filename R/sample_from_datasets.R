@@ -19,7 +19,7 @@
 sample_from_datasets <-
 function(datasets, weights = NULL, seed = NULL, stop_on_empty_dataset = TRUE)
 {
-  args <- capture_args(match.call(), list(seed = as_integer_tensor),
+  args <- capture_args(list(seed = as_integer_tensor),
                        ignore = "dataset")
   validate_tf_version()
   if (tf_version() >= "2.7") {

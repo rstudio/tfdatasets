@@ -9,7 +9,8 @@ dataset_batch(
   batch_size,
   drop_remainder = FALSE,
   num_parallel_calls = NULL,
-  deterministic = NULL
+  deterministic = NULL,
+  name = NULL
 )
 }
 \arguments{
@@ -36,6 +37,8 @@ determinism for performance. If not specified, the
 \code{tf.data.Options.experimental_deterministic} option (\code{TRUE} by default)
 controls the behavior. See \code{dataset_options()} for how to set dataset
 options.}
+
+\item{name}{(Optional.) Name for the operation.}
 }
 \value{
 A dataset
@@ -67,6 +70,7 @@ Other dataset methods:
 \code{\link{dataset_padded_batch}()},
 \code{\link{dataset_prefetch}()},
 \code{\link{dataset_prefetch_to_device}()},
+\code{\link{dataset_rebatch}()},
 \code{\link{dataset_reduce}()},
 \code{\link{dataset_repeat}()},
 \code{\link{dataset_shuffle}()},

@@ -7,6 +7,10 @@
 text_line_dataset(
   filenames,
   compression_type = NULL,
+  ...,
+  buffer_size = NULL,
+  num_parallel_reads = NULL,
+  name = NULL,
   record_spec = NULL,
   parallel_records = NULL
 )
@@ -14,15 +18,30 @@ text_line_dataset(
 \arguments{
 \item{filenames}{String(s) specifying one or more filenames}
 
-\item{compression_type}{A string, one of: \code{NULL} (no compression), \code{"ZLIB"}, or
-\code{"GZIP"}.}
+\item{compression_type}{A string, one of: \code{NULL} (no compression), \code{"ZLIB"},
+or \code{"GZIP"}.}
 
-\item{record_spec}{(Optional) Specification used to decode delimimted text lines
-into records (see \code{\link[=delim_record_spec]{delim_record_spec()}}).}
+\item{...}{unused, must be empty.}
+
+\item{buffer_size}{(Optional.) A tf.int64 scalar denoting the number of bytes
+to buffer. A value of 0 results in the default buffering values chosen
+based on the compression type.}
+
+\item{num_parallel_reads}{(Optional.) A tf.int64 scalar representing the
+number of files to read in parallel. If greater than one, the records of
+files read in parallel are outputted in an interleaved order. If your input
+pipeline is I/O bottlenecked, consider setting this parameter to a value
+greater than one to parallelize the I/O. If NULL, files will be read
+sequentially.}
+
+\item{name}{(Optional.) A name for the tf.data operation.}
+
+\item{record_spec}{(Optional) Specification used to decode delimimted text
+lines into records (see \code{\link[=delim_record_spec]{delim_record_spec()}}).}
 
 \item{parallel_records}{(Optional) An integer, representing the number of
-records to decode in parallel. If not specified, records will be
-processed sequentially.}
+records to decode in parallel. If not specified, records will be processed
+sequentially. This is only applicable if \code{record_spec} is provided}
 }
 \value{
 A dataset

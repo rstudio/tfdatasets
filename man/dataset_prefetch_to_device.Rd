@@ -38,6 +38,7 @@ Other dataset methods:
 \code{\link{dataset_map_and_batch}()},
 \code{\link{dataset_padded_batch}()},
 \code{\link{dataset_prefetch}()},
+\code{\link{dataset_rebatch}()},
 \code{\link{dataset_reduce}()},
 \code{\link{dataset_repeat}()},
 \code{\link{dataset_shuffle}()},
