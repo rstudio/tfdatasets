@@ -1,5 +1,10 @@
 # tfdatasets (development version)
 
+- New `dataset_rebatch()`
+- `dataset_batch()` gains args `num_parallel_calls`, `name`
+- `dataset_interleave()` gains args `deterministic`,  `num_parallel_calls`, `name`
+- `text_line_dataset()` gains args `num_parallel_calls`, `buffer_size`, `name`
+
 # tfdatasets 2.17.0
 
 - Updates for TensorFlow v2.17.0, Keras 3.
