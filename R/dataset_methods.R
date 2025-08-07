@@ -891,7 +891,7 @@ dataset_unique <- function(dataset, name=NULL) {
 #'
 #' Note that the `y` element will be omitted when `y` is `NULL`.
 #'
-#' @seealso [input_fn()][input_fn.tf_dataset()] for use with \pkg{tfestimators}.
+#' @seealso [input_fn()][input_fn.tf_dataset()] for use with [tfestimators](https://github.com/rstudio/tfestimators).
 #'
 #' @export
 dataset_prepare <- function(dataset, x, y = NULL, named = TRUE, named_features = FALSE,
