@@ -4,6 +4,8 @@
 - `dataset_batch()` gains args `num_parallel_calls`, `name`
 - `dataset_interleave()` gains args `deterministic`,  `num_parallel_calls`, `name`
 - `text_line_dataset()` gains args `num_parallel_calls`, `buffer_size`, `name`
+- Removed `dataset_prepare()` which was used by the tfestimators package (#96).
+- Updated documentation to fix cross links (#96).
 
 # tfdatasets 2.17.0
 
