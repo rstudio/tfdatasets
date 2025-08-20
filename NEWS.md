@@ -1,4 +1,4 @@
-# tfdatasets (development version)
+# tfdatasets 2.18.0
 
 - New `dataset_rebatch()`.
 - `dataset_batch()` gains args `num_parallel_calls`, `name`.

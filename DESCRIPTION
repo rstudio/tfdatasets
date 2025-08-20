@@ -1,7 +1,7 @@
 Package: tfdatasets
 Type: Package
 Title: Interface to 'TensorFlow' Datasets
-Version: 2.17.0.9000
+Version: 2.18.0
 Authors@R: c(
   person("Tomasz", "Kalinowski", role = c("ctb", "cph", "cre"),
          email = "tomasz@posit.co"),
